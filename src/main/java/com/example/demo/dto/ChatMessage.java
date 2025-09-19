@@ -10,7 +10,6 @@ public class ChatMessage {
 	// FK
 	private Integer chatroomId; // 채팅방 식별 번호
 	private Integer senderId; // 보낸 이
-	private Integer receiverId;	// 받는 이
 	// 
 	private Integer messageId;	// 채팅 메시지 식별 번호
 	private String messageContent;	// 채팅 메시지 내용
