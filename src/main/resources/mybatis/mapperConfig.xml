@@ -12,5 +12,11 @@
 
   <typeAliases>
     <typeAlias type="com.example.demo.dto.Pager" alias="Pager"/>
+    <typeAlias type="com.example.demo.dto.Chat" alias="Chat"/>
+    <typeAlias type="com.example.demo.dto.Pet" alias="Pet"/>
+    <typeAlias type="com.example.demo.dto.Post" alias="Post"/>
+    <typeAlias type="com.example.demo.dto.Review" alias="Review"/>
+    <typeAlias type="com.example.demo.dto.User" alias="User"/>
+    <typeAlias type="com.example.demo.dto.Walk" alias="Walk"/>
   </typeAliases>
 </configuration>

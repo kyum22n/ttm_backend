@@ -10,6 +10,6 @@ import com.example.demo.dto.Pet;
 public interface PetDao {
   public int insert(Pet pet);
   public int update(Pet pet);
-  public int delete(int petId);
+  public int delete(Integer petId);
   public List<Pet> selectByPetId();
 }

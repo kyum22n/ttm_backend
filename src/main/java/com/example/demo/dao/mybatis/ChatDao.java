@@ -8,6 +8,6 @@ import com.example.demo.dto.Chat;
 public interface ChatDao {
   public int insert(Chat chat);
   public int update(Chat chat);
-  public int delete(int chatroomId);
-  public Chat selectByChatId(int chatroomId);
+  public int delete(Integer chatroomId);
+  public Chat selectByChatId(Integer chatroomId);
 }

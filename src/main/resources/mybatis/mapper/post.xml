@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.mybatis.PostDao">
+  <insert id="insert"
+    parameterType="Post">
+  <selectKey keyProperty="postId" resultType="Integer" order="BEFORE"><!--Insert 실행전 상태의 postId값의 자바 객체를 가져온 후 시퀀스 발동-->
+    select seq_post_id.nextval from dual
+    select seq_comment_id.nextval from dual
+    select seq_post_image_id.nextval from dual
+
+  </selectKey>
+
+  insert into ttm.posts (
+    post_id, post_title, post_content, post_like_count, post_created_at, is_request,user_id
+    <if test="isRequest == 'Y'"> <!--isRequest가 Y일 경우만 사용-->
+    walkstarted_at, walkended_at )
+    </if>
+  values (
+    #{postId}, #{postTitle}, #{postContent}, 0, SYSTIMESTAMP, #{isRequest}, #{userId},
+    <if test="isRequest == 'Y'">
+      #{walkStartedAt}, #{walkEndedAt}
+    </if>
+  )
+  insert into ttm.post_images (
+    image_id, post_attah_oname, post_attach_type, post_attach_data, created_at, post_id)
+  values (
+    #{imageId}, #{postAttachOname}, #{postAttachType}, #{postAttachData}, SYSTIMESTAMP, #{postId}
+  )
+  </insert>
+  
+  <select id="selectByPostId"
+    parameterType="Integer"
+    resultType="Post">
+  select (
+    post_id, post_title, post_title, post_likge_count, post_created_at, is_request, user_id,
+    walkstarted_at, walkended_at)
+  from ttm.posts
+  where post_id = #{post_id}
+  </select>
+
+  <select id="selectByPage"
+      parameterType="Pager"
+      resultType="Board"> <!--resultType은 하나의 행을 리턴하기 때문에 List<>가아닌 Post를 씀-->
+    <![CDATA[
+    select rnum, post_id, post_title, user_id, post_created_at
+    from (
+        select rownum as rnum, post_id, post_title, user_id, post_created_at
+        from (
+            select post_title, post_title, user_id, post_created_at
+            from  ttm.posts
+            order by post_id desc
+        )
+        where rownum <= #{endRowNo}
+    )
+    where rnum >= #{startRowNo} ]]>
+    </select>
+
+  <update id="updata"
+    parameterType="Post">
+  update ttm.posts
+  set post_title = #{postTitle},
+      post_content = #{postContent},
+      is_request = #{isRequest},
+      <if test="isRequest == 'Y'">
+        walkstarted_at = #{walkStartedAt},
+        walkended_at = #{walkEndedAt}
+      </if>
+  where post_id = #{vaule}
+  </update>
+
+  <delete id="delete"
+    parameterType="Integer">
+  delete from ttm.posts
+  where post_id = #{value}
+  </delete>
+
+  <select id="counAll"
+    resultType="int">
+  select count(*)
+  from ttm.posts
+  </select>
+
+</mapper>

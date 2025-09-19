@@ -16,6 +16,7 @@ public class Post {
 	private String postTag;
 	
 	// 첨부 이미지
+	private Integer imageId; // 0919 imageId 필드가 없으면 바인딩예외 에러 발생
 	private MultipartFile postAttach;
 	private String postAttachOname;
 	private String postAttachType;

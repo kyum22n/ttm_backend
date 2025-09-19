@@ -8,6 +8,6 @@ import com.example.demo.dto.Review;
 public interface ReviewDao {
   public int insert(Review review);
   public int update(Review review);
-  public int delete(int reviewId);
-  public Review selectByReviewId(int reviewId);
+  public int delete(Integer reviewId);
+  public Review selectByReviewId(Integer reviewId);
 }
