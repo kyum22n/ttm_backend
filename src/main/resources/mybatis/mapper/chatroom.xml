@@ -10,15 +10,16 @@
     <selectKey keyProperty="chatroomId" resultType="Integer" order="BEFORE">
       select seq_chatrooms_chatroom_id.nextval from dual
     </selectKey>
-    insert into ttm.chatrooms
-    values ()
+    insert into ttm.chatrooms(chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at)
+    values (#{chatroomId}, #{chatuser1Id}, #{chatuser2Id}, #{requestedBy}, #{chatroomStatus}, #{updatedAt}, #{roomCreatedAt})
   </insert>
 
   <select id="selectAllByChatRoomId"
     resultType="ChatRoom">
     select chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
     from ttm.chatrooms
-    where user_id = #{userId}
+    where chatuser1_id = #{chatuser1Id}
+    or chatuser2_id = #{chatuser2Id}
   </select>
   
   <select id="selectByChatRoomId"
@@ -32,18 +33,18 @@
   <update id="update"
     parameterType="ChatRoom">
     update ttm.chatrooms
-    set chatuser1_id = #{userId},
-        chatuser2_id = #{userId},
+    set chatuser1_id = #{chatuser1_id},
+        chatuser2_id = #{chatuser2_id},
         chatroom_status = #{chatroomStatus},
-        updated_at = #{updatedAt},
-        created_at = #{roomCreatedAt}
-    where user_id = #{userId}
+        updated_at = #{updatedAt}
+    where chatuser1_id = #{chatuser1Id}
+    or chatuser2_id = #{chatuser2Id}
   </update>
 
   <delete id="delete"
     parameterType="Integer">
     delete from ttm.chatrooms
-    where user_id = #{userId}
+    where chatroom_id = #{chatroomId}
   </delete>
 
 </mapper>

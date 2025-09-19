@@ -10,7 +10,7 @@ public class ChatRoom {
 	// FK
 	private Integer chatuser1Id;	// 채팅 참여자 1
 	private Integer chatuser2Id;	// 채팅 참여자 2
-	private Integer requested_by;	// 채팅 신청자
+	private Integer requestedBy;	// 채팅 신청자
 	// 
 	private Integer chatroomId;	// 채팅방 식별 번호
 	private enum chatroomStatus{
