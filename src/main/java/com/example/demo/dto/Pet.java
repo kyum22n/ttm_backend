@@ -13,5 +13,7 @@ public class Pet {
 	private String petName;
 	private String petDesc;
 	private Integer petLikeCount;
-	private Enum petGender;
+	private enum petGender {
+		M, F
+	};
 }

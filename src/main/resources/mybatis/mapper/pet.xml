@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.mybatis.PetDao">
+  <insert id="insert" 
+      parameterType="Pet">
+    <selectKey keyProperty="petId" resultType="Integer" order="BEFORE">
+      select seq_pets.nextval from dual
+    </selectKey>
+    insert into ttm.pets (petId, weight, breed, petBirthDate, petName, petDesc, petGender, petLikeCount, userId)
+    values (#{petId}, #{weight}, #{breed}, #{petBirthDate}, #{petName}, #{petDesc}, #{petGender}, #{petLikeCount}, #{userId})
+  </insert>
+
+  <update id="update"
+          parameterType="Pet">
+    update ttm.pets
+    set weight = #{weight}, 
+        breed = #{breed}, 
+        petBirthDate = #{petBirthDate},
+        petName = #{petName},
+        petDesc = #{petDesc},
+        petGender = #{petGender}
+    where petId = #{petId}
+  </update>
+
+  <delete id="delete"
+          parameterType="Integer">
+    delete from ttm.pets
+    where petId=#{value}
+  </delete>
+
+  <select id="selectByPetId"
+          parameterType="Integer"
+          resultType="Pet">
+    select weight, breed, petBirthDate, petName, petDesc, petGender, petLikeCount
+    from ttm.pets
+    where petId = #{value}
+  </select>
+</mapper>

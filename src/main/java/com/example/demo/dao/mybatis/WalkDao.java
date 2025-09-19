@@ -9,5 +9,5 @@ public interface WalkDao {
   public int insert(Walk walk);
   public int update(Walk walk);
   public int delete();
-  public Walk selectByWalkId();
+  // public Walk selectByWalkId();
 }
