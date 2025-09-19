@@ -11,7 +11,7 @@
       select seq_pets_pet_id.nextval from dual
     </selectKey>
     insert into ttm.pets (pet_id, pet_weight, pet_breed, pet_birthdate, pet_name, pet_desc, pet_gender, pet_likecount, user_id)
-    values (#{petId}, #{weight}, #{breed}, #{petBirthDate}, #{petName}, #{petDesc}, #{petGender}, #{petLikeCount}, #{userId})
+    values (#{petId}, #{weight}, #{breed}, #{petBirthDate}, #{petName}, #{petDesc}, #{petGender}, #{petLikeCount}, #{puserId})
   </insert>
 
   <update id="update"
