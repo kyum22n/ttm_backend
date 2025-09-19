@@ -4,11 +4,11 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.dao.mybatis.PostDao">
+<mapper namespace="com.example.demo.dao.mybatis.ReviewDao">
   <insert id="insert"
     parameterType="Review">
     <selectKey keyProperty="reviewId" resultType="Integer" order="BEFORE">
-      select seq_board_bno.nextval from dual
+      select seq_review_review_id.nextval from dual
     </selectKey>
   </insert>
 

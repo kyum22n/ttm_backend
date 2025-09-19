@@ -8,36 +8,44 @@
   <insert id="insert" 
       parameterType="User">
     <selectKey keyProperty="userId" resultType="Integer" order="BEFORE">
-      select seq_users.nextval from dual
+      select seq_users_user_id.nextval from dual
     </selectKey>
-    insert into ttm.users (userId, loginId, password, uname, email, address, birthDate, createdAt)
+    insert into ttm.users (user_id, user_login_id, user_password, user_name, user_email, user_address, user_birthDate, user_createdAt)
     values (#{userId}, #{loginId}, #{password}, #{uname}, #{email}, #{address}, #{birthDate}, #{createdAt})
   </insert>
 
   <update id="update"
           parameterType="User">
     update ttm.users
-    set loginId = #{loginId},
-        password = #{password},
-        uname = #{uname},
-        email = #{email},
-        address = #{address},
-        birthDate = #{birthDate},
-        createdAt = #{createdAt}
-    where userId = #{userId}
+    set user_login_id = #{loginId},
+        user_password =#{password},
+        user_name, = #{uname},
+        user_email = #{email},
+        user_address = #{address},
+        user_birthDate = #{birthDate},
+        user_createdAt = #{createdAt}
+    where user_id = #{userId}
   </update>
 
   <delete id="delete"
           parameterType="Integer">
     delete from ttm.users
-    where petId=#{value}
+    where user_id=#{value}
   </delete>
 
   <select id="selectByUserId"
           parameterType="Integer"
           resultType="User">
-    select loginId, password, uname, email, address, birthDate, createdAt
-    from ttm.pets
-    where userId = #{value}
+    select user_login_id, user_password, user_name, user_email, user_address, user_birthDate, user_createdAt
+    from ttm.users
+    where user_Id = #{value}
+  </select>
+  
+  <!-- 모집자가 신청자 목록 볼 때-->
+  <select id="selectByAllUser"
+          resultType="User">
+    select user_login_id, user_password, user_name, user_email, user_address, user_birthDate, user_createdAt
+    from ttm.users
+    where user_Id = #{value}
   </select>
 </mapper>

@@ -5,9 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 import com.example.demo.dto.ChatMessage;
 
 @Mapper
-public interface ChatDao {
+public interface ChatMessageDao {
+  public ChatMessage selectByChatId(Integer messageId);
   public int insert(ChatMessage chat);
   public int update(ChatMessage chat);
   public int delete(Integer chatroomId);
-  public ChatMessage selectByChatId(Integer chatroomId);
 }

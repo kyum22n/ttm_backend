@@ -8,8 +8,9 @@ import com.example.demo.dto.Pet;
 
 @Mapper
 public interface PetDao {
+  public List<Pet> selectAllByPetId();
+  public Pet selectByPetId(Integer petId);
   public int insert(Pet pet);
   public int update(Pet pet);
   public int delete(Integer petId);
-  public List<Pet> selectByPetId();
 }

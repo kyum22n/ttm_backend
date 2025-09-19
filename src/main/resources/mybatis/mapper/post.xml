@@ -17,16 +17,17 @@
   insert into ttm.posts (
     post_id, post_title, post_content, post_like_count, post_created_at, is_request,user_id
     <if test="isRequest == 'Y'"> <!--isRequest가 Y일 경우만 사용-->
-    walkstarted_at, walkended_at )
+    wapplyended_at, walkstarted_at, walkended_at )
     </if>
   values (
     #{postId}, #{postTitle}, #{postContent}, 0, SYSTIMESTAMP, #{isRequest}, #{userId},
     <if test="isRequest == 'Y'">
-      #{walkStartedAt}, #{walkEndedAt}
+      #{wApplyEndAt},#{walkStartedAt}, #{walkEndedAt}
     </if>
   )
+
   insert into ttm.post_images (
-    image_id, post_attah_oname, post_attach_type, post_attach_data, created_at, post_id)
+    image_id, post_attach_oname, post_attach_type, post_attach_data, created_at, post_id)
   values (
     #{imageId}, #{postAttachOname}, #{postAttachType}, #{postAttachData}, SYSTIMESTAMP, #{postId}
   )
@@ -37,20 +38,30 @@
     resultType="Post">
   select (
     post_id, post_title, post_title, post_likge_count, post_created_at, is_request, user_id,
-    walkstarted_at, walkended_at)
+    wapplyended_at, walkstarted_at, walkended_at)
   from ttm.posts
   where post_id = #{post_id}
+  </select>
+  
+  <select id="selectAllPostByUserId"
+    parameterType="Integer"
+    resultType="Post">
+  select (
+    post_id, post_title, post_content, post_like_count, post_created_at, is_request, user_id,
+    wapplyended_at, walkstarted_at, walkended_at)
+  from ttm.posts
+  where user_id = #{userId}
   </select>
 
   <select id="selectByPage"
       parameterType="Pager"
-      resultType="Board"> <!--resultType은 하나의 행을 리턴하기 때문에 List<>가아닌 Post를 씀-->
+      resultType="Post"> <!--resultType은 하나의 행을 리턴하기 때문에 List<>가아닌 Post를 씀-->
     <![CDATA[
-    select rnum, post_id, post_title, user_id, post_created_at
+    select rnum, post_id, post_title, post_content, post_like_count, user_id, post_created_at
     from (
-        select rownum as rnum, post_id, post_title, user_id, post_created_at
+        select rownum as rnum, post_id, post_title, post_content, post_like_count, user_id, post_created_at
         from (
-            select post_title, post_title, user_id, post_created_at
+            select post_title, post_content, post_like_count, user_id, post_created_at
             from  ttm.posts
             order by post_id desc
         )
@@ -59,17 +70,25 @@
     where rnum >= #{startRowNo} ]]>
     </select>
 
-  <update id="updata"
+  <update id="update"
     parameterType="Post">
   update ttm.posts
   set post_title = #{postTitle},
       post_content = #{postContent},
       is_request = #{isRequest},
       <if test="isRequest == 'Y'">
+        wapplyended_at = #{wApplyEndAt},
         walkstarted_at = #{walkStartedAt},
         walkended_at = #{walkEndedAt}
       </if>
   where post_id = #{vaule}
+  </update>
+
+  <update id="updateLikecount"
+          parameterType="int">
+    update ttm.posts
+    set post_like_count = post_like_count + 1
+    where post_id = #{value}
   </update>
 
   <delete id="delete"
@@ -78,7 +97,7 @@
   where post_id = #{value}
   </delete>
 
-  <select id="counAll"
+  <select id="countAll"
     resultType="int">
   select count(*)
   from ttm.posts

@@ -12,7 +12,9 @@
 
   <typeAliases>
     <typeAlias type="com.example.demo.dto.Pager" alias="Pager"/>
-    <typeAlias type="com.example.demo.dto.Chat" alias="Chat"/>
+    <typeAlias type="com.example.demo.dto.ChatRoom" alias="ChatRoom"/>
+    <typeAlias type="com.example.demo.dto.ChatMessage" alias="ChatMessage"/>
+    <typeAlias type="com.example.demo.dto.Comment" alias="Comment"/>
     <typeAlias type="com.example.demo.dto.Pet" alias="Pet"/>
     <typeAlias type="com.example.demo.dto.Post" alias="Post"/>
     <typeAlias type="com.example.demo.dto.Review" alias="Review"/>

@@ -8,35 +8,41 @@
   <insert id="insert" 
       parameterType="Pet">
     <selectKey keyProperty="petId" resultType="Integer" order="BEFORE">
-      select seq_pets.nextval from dual
+      select seq_pets_pet_id.nextval from dual
     </selectKey>
-    insert into ttm.pets (petId, weight, breed, petBirthDate, petName, petDesc, petGender, petLikeCount, userId)
+    insert into ttm.pets (pet_id, pet_weight, pet_breed, pet_birthdate, pet_name, pet_desc, pet_gender, pet_likecount, user_id)
     values (#{petId}, #{weight}, #{breed}, #{petBirthDate}, #{petName}, #{petDesc}, #{petGender}, #{petLikeCount}, #{userId})
   </insert>
 
   <update id="update"
           parameterType="Pet">
     update ttm.pets
-    set weight = #{weight}, 
-        breed = #{breed}, 
-        petBirthDate = #{petBirthDate},
-        petName = #{petName},
-        petDesc = #{petDesc},
-        petGender = #{petGender}
-    where petId = #{petId}
+    set pet_weight = #{weight}, 
+        pet_breed = #{breed}, 
+        pet_BirthDate = #{petBirthDate},
+        pet_Name = #{petName},
+        pet_Desc = #{petDesc},
+        pet_Gender = #{petGender}
+    where pet_Id = #{petId}
   </update>
 
   <delete id="delete"
           parameterType="Integer">
     delete from ttm.pets
-    where petId=#{value}
+    where pet_Id=#{value}
   </delete>
 
   <select id="selectByPetId"
           parameterType="Integer"
           resultType="Pet">
-    select weight, breed, petBirthDate, petName, petDesc, petGender, petLikeCount
+    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount
     from ttm.pets
-    where petId = #{value}
+    where pet_Id = #{value}
+  </select>
+
+  <select id="selectAllByPetId"
+          resultType="Pet">
+    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount
+    from ttm.pets
   </select>
 </mapper>
