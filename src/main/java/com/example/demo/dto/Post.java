@@ -23,7 +23,9 @@ public class Post {
 	private byte[] postAttachData;
 	
 	// 산책 모집 글
-	private Enum isRequest;
+	private enum isRequest{
+		Y, N
+	};
 	private Date walkStartedAt;
 	private Date walkEndedAt;
 	private Date applyEnd;

@@ -2,12 +2,12 @@ package com.example.demo.dao.mybatis;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.example.demo.dto.Chat;
+import com.example.demo.dto.ChatMessage;
 
 @Mapper
 public interface ChatDao {
-  public int insert(Chat chat);
-  public int update(Chat chat);
+  public int insert(ChatMessage chat);
+  public int update(ChatMessage chat);
   public int delete(Integer chatroomId);
-  public Chat selectByChatId(Integer chatroomId);
+  public ChatMessage selectByChatId(Integer chatroomId);
 }
