@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class Chat {
 	// 채팅방
+	private Integer chatroomId;
 	private Enum status;
 	private	Date updatedAt;
 	private Date roomCreatedAt;
