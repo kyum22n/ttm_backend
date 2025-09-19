@@ -11,5 +11,5 @@ public interface PetDao {
   public int insert(Pet pet);
   public int update(Pet pet);
   public int delete(int petId);
-  public List<Pet> selectByPetId();
+  public List<Pet> selectByPetId(int petId);
 }

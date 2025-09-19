@@ -20,6 +20,7 @@ public class Post {
 	private String postAttachOname;
 	private String postAttachType;
 	private byte[] postAttachData;
+	private Integer imageId;
 	
 	// 산책 모집 글
 	private Enum isRequest;

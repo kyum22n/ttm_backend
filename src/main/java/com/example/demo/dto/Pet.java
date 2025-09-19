@@ -12,6 +12,8 @@ public class Pet {
 	private Date petBirthDate;
 	private String petName;
 	private String petDesc;
-	private Enum petGender;
 	private Integer petLikeCount;
+	private enum petGender {
+		M, F
+	}
 }

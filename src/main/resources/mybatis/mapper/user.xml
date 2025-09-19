@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.mybatis.UserDao">
+  <insert id="insert" 
+      parameterType="User">
+    <selectKey keyProperty="userId" resultType="Integer" order="BEFORE">
+      select seq_users.nextval from dual
+    </selectKey>
+    insert into ttm.users (userId, loginId, password, uname, email, address, birthDate, createdAt)
+    values (#{userId}, #{loginId}, #{password}, #{uname}, #{email}, #{address}, #{birthDate}, #{createdAt})
+  </insert>
+
+  <update id="update"
+          parameterType="User">
+    update ttm.users
+    set loginId = #{loginId},
+        password = #{password},
+        uname = #{uname},
+        email = #{email},
+        address = #{address},
+        birthDate = #{birthDate},
+        createdAt = #{createdAt}
+    where userId = #{userId}
+  </update>
+
+  <delete id="delete"
+          parameterType="Integer">
+    delete from ttm.users
+    where petId=#{value}
+  </delete>
+
+  <select id="selectByUserId"
+          parameterType="Integer"
+          resultType="User">
+    select loginId, password, uname, email, address, birthDate, createdAt
+    from ttm.pets
+    where userId = #{value}
+  </select>
+</mapper>
