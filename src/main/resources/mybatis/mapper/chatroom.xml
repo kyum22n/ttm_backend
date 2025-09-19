@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.mybatis.ChatRoom">
+  <insert id="insert"
+    parameterType="ChatRoom">
+    <selectKey keyProperty="chatroomId" resultType="Integer" order="BEFORE">
+      select seq_chatrooms_chatroom_id.nextval from dual
+    </selectKey>
+    insert into ttm.chatrooms
+    values ()
+  </insert>
+
+  <select id="selectAllByChatRoomId"
+    resultType="ChatRoom">
+    select chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
+    from ttm.chatrooms
+    where user_id = #{userId}
+  </select>
+  
+  <select id="selectByChatRoomId"
+    parameterType="Integer"
+    resultType="ChatRoom">
+    select chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
+    from ttm.chatrooms
+    where chatroom_id = #{chatroomId}
+  </select>
+  
+  <update id="update"
+    parameterType="ChatRoom">
+    update ttm.chatrooms
+    set chatuser1_id = #{userId},
+        chatuser2_id = #{userId},
+        chatroom_status = #{chatroomStatus},
+        updated_at = #{updatedAt},
+        created_at = #{roomCreatedAt}
+    where user_id = #{userId}
+  </update>
+
+  <delete id="delete"
+    parameterType="Integer">
+    delete from ttm.chatrooms
+    where user_id = #{userId}
+  </delete>
+
+</mapper>

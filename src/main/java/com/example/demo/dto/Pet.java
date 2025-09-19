@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class Pet {
+	// 반려인 식별 번호(FK)
+	private Integer puserId;
 	// 반려견 식별 번호
 	private Integer petId;
 	// 반려견 몸무게

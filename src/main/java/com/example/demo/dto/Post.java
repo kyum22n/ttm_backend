@@ -9,6 +9,9 @@ import lombok.Data;
 @Data
 public class Post {
 	// 게시물 기본 정보	
+	// FK
+	private Integer postUserId;	// 게시물 작성자
+	//
 	private Integer postId;	// 게시물 식별 번호
 	private String postTitle;	// 게시물 제목
 	private String postContent;	// 게시물 내용
