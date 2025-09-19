@@ -13,7 +13,7 @@
   insert into ttm.chat_message(
     message_id, chatroom_id, sender_id, message, is_read, read_at, created_at)
   values(
-    #{messageId}, #{chatroomId}, #{senderId}, #{messageContent}, #{isRead}, #{read_at}, #{created_at}
+    #{messageId}, #{chatroomId}, #{senderId}, #{messageContent}, #{isRead}, sysdate, sysdate
   )
   </insert>
 

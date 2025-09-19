@@ -4,15 +4,23 @@
 <mapper namespace="com.example.demo.dao.mybatis.CommentDao">
 	<insert id="insert"
 		parameterType="Comment">
-		<selectKey keyProperty="commentId" resultType="Integer" order="BEFORE"> select
-		seq_comments_comment_id.nextval from dual </selectKey> insert into ttm.comments ( comment_id,
-		comment_content, user_id, post_id ) values ( #{commentId}, #{commentContent}, #{cwriter},
-		#{cpostId} ) </insert>
+		<selectKey keyProperty="commentId" resultType="Integer" order="BEFORE"> 
+      select seq_comments_comment_id.nextval from dual 
+    </selectKey> 
+    insert into ttm.comments ( comment_id, comment_content, user_id, post_id ) 
+    values ( #{commentId}, #{commentContent}, #{cwriter}, #{cpostId} ) 
+  </insert>
 
 	<update id="update"
-		parameterType="Comment"> update ttm.comments set comment_content = #{commentContent} where
-		comment_id = #{commentId} </update>
+		parameterType="Comment"> 
+    update ttm.comments 
+    set comment_content = #{commentContent} 
+    where comment_id = #{commentId} 
+  </update>
 
 	<delete id="delete"
-		parameterType="Integer"> delete from ttm.comments where comment_id=#{value} </delete>
+		parameterType="Integer"> 
+    delete from ttm.comments 
+    where comment_id=#{value} 
+  </delete>
 </mapper>

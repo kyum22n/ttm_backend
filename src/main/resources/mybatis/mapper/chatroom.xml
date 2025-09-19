@@ -11,7 +11,7 @@
       select seq_chatrooms_chatroom_id.nextval from dual
     </selectKey>
     insert into ttm.chatrooms(chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at)
-    values (#{chatroomId}, #{chatuser1Id}, #{chatuser2Id}, #{requestedBy}, #{chatroomStatus}, #{updatedAt}, #{roomCreatedAt})
+    values (#{chatroomId}, #{chatuser1Id}, #{chatuser2Id}, #{requestedBy}, #{chatroomStatus}, sysdate, sysdate)
   </insert>
 
   <select id="selectAllByChatRoomId"
@@ -36,7 +36,7 @@
     set chatuser1_id = #{chatuser1_id},
         chatuser2_id = #{chatuser2_id},
         chatroom_status = #{chatroomStatus},
-        updated_at = #{updatedAt}
+        updated_at = sysdate
     where chatuser1_id = #{chatuser1Id}
     or chatuser2_id = #{chatuser2Id}
   </update>
