@@ -8,7 +8,7 @@
     seq_review_review_id.nextval from dual </selectKey> 
     insert into ttm.reviews ( 
       review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at 
-      values ( #{reviewId}, #{rPostId}, #{requestOneId}, #{rWriterId}, #{targetId}, #{reviewtagId}, date, )) 
+      values ( #{reviewId}, #{rPostId}, #{requestOneId}, #{rWriterId}, #{targetId}, #{reviewtagId}, sysdate )) 
     </insert>
 
 
