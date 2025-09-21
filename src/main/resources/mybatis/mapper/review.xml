@@ -16,7 +16,8 @@
     parameterType="Review"> update ttm.reviews 
     set reviewtag_id = #{reviewtagId} 
     where review_id =
-    #{vaule} </update>
+    #{vaule} 
+  </update>
 
   <delete id="delete"
     parameterType="Integer"> delete from ttm.reviews where review_id = #{value} </delete>
@@ -37,7 +38,7 @@
   select (
     review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at)
   from ttm.reviews
-  where post_id = #{post_id}
+  where post_id = #{rPostId}
   </select>
   
   <select id="selectAllPostByTargetId"
@@ -48,6 +49,5 @@
   from ttm.reviews
   where user_id = #{targetId}
   </select>
-
 
 </mapper>

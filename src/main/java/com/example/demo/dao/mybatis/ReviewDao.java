@@ -6,7 +6,6 @@ import com.example.demo.dto.Review;
 
 @Mapper
 public interface ReviewDao {
-  // public Review selectAllByReviewId();
   public Review selectByReviewId(Integer reviewId);
 
   // Review는 받은 사람 id에 맞는거만 한 번에 불러올 수 있으면 될듯
