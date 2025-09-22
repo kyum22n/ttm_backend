@@ -42,7 +42,7 @@
   </select>
   
   <!-- 모집자가 신청자 목록 볼 때-->
-  <select id="selectByAllUser"
+  <select id="selectAllUser"
           resultType="User">
     select user_login_id, user_password, user_name, user_email, user_address, user_birthDate, user_createdAt
     from ttm.users

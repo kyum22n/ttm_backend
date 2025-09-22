@@ -1,4 +1,4 @@
-package com.example.demo.dao.mybatis;
+package com.example.demo.dao;
 
 import java.util.List;
 
