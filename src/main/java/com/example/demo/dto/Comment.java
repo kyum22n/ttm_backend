@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.Data;
 
 @Data
@@ -11,4 +13,5 @@ public class Comment {
 	// 
 	private Integer commentId;	// 댓글 식별 번호
 	private String commentContent;	// 댓글 내용
+	private LocalDateTime createdAt;	// 댓글 등록 일시
 }
