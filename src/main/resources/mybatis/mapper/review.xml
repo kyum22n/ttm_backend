@@ -6,48 +6,38 @@
     parameterType="Review">
     <selectKey keyProperty="reviewId" resultType="Integer" order="BEFORE"> select
     seq_review_review_id.nextval from dual </selectKey> 
-    insert into ttm.reviews ( 
-      review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at 
-      values ( #{reviewId}, #{rPostId}, #{requestOneId}, #{rWriterId}, #{targetId}, #{reviewtagId}, sysdate )) 
-    </insert>
+    insert into ttm.reviews ( review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at )
+    values ( #{reviewId}, #{rPostId}, #{requestOneId}, #{rWriterId}, #{targetId}, #{reviewtagId}, sysdate )
+  </insert>
 
 
   <update id="update"
     parameterType="Review"> update ttm.reviews 
     set reviewtag_id = #{reviewtagId} 
-    where review_id =
-    #{vaule} 
+    where review_id = #{vaule} 
   </update>
 
   <delete id="delete"
-    parameterType="Integer"> delete from ttm.reviews where review_id = #{value} </delete>
-
-  
-  <select id="selectByReviewId"
-    parameterType="Integer"
-    resultType="Review">
-  select (
-    review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at)
-  from ttm.reviews
-  where review_id = #{review_id}
-  </select>
+    parameterType="Integer"> 
+    delete from ttm.reviews where review_id = #{value} 
+  </delete>
 
   <select id="selectAllByPostId"
     parameterType="Integer"
     resultType="Review">
-  select (
-    review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at)
-  from ttm.reviews
-  where post_id = #{rPostId}
+    select (
+      review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at)
+    from ttm.reviews
+    where post_id = #{rPostId}
   </select>
   
   <select id="selectAllPostByTargetId"
     parameterType="Integer"
     resultType="Review">
-  select (
-    review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at)
-  from ttm.reviews
-  where user_id = #{targetId}
+    select (
+      review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at)
+    from ttm.reviews
+    where user_id = #{targetId}
   </select>
 
 </mapper>
