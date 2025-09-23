@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dao.UserDao;
@@ -41,11 +43,15 @@ public class UserService {
         // 1. 임시 비밀번호 생성
         String tempPassword = UUID.randomUUID().toString().substring(0, 8);
 
-        // 2. DB 업데이트 (학습용 → 평문 저장, 실무 → 반드시 BCrypt 암호화)
-        user.setUserPassword(tempPassword);
+        // 2. 임시 비밀번호 암호화
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(tempPassword);
+
+        // 3. DB에 암호화된 비밀번호 저장
+        user.setUserPassword(encodedPassword); // 암호화된 비밀번호 저장
         userDao.updatePassword(user);
 
-        // 3. 이메일 전송
+        // 4. 이메일 전송(원본 임시 비밀번호는 메일로만 전달)
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getUserEmail());
         message.setSubject("[서비스명] 임시 비밀번호 안내");
