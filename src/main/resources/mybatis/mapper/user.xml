@@ -1,77 +1,54 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.dao.UserDao">
-  <insert id="insert" 
-      parameterType="User">
-    <selectKey keyProperty="userId" resultType="Integer" order="BEFORE">
-      select seq_users_user_id.nextval from dual
-    </selectKey>
-    insert into users (user_id, user_login_id, user_password, user_name, user_email, user_address, user_birthDate, created_at)
-    values (#{userId}, #{loginId}, #{password}, #{uname}, #{email}, #{address}, #{birthDate}, #{createdAt})
-  </insert>
+	<insert id="insert"
+		parameterType="User">
+		<!-- user 앞에 안 붙어있었음 -->
+		<selectKey keyProperty="userId" resultType="Integer" order="BEFORE"> select
+		seq_users_user_id.nextval from dual </selectKey> insert into users (user_id, user_login_id,
+		user_password, user_name, user_email, user_address, user_birthDate, created_at) values
+		(#{userId}, #{userLoginId}, #{userPassword}, #{userName}, #{userEmail}, #{userAddress},
+		#{userBirthDate}, #{createdAt}) </insert>
 
-  <update id="update" parameterType="User">
-  update users
-  set user_login_id = #{userLoginId},
-      user_password = #{userPassword},
-      user_name = #{userName},
-      user_email = #{userEmail},
-      user_address = #{useraddress},
-      user_birthDate = #{userbirthDate},
-      created_at = #{createdAt}
-  where user_id = #{userId}
-  </update>
+	<!-- 대문자 작성 제대로 안함 -->
+	<update id="update" parameterType="User"> update users set user_login_id = #{userLoginId},
+		user_password = #{userPassword}, user_name = #{userName}, user_email = #{userEmail},
+		user_address = #{userAddress}, user_birthDate = #{userBirthDate}, created_at = #{createdAt}
+		where user_id = #{userId} </update>
 
-  <!--로그인 아이디 기준으로 비밀번호 변경(임시 비밀번호 발급)-->
-  <update id="updatePassword"
-          parameterType="User">
-    update users
-    set user_password = #{userPassword}
-    where user_login_id = #{userLoginId}
-  </update>
+	<!--로그인
+	아이디 기준으로 비밀번호 변경(임시 비밀번호 발급)-->
+	<update id="updatePassword"
+		parameterType="User"> update users set user_password = #{userPassword} where user_login_id =
+		#{userLoginId} </update>
 
 
-  <delete id="delete"
-          parameterType="Integer">
-    delete from ttm.users
-    where user_id=#{value}
-  </delete>
+	<delete id="delete"
+		parameterType="Integer"> delete from ttm.users where user_id=#{value} </delete>
 
-  <select id="selectByUserId"
-          parameterType="Integer"
-          resultType="User">
-    select user_login_id, user_password, user_name, user_email, user_address, user_birthDate, created_at
-    from users
-    where user_Id = #{value}
-  </select>
+	<!-- user_id가 없었음 -->
+	<select id="selectByUserId"
+		parameterType="Integer"
+		resultType="User"> select user_id, user_login_id, user_password, user_name, user_email,
+		user_address, user_birthDate, created_at from users where user_id = #{value} </select>
 
-  <!--로그인 시 필요한 사용자 조회-->
-  <select id="selectUserByLoginId"
-          parameterType="String"
-          resultType="User">
-    select user_login_id, user_password, user_name, user_email, user_address, user_birthDate, created_At
-    from users
-    where user_login_id = #{value}
-  </select>
+	<!--로그인
+	시 필요한 사용자 조회-->
+	<select id="selectUserByLoginId"
+		parameterType="String"
+		resultType="User"> select user_login_id, user_password, user_name, user_email, user_address,
+		user_birthDate, created_At from users where user_login_id = #{value} </select>
 
-  <!--이메일로 사용자 조회(아이디 찾기용)-->
-  <select id="selectUserByEmail"
-          parameterType="String"
-          resultType="User">
-    select user_id, user_login_id, user_password, user_email
-    from users
-    where user_email = #{value}
-  </select>
-  
-  <!-- 모집자가 신청자 목록 볼 때-->
-  <select id="selectAllUser"
-          resultType="User">
-    select user_login_id, user_password, user_name, user_email, user_address, user_birthDate, created_at
-    from users
-    where user_Id = #{value}
-  </select>
+	<!--이메일로
+	사용자 조회(아이디 찾기용)-->
+	<select id="selectUserByEmail"
+		parameterType="String"
+		resultType="User"> select user_id, user_login_id, user_password, user_email from users where
+		user_email = #{value} </select>
+
+	<!-- 모집자가 신청자 목록 볼 때-->
+	<select id="selectAllUser"
+		resultType="User"> select user_login_id, user_password, user_name, user_email, user_address,
+		user_birthDate, created_at from users where user_Id = #{value} </select>
 </mapper>
