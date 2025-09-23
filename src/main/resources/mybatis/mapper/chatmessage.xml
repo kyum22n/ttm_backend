@@ -1,31 +1,72 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.dao.mybatis.ChatMessageDao">
-  <insert id="insert"
-    parameterType="ChatMessage">
-    <selectKey keyProperty="messageId" resultType="Integer" order="BEFORE">
-      select seq_chat_message_message_id.nextval from dual
+<mapper namespace="com.example.demo.dao.ChatMessageDao">
+
+  <!-- 메시지 저장 -->
+  <insert id="insert" parameterType="com.example.demo.dto.ChatMessage">
+    <selectKey keyProperty="messageId" resultType="int" order="BEFORE">
+      SELECT seq_chat_message_message_id.NEXTVAL FROM dual
     </selectKey>
-  insert into ttm.chat_message(
-    message_id, chatroom_id, sender_id, message, is_read, read_at, created_at)
-  values(
-    #{messageId}, #{chatroomId}, #{senderId}, #{messageContent}, #{isRead}, sysdate, sysdate
-  )
+    INSERT INTO ttm.chat_message (
+      message_id, chatroom_id, sender_id, message, is_read, read_at, created_at
+    ) VALUES (
+      #{messageId}, #{chatroomId}, #{senderId}, #{message}, #{isRead}, #{readAt}, #{createdAt}
+    )
   </insert>
 
-  <select id="selectByChatId"
-    parameterType="Integer"
-    resultType="ChatMessage">
-  select (
-    message_id, chatroom_id, sender_id, message, is_read, read_at, created_at
-  )
-  from ttm.chat_message
-  where message_id = #{value}
+  <!-- 메시지 단건 조회 -->
+  <select id="selectByChatId" parameterType="int" resultType="com.example.demo.dto.ChatMessage">
+    SELECT 
+      message_id   AS messageId,
+      chatroom_id  AS chatroomId,
+      sender_id    AS senderId,
+      message      AS message,
+      is_read      AS isRead,
+      read_at      AS readAt,
+      created_at   AS createdAt
+    FROM ttm.chat_message
+    WHERE message_id = #{value}
   </select>
 
+  <!-- 특정 채팅방의 모든 메시지 조회 -->
+  <select id="selectAllByRoomId" parameterType="int" resultType="com.example.demo.dto.ChatMessage">
+    SELECT 
+      message_id   AS messageId,
+      chatroom_id  AS chatroomId,
+      sender_id    AS senderId,
+      message      AS message,
+      is_read      AS isRead,
+      read_at      AS readAt,
+      created_at   AS createdAt
+    FROM ttm.chat_message
+    WHERE chatroom_id = #{chatroomId}
+    ORDER BY created_at ASC
+  </select>
+
+  <!-- 메시지 읽음 처리 -->
+  <update id="updateReadStatus" parameterType="int">
+    UPDATE ttm.chat_message
+    SET is_read = 'Y',
+        read_at = SYSDATE
+    WHERE message_id = #{messageId}
+  </update>
+
+  <!-- 특정 유저가 보낸 메시지 전체 조회 -->
+  <select id="selectAllBySenderId" parameterType="int" resultType="com.example.demo.dto.ChatMessage">
+    SELECT 
+      message_id   AS messageId,
+      chatroom_id  AS chatroomId,
+      sender_id    AS senderId,
+      message      AS message,
+      is_read      AS isRead,
+      read_at      AS readAt,
+      created_at   AS createdAt
+    FROM ttm.chat_message
+    WHERE sender_id = #{senderId}
+    ORDER BY created_at DESC
+  </select>
 
 </mapper>

@@ -1,50 +1,64 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.dao.mybatis.ChatRoom">
-  <insert id="insert"
-    parameterType="ChatRoom">
-    <selectKey keyProperty="chatroomId" resultType="Integer" order="BEFORE">
-      select seq_chatrooms_chatroom_id.nextval from dual
+<mapper namespace="com.example.demo.dao.ChatRoomDao">
+
+  <!-- 채팅방 생성 -->
+  <insert id="insert" parameterType="com.example.demo.dto.ChatRoom">
+    <selectKey keyProperty="chatroomId" resultType="int" order="BEFORE">
+      SELECT seq_chatrooms_chatroom_id.NEXTVAL FROM dual
     </selectKey>
-    insert into ttm.chatrooms(chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at)
-    values (#{chatroomId}, #{chatuser1Id}, #{chatuser2Id}, #{requestedBy}, #{chatroomStatus}, sysdate, sysdate)
+    INSERT INTO ttm.chatrooms (
+      chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
+    ) VALUES (
+      #{chatroomId}, #{chatuser1Id}, #{chatuser2Id}, #{requestedBy}, #{chatroomStatus}, SYSDATE, SYSDATE
+    )
   </insert>
 
-  <select id="selectAllByChatRoomId"
-    resultType="ChatRoom">
-    select chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
-    from ttm.chatrooms
-    where chatuser1_id = #{chatuser1Id}
-    or chatuser2_id = #{chatuser2Id}
+  <!-- 특정 유저가 속한 모든 채팅방 조회 -->
+  <select id="selectAllByUserId" parameterType="int" resultType="com.example.demo.dto.ChatRoom">
+    SELECT 
+      chatroom_id    AS chatroomId,
+      chatuser1_id   AS chatuser1Id,
+      chatuser2_id   AS chatuser2Id,
+      requested_by   AS requestedBy,
+      chatroom_status AS chatroomStatus,
+      updated_at     AS updatedAt,
+      created_at     AS roomCreatedAt
+    FROM ttm.chatrooms
+    WHERE chatuser1_id = #{userId}
+       OR chatuser2_id = #{userId}
+    ORDER BY updated_at DESC
   </select>
-  
-  <select id="selectByChatRoomId"
-    parameterType="Integer"
-    resultType="ChatRoom">
-    select chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
-    from ttm.chatrooms
-    where chatroom_id = #{chatroomId}
+
+  <!-- 채팅방 단건 조회 -->
+  <select id="selectByChatRoomId" parameterType="int" resultType="com.example.demo.dto.ChatRoom">
+    SELECT 
+      chatroom_id    AS chatroomId,
+      chatuser1_id   AS chatuser1Id,
+      chatuser2_id   AS chatuser2Id,
+      requested_by   AS requestedBy,
+      chatroom_status AS chatroomStatus,
+      updated_at     AS updatedAt,
+      created_at     AS roomCreatedAt
+    FROM ttm.chatrooms
+    WHERE chatroom_id = #{chatroomId}
   </select>
-  
-  <update id="update"
-    parameterType="ChatRoom">
-    update ttm.chatrooms
-    set chatuser1_id = #{chatuser1_id},
-        chatuser2_id = #{chatuser2_id},
-        chatroom_status = #{chatroomStatus},
-        updated_at = sysdate
-    where chatuser1_id = #{chatuser1Id}
-    or chatuser2_id = #{chatuser2Id}
+
+  <!-- 채팅방 수정 -->
+  <update id="update" parameterType="com.example.demo.dto.ChatRoom">
+    UPDATE ttm.chatrooms
+    SET chatroom_status = #{chatroomStatus},
+        updated_at = SYSDATE
+    WHERE chatroom_id = #{chatroomId}
   </update>
 
-  <delete id="delete"
-    parameterType="Integer">
-    delete from ttm.chatrooms
-    where chatroom_id = #{chatroomId}
+  <!-- 채팅방 삭제 -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM ttm.chatrooms
+    WHERE chatroom_id = #{chatroomId}
   </delete>
 
 </mapper>

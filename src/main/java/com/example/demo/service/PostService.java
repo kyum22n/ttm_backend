@@ -31,7 +31,7 @@ public class PostService {
     List<Post> list = postDao.selectByPage(pager);
     return list;
   }
-
+  
   // 페이지의 전체 행 수 불러오기
   public int getTotalRows() {
     int totalRows = postDao.countAll();

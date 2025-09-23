@@ -14,3 +14,4 @@ public interface PetDao {
   public int update(Pet pet);
   public int delete(Integer petId);
 }
+
