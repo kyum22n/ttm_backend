@@ -11,6 +11,8 @@ import com.example.demo.dto.Post;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.PostService;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +25,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
+
 @RestController
 @RequestMapping("/post")
+@Slf4j
 public class PostController {
   // 의존 주입
   @Autowired
@@ -36,10 +40,10 @@ public class PostController {
   // 게시물 작성
   @PostMapping("/write")
   public Post postWrite(Post post) throws Exception {
-    
     // 첨부 이미지 파일 변환
     MultipartFile mf = post.getPostAttach();
     if(mf != null && !mf.isEmpty()) {
+      log.info("이미지 저장 시도: {}", mf.getOriginalFilename());
       post.setPostAttachOname(mf.getOriginalFilename());
       post.setPostAttachType(mf.getContentType());
       post.setPostAttachData(mf.getBytes());
@@ -70,7 +74,7 @@ public class PostController {
   }
 
   // 특정 사용자 게시물 목록 불러오기(페이징)
-  @PostMapping("/{userId}/posts")
+  @GetMapping("/{userId}/posts")
   public Map<String, Object> userPostList(
     @PathVariable("userId") Integer userId,
     @RequestParam(value="pageNo", defaultValue="1") int pageNo) {
@@ -117,6 +121,18 @@ public class PostController {
     Post dbPost = postService.postDetail(post.getPostId());
 
     return dbPost;
+  }
+
+  // 게시물 좋아요
+  @PostMapping("/{postId}/like")
+  public void postLike(@PathVariable("postId") Integer postId) {
+    postService.increasePostLikecount(postId);      
+  }
+
+  // 게시물 좋아요 취소
+  @DeleteMapping("/{postId}/like/cancel")
+  public void postLikeCancel(@PathVariable("postId") Integer postId) {
+    postService.decreasePostLikecount(postId);
   }
 
   // 게시물 삭제

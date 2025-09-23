@@ -22,6 +22,7 @@ public class PostService {
     postDao.insertPost(post);
 
     if (post.getPostAttachData() != null && post.getPostAttachData().length > 0) {
+      log.info("이미지 저장 시도: {}", post.getPostAttachOname());
       postDao.insertPostImage(post);
     }
   }
@@ -31,7 +32,7 @@ public class PostService {
     List<Post> list = postDao.selectByPage(pager);
     return list;
   }
-
+  
   // 페이지의 전체 행 수 불러오기
   public int getTotalRows() {
     int totalRows = postDao.countAll();
@@ -58,20 +59,33 @@ public class PostService {
 
   // 게시물 수정
   public int modifyPost(Post post) {
-    int rows = postDao.update(post);
+    int rows = postDao.updatePost(post);
+    if (post.getPostAttachData() != null && post.getPostAttachData().length > 0) {
+      postDao.updatePostImage(post);
+    }
+
     return rows;
+  }
+
+  // 좋아요 수 증가
+  public void increasePostLikecount(Integer postId) {
+    postDao.increasePostLikecount(postId);
+  }
+
+  // 좋아요 취소
+  public void decreasePostLikecount(Integer postId) {
+    postDao.decreasePostLikecount(postId);
   }
 
   // 게시물 삭제
   public int removePost(Integer postId) {
-    int rows = postDao.delete(postId);
-    return rows;
-  }
+    int rows = postDao.deletePost(postId);
 
-  // 좋아요 수 갱신
-  public void increasePostLikecount(Integer postId) {
-    postDao.updatePostLikecount(postId);
-    
+    Post post = postDao.selectByPostId(postId);
+    if(post.getPostAttachData() != null && post.getPostAttachData().length > 0) {
+      postDao.deletePostImage(postId);
+    }
+    return rows;
   }
 
 }
