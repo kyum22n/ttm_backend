@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.TagDao">
+
+  <!-- 모든 게시물 태그 가져오기 -->
+  <select id="selectAllTag" resultType="Tag">
+    select
+      tag_id, tag_name
+    from tags
+    order by tag_id
+  </select>
+
+  <!-- 특정 태그 선택하기 -->
+  <select id="selectTagByTagId" parameterType="Integer" resultType="Tag">
+    select tag_id, tag_name
+    from tags
+    where tag_id = #{tagId}
+  </select>
+
+
+</mapper>
