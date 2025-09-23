@@ -15,3 +15,5 @@ public class Review {
 	// 산책 후기 태그
 	private String reviewTagId;
 }
+
+
