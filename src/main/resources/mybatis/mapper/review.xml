@@ -3,41 +3,49 @@
 
 <mapper namespace="com.example.demo.dao.ReviewDao">
   <insert id="insert"
-    parameterType="Review">
+    parameterType="com.example.demo.dto.Review">
     <selectKey keyProperty="reviewId" resultType="Integer" order="BEFORE"> select
-    seq_review_review_id.nextval from dual </selectKey> 
+    seq_reviews_review_id.nextval from dual </selectKey> 
     insert into reviews ( review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at )
-    values ( #{reviewId}, #{rPostId}, #{requestOneId}, #{rWriterId}, #{targetId}, #{reviewtagId}, sysdate )
+    values ( #{reviewId}, #{postId}, #{requestOneId}, #{writerId}, #{targetId}, #{reviewTagId}, sysdate )
   </insert>
 
 
   <update id="update"
-    parameterType="Review"> update reviews 
-    set reviewtag_id = #{reviewtagId} 
-    where review_id = #{vaule} 
+    parameterType="com.example.demo.dto.Review"> update reviews 
+    set reviewtag_id = #{reviewTagId} 
+    where review_id = #{reviewId}
   </update>
 
   <delete id="delete"
-    parameterType="Integer"> 
+    parameterType="Int"> 
     delete from reviews where review_id = #{value} 
   </delete>
 
-  <select id="selectAllByPostId"
-    parameterType="Integer"
-    resultType="Review">
-    select 
-      review_id, post_id as rPostId, request_one_id, writer_id, target_id, reviewtag_id, created_at
-    from reviews
-    where post_id = #{rPostId}
-  </select>
-  
-  <select id="selectAllByTargetId"
-    parameterType="int"
-    resultType="Review">
-    select
-      review_id, post_id, request_one_id, writer_id, target_id, reviewtag_id, created_at
-    from reviews
-    where target_id = #{targetId}
-  </select>
+  <select id="selectAllByTargetId" parameterType="int" resultType="com.example.demo.dto.Review">
+  SELECT
+    review_id      AS reviewId,
+    post_id        AS postId,
+    request_one_id AS requestOneId,
+    writer_id      AS writerId,
+    target_id      AS targetId,
+    reviewtag_id   AS reviewTagId,
+    created_at
+  FROM reviews
+  WHERE target_id = #{targetId}
+</select>
+
+<select id="selectAllByPostId" parameterType="int" resultType="com.example.demo.dto.Review">
+  SELECT
+    review_id      AS reviewId,
+    post_id        AS postId,
+    request_one_id AS requestOneId,
+    writer_id      AS writerId,
+    target_id      AS targetId,
+    reviewtag_id   AS reviewTagId,
+    created_at
+  FROM reviews
+  WHERE post_id = #{postId}
+</select>
 
 </mapper>
