@@ -41,7 +41,7 @@
       post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
       wapplyended_at, walkstarted_at, walkended_at
     from posts
-    where post_id = #{post_id}
+    where post_id = #{postId}
   </select>
 
   <!-- 게시물 전체 목록 가져오기 -->

@@ -8,8 +8,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.dto.Comment;
 import com.example.demo.dto.Pager;
 import com.example.demo.dto.Post;
+import com.example.demo.dto.PostTag;
+import com.example.demo.dto.Tag;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.PostService;
+import com.example.demo.service.PostTagService;
+import com.example.demo.service.TagService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -36,6 +41,12 @@ public class PostController {
 
   @Autowired
   private CommentService commentService;
+
+  @Autowired
+  private TagService tagService;
+
+  @Autowired
+  private PostTagService postTagService;
 
   // 게시물 작성
   @PostMapping("/write")
@@ -97,10 +108,12 @@ public class PostController {
     
     Post post = postService.postDetail(postId);
     List<Comment> comments = commentService.getCommentListByPostId(postId);
+    List<Tag> tags = postTagService.getTagNames(postId);
 
     Map<String, Object> map = new HashMap<>();
     map.put("post", post);
     map.put("comments", comments);
+    map.put("tags", tags);
 
     return map;
   }
@@ -179,6 +192,25 @@ public class PostController {
     }
 
     return map;
+  }
+
+  // 전체 태그 목록 조회
+  @GetMapping("/tags")
+  public List<Tag> tagList() {
+    List<Tag> tags = tagService.getAllTags();
+    return tags;
+  }
+
+  // 게시물에 태그 달기
+  @PostMapping("/add-tag")
+  public void addTag(@RequestBody PostTag postTag) {
+    postTagService.taging(postTag);
+  }
+
+  // 게시물 수정 시 태그 삭제
+  @DeleteMapping("/delete-tag")
+  public void deleteTag(@RequestBody PostTag postTag) {
+    postTagService.removeTag(postTag);
   }
   
 }

@@ -17,7 +17,6 @@ public class Post {
 	private String postTitle;	// 게시물 제목
 	private String postContent;	// 게시물 내용
 	private Integer postLikeCount;	// 게시물 좋아요 수
-	private String postTag;	// 게시물 태그
 	private LocalDateTime createdAt;	// 게시물 등록일
 	
 	// 첨부 이미지

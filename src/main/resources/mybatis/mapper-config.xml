@@ -20,5 +20,7 @@
     <typeAlias type="com.example.demo.dto.Review" alias="Review"/>
     <typeAlias type="com.example.demo.dto.User" alias="User"/>
     <typeAlias type="com.example.demo.dto.Walk" alias="Walk"/>
+    <typeAlias type="com.example.demo.dto.Tag" alias="Tag"/>
+    <typeAlias type="com.example.demo.dto.PostTag" alias="PostTag"/>
   </typeAliases>
 </configuration>
