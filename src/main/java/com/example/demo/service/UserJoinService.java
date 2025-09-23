@@ -15,8 +15,7 @@ public class UserJoinService {
 
 	public void join(User user) {
 		userDao.insert(user);
-		// !!! 회원가입 할때 프로필 사진, 지역, 생일은 어떤식으로 넣어야할까
-		// 프로필 사진은 파일 탐색기로 불러와서 넣을껀데 이건 여기서 하나...?
+		// !!! 회원가입 할때 지역, 생일은 어떤식으로 넣어야할까
 		// 지역은 외부 주소 찾기 api를 사용해서 넣어야 함
 		// 생일도 캘린더 띄워서 넣어야 함
 	}

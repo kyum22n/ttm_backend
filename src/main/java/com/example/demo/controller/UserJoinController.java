@@ -70,6 +70,10 @@ public class UserJoinController {
 	@PutMapping("/update")
 	// 이거 modify로 바꾸면 안될까요?
 	public Map<String, Object> userUpdate(@RequestBody User user) {
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String encodedPassword = passwordEncoder.encode(user.getUserPassword());
+		// user 객체의 필드 값 수정
+		user.setUserPassword(encodedPassword);
 		User dbUser = userJoinService.update(user);
 
 		Map<String, Object> map = new HashMap<>();
