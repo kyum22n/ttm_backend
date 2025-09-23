@@ -11,11 +11,18 @@ import com.example.demo.dto.Post;
 public interface PostDao {
   public Post selectByPostId(Integer postId);
   public List<Post> selectAllPostByUserId(Integer userId);
+
   public int insertPost(Post post);
   public int insertPostImage(Post post);
-  public int update(Post post);
-  public int delete(Integer postId);
-  public int updatePostLikecount(Integer postId);
+
+  public int updatePost(Post post);
+  public int updatePostImage(Post post);
+  public int increasePostLikecount(Integer postId);
+  public int decreasePostLikecount(Integer postId);
+
+  public int deletePost(Integer postId);
+  public int deletePostImage(Integer postId);
+  
 
   // Pager
   public List<Post> selectByPage(Pager pager);

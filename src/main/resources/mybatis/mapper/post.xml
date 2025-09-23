@@ -5,32 +5,27 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.dao.PostDao">
-  
-  <insert id="insertPost"
-    parameterType="Post">
+  <!-- 게시물 작성 -->
+  <insert id="insertPost" parameterType="Post">
     <selectKey keyProperty="postId" resultType="Integer" order="BEFORE">
       <!--Insert 실행전 상태의 postId값의 자바 객체를 가져온 후 시퀀스 발동-->
-      select seq_post_id.nextval from dual
+      select seq_posts_post_id.nextval from dual
     </selectKey>
 
     insert into posts (
-      post_id, post_title, post_content, post_like_count, created_at, is_request, user_id
-      <if test="isRequest == 'Y'"> <!--isRequest가 Y일 경우만 사용-->
-        , wapplyended_at, walkstarted_at, walkended_at
-      </if>
+      post_id, post_title, post_content, post_like_count, created_at, is_request, user_id, 
+      wapplyended_at, walkstarted_at, walkended_at
     )
     values (
-      #{postId}, #{postTitle}, #{postContent}, 0, SYSTIMESTAMP, #{isRequest}, #{postUserId}
-      <if test="isRequest == 'Y'">
-        , #{wApplyEndAt}, #{walkStartedAt}, #{walkEndedAt}
-      </if>
+      #{postId}, #{postTitle}, #{postContent}, 0, SYSTIMESTAMP, #{isRequest}, #{postUserId},
+      #{wApplyEndedAt}, #{walkStartedAt}, #{walkEndedAt}
     )
   </insert>
 
-  <insert id="insertPostImage"
-    parameterType="Post">
+  <!-- 게시물 작성 시 이미지 처리 -->
+  <insert id="insertPostImage" parameterType="Post">
     <selectKey keyProperty="postImageId" resultType="Integer" order="BEFORE">
-      select seq_post_image_id.nextval from dual
+      select seq_post_images_post_image_id.nextval from dual
     </selectKey>
 
     insert into post_images (
@@ -40,19 +35,35 @@
     )
   </insert>
   
-  <select id="selectByPostId"
-    parameterType="Integer"
-    resultType="Post">
+  <!-- 게시물 하나 가져오기 -->
+  <select id="selectByPostId" parameterType="Integer" resultType="Post">
     select
-      post_id, post_title, post_content, post_likge_count, created_at, is_request, user_id as postUserId,
+      post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
       wapplyended_at, walkstarted_at, walkended_at
     from posts
     where post_id = #{post_id}
   </select>
+
+  <!-- 게시물 전체 목록 가져오기 -->
+  <select id="selectByPage" parameterType="Pager" resultType="Post"> 
+  <!--resultType은 하나의 행을 리턴하기 때문에 List<>가아닌 Post를 씀-->
+    <![CDATA[
+    select rnum, post_id, post_title, post_content, post_like_count, user_id as postUserId, created_at
+    from (
+        select rownum as rnum, post_id, post_title, post_content, post_like_count, user_id, created_at
+        from (
+            select post_id, post_title, post_content, post_like_count, user_id, created_at
+            from  posts
+            order by post_id desc
+        )
+        where rownum <= #{endRowNo}
+    )
+    where rnum >= #{startRowNo} 
+    ]]>
+  </select>
   
-  <select id="selectAllPostByUserId"
-    parameterType="Integer"
-    resultType="Post">
+  <!-- 특정 사용자 게시물 목록 가져오기 -->
+  <select id="selectAllPostByUserId" parameterType="Integer" resultType="Post">
     select 
       post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
       wapplyended_at, walkstarted_at, walkended_at
@@ -60,59 +71,66 @@
     where user_id = #{postUserId}
   </select>
 
-  <select id="selectByPage"
-    parameterType="Pager"
-    resultType="Post"> <!--resultType은 하나의 행을 리턴하기 때문에 List<>가아닌 Post를 씀-->
-    <![CDATA[
-    select rnum, post_id, post_title, post_content, post_like_count, user_id as postUserId, created_at
-    from (
-        select rownum as rnum, post_id, post_title, post_content, post_like_count, user_id as postUserId, created_at
-        from (
-            select post_title, post_content, post_like_count, user_id as postUserId, created_at
-            from  posts
-            order by post_id desc
-        )
-        where rownum <= #{endRowNo}
-    )
-    where rnum >= #{startRowNo} ]]>
-  </select>
-
-  <update id="update"
-    parameterType="Post">
+  <!-- 게시물 수정하기 -->
+  <update id="updatePost" parameterType="Post">
     update posts
     set post_title = #{postTitle},
         post_content = #{postContent},
         is_request = #{isRequest}
-        <if test="isRequest == 'Y'">
-          , wapplyended_at = #{wApplyEndAt}
+        <if test='isRequest != null and isRequest.equals("Y")'>
+          , wapplyended_at = #{wApplyEndedAt}
           , walkstarted_at = #{walkStartedAt}
           , walkended_at = #{walkEndedAt}
         </if>
-    where post_id = #{value}
+    where post_id = #{postId}
   </update>
 
-  <update id="updatePostLikecount"
-    parameterType="int">
+  <!-- 게시물 수정 시 이미지 처리 -->
+  <update id="updatePostImage" parameterType="Post">
+    update post_images
+    set post_attach_oname = #{postAttachOname},
+        post_attach_type = #{postAttachType},
+        post_attach_data = #{postAttachData},
+        created_at = sysdate
+    where post_id = #{postId} and post_image_id = #{postImageId};
+  </update>
+
+  <!-- 게시물 좋아요 수 증가 -->
+  <update id="increasePostLikecount" parameterType="int">
     update posts
     set post_like_count = post_like_count + 1
     where post_id = #{value}
   </update>
 
-  <delete id="delete"
-    parameterType="Integer">
+  <!-- 게시물 좋아요 수 감소 -->
+  <update id="decreasePostLikecount" parameterType="int">
+    <![CDATA[
+    update posts
+    set post_like_count = post_like_count - 1
+    where post_id = #{postId} and post_like_count > 0
+    ]]>
+  </update>
+
+  <!-- 게시물 삭제 -->
+  <delete id="deletePost" parameterType="Integer">
     delete from posts
     where post_id = #{value}
   </delete>
 
-  <select id="countAll"
-    resultType="int">
+  <!-- 게시물 삭제 시 이미지 처리 -->
+  <delete id="deletePostImage" parameterType="Integer">
+    delete from post_images
+    where post_id = #{postId}
+  </delete>
+
+  <!-- 페이지 모든 행 수 -->
+  <select id="countAll" resultType="int">
     select count(*)
     from posts
   </select>
-  
-  <select id="countAllByUserId"
-    parameterType="Integer"
-    resultType="int">
+
+  <!-- 특정 사용자 페이지 모든 행 수 -->
+  <select id="countAllByUserId" parameterType="Integer" resultType="int">
     select count(*)
     from posts
     where user_id = #{value}
