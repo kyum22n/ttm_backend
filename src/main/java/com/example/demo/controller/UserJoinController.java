@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.User;
 import com.example.demo.service.UserJoinService;
+import com.example.demo.service.UserService;
 import com.example.demo.service.UserJoinService.RemoveResult;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,8 @@ public class UserJoinController {
 
 	@Autowired
 	private UserJoinService userJoinService;
+	@Autowired
+	private UserService userService;
 
 	@PostMapping("/join")
 	public Map<String, Object> userJoin(@RequestBody User user) {
@@ -47,6 +50,18 @@ public class UserJoinController {
 			String encodedPassword = passwordEncoder.encode(user.getUserPassword());
 			// user 객체의 필드 값 수정
 			user.setUserPassword(encodedPassword);
+			User user1 = userService.getUserByLoginId(user.getUserLoginId());
+			User user2 = userService.getUserByEmail(user.getUserEmail());
+			if (user1 != null) {
+				map.put("result", "fail");
+				map.put("message", "이미 사용중인 아이디입니다.");
+				return map;
+			}
+			if (user2 != null) {
+				map.put("result", "fail");
+				map.put("message", "이미 등록된 이메일입니다.");
+				return map;
+			}
 			// userService를 통해 DB에 저장
 			userJoinService.join(user);
 			map.put("result", "success");

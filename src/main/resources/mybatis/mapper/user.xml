@@ -33,18 +33,17 @@
 		resultType="User"> select user_id, user_login_id, user_password, user_name, user_email,
 		user_address, user_birthDate, created_at from users where user_id = #{value} </select>
 
-	<!--로그인
-	시 필요한 사용자 조회-->
+	<!--로그인에 필요한 정보 조회 or 비밀번호 찾기-->
 	<select id="selectUserByLoginId"
 		parameterType="String"
-		resultType="User"> select user_login_id, user_password, user_name, user_email, user_address,
-		user_birthDate, created_At from users where user_login_id = #{value} </select>
+		resultType="User"> select user_login_id, user_password, user_email
+		 from users where user_login_id = #{value} </select>
 
 	<!--이메일로
 	사용자 조회(아이디 찾기용)-->
 	<select id="selectUserByEmail"
 		parameterType="String"
-		resultType="User"> select user_id, user_login_id, user_password, user_email from users where
+		resultType="User"> select user_login_id, user_email from users where
 		user_email = #{value} </select>
 
 	<!-- 모집자가 신청자 목록 볼 때-->
