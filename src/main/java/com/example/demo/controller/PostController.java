@@ -1,22 +1,5 @@
 package com.example.demo.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.example.demo.dto.Comment;
-import com.example.demo.dto.Pager;
-import com.example.demo.dto.Post;
-import com.example.demo.dto.PostTag;
-import com.example.demo.dto.Tag;
-import com.example.demo.service.CommentService;
-import com.example.demo.service.PostService;
-import com.example.demo.service.PostTagService;
-import com.example.demo.service.TagService;
-
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +11,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.dto.Comment;
+import com.example.demo.dto.Pager;
+import com.example.demo.dto.Participate;
+import com.example.demo.dto.Post;
+import com.example.demo.dto.PostTag;
+import com.example.demo.dto.Tag;
+import com.example.demo.service.CommentService;
+import com.example.demo.service.ParticipateService;
+import com.example.demo.service.PostService;
+import com.example.demo.service.PostTagService;
+import com.example.demo.service.TagService;
 
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/post")
@@ -48,12 +47,15 @@ public class PostController {
   @Autowired
   private PostTagService postTagService;
 
+  @Autowired
+  private ParticipateService participateService;
+
   // 게시물 작성
   @PostMapping("/write")
   public Post postWrite(Post post) throws Exception {
     // 첨부 이미지 파일 변환
     MultipartFile mf = post.getPostAttach();
-    if(mf != null && !mf.isEmpty()) {
+    if (mf != null && !mf.isEmpty()) {
       log.info("이미지 저장 시도: {}", mf.getOriginalFilename());
       post.setPostAttachOname(mf.getOriginalFilename());
       post.setPostAttachType(mf.getContentType());
@@ -68,10 +70,10 @@ public class PostController {
 
     return dbPost;
   }
-  
+
   // 전체 게시물 목록 불러오기(페이징)
   @GetMapping("/list")
-  public Map<String, Object> postList(@RequestParam(value="pageNo", defaultValue="1") int pageNo) {
+  public Map<String, Object> postList(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
     int totalRows = postService.getTotalRows();
     Pager pager = new Pager(10, 5, totalRows, pageNo);
 
@@ -80,16 +82,16 @@ public class PostController {
     Map<String, Object> map = new HashMap<>();
     map.put("pager", pager);
     map.put("posts", list);
-    
+
     return map;
   }
 
   // 특정 사용자 게시물 목록 불러오기(페이징)
   @GetMapping("/{userId}/posts")
   public Map<String, Object> userPostList(
-    @PathVariable("userId") Integer userId,
-    @RequestParam(value="pageNo", defaultValue="1") int pageNo) {
-    
+      @PathVariable("userId") Integer userId,
+      @RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
+
     int totalRows = postService.getTotalRowsByUserId(userId);
     Pager pager = new Pager(10, 5, totalRows, pageNo);
 
@@ -105,7 +107,7 @@ public class PostController {
   // 게시물 상세보기
   @GetMapping("/detail")
   public Map<String, Object> postDetail(@RequestParam("postId") Integer postId) {
-    
+
     Post post = postService.postDetail(postId);
     List<Comment> comments = commentService.getCommentListByPostId(postId);
     List<Tag> tags = postTagService.getTagNames(postId);
@@ -123,7 +125,7 @@ public class PostController {
   public Post postUpdate(Post post) throws Exception {
 
     MultipartFile mf = post.getPostAttach();
-    if(mf != null && !mf.isEmpty()) {
+    if (mf != null && !mf.isEmpty()) {
       post.setPostAttachOname(mf.getOriginalFilename());
       post.setPostAttachType(mf.getContentType());
       post.setPostAttachData(mf.getBytes());
@@ -139,7 +141,7 @@ public class PostController {
   // 게시물 좋아요
   @PostMapping("/{postId}/like")
   public void postLike(@PathVariable("postId") Integer postId) {
-    postService.increasePostLikecount(postId);      
+    postService.increasePostLikecount(postId);
   }
 
   // 게시물 좋아요 취소
@@ -152,9 +154,9 @@ public class PostController {
   @DeleteMapping("/delete")
   public Map<String, String> postDelete(@RequestParam("postId") Integer postId) {
     int rows = postService.removePost(postId);
-    
+
     Map<String, String> map = new HashMap<>();
-    if(postId == null && rows < 0) {
+    if (postId == null && rows < 0) {
       map.put("result", "fail");
     } else {
       map.put("result", "success");
@@ -173,7 +175,7 @@ public class PostController {
   @PutMapping("/comment-update")
   public Comment commentUpdate(Comment comment) {
     commentService.modifyComment(comment);
-    
+
     Comment dbComment = commentService.getCommentByCommentId(comment.getCommentId());
 
     return dbComment;
@@ -183,9 +185,9 @@ public class PostController {
   @DeleteMapping("/comment-delete")
   public Map<String, String> commentDelete(@RequestParam("commentId") Integer commentId) {
     int rows = commentService.deleteComment(commentId);
-    
+
     Map<String, String> map = new HashMap<>();
-    if(commentId == null && rows < 0) {
+    if (commentId == null && rows < 0) {
       map.put("result", "fail");
     } else {
       map.put("result", "success");
@@ -212,7 +214,12 @@ public class PostController {
   public void deleteTag(@RequestBody PostTag postTag) {
     postTagService.removeTag(postTag);
   }
-  
+
+  // 이제 이 컨트롤러는 제껍니다
+  // 산책 신청(자기 자신을 participates에 등록)
+  @PostMapping("/groupwalk/apply")
+public void groupWalkApply(@RequestBody Participate participate) {
+  participateService.groupWalkApply(participate);
 }
 
-
+}

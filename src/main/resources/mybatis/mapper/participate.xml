@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  namespace는 반드시 DAO FQCN과 일치해야 함.
+  resultMap으로 컬럼 ↔ DTO 필드 매핑을 명시해둠.
+-->
+<mapper namespace="com.example.demo.dao.ParticipateDao">
+
+  <!-- 컬럼명과 DTO 필드명 매핑 (대소문자 구분 X) -->
+  <resultMap id="ParticipateMap" type="com.example.demo.dto.Participate">
+    <id     property="postId"      column="POST_ID"/>
+    <id     property="userId"      column="USER_ID"/>
+    <result property="applyStatus" column="APPLY_STATUS"/>
+    <result property="createdAt"   column="CREATED_AT"/>
+    <result property="updatedAt"   column="UPDATED_AT"/>
+  </resultMap>
+
+  <!-- INSERT: 기본 상태(P)와 생성시각 세팅 -->
+  <insert id="insert">
+    INSERT INTO PARTICIPATES (POST_ID, USER_ID, APPLY_STATUS, CREATED_AT)
+    VALUES (#{postId}, #{userId}, #{status}, SYSTIMESTAMP)
+  </insert>
+
+  <!-- 상태 변경 시 UPDATED_AT 기록 -->
+  <update id="updateStatus">
+    UPDATE PARTICIPATES
+       SET APPLY_STATUS = #{status},
+           UPDATED_AT   = SYSTIMESTAMP
+     WHERE POST_ID = #{postId}
+       AND USER_ID = #{userId}
+  </update>
+
+  <!-- 단건 삭제 -->
+  <delete id="delete">
+    DELETE FROM PARTICIPATES
+     WHERE POST_ID = #{postId}
+       AND USER_ID = #{userId}
+  </delete>
+
+  <!-- 존재 여부(COUNT) -->
+  <select id="exists" resultType="int">
+    SELECT COUNT(*)
+      FROM PARTICIPATES
+     WHERE POST_ID = #{postId}
+       AND USER_ID = #{userId}
+  </select>
+
+  <!-- 글 기준 목록 -->
+  <select id="findByPost" resultMap="ParticipateMap">
+    SELECT POST_ID, USER_ID, APPLY_STATUS, CREATED_AT, UPDATED_AT
+      FROM PARTICIPATES
+     WHERE POST_ID = #{postId}
+     ORDER BY CREATED_AT DESC
+  </select>
+
+  <!-- 유저 기준 목록 -->
+  <select id="findByUser" resultMap="ParticipateMap">
+    SELECT POST_ID, USER_ID, APPLY_STATUS, CREATED_AT, UPDATED_AT
+      FROM PARTICIPATES
+     WHERE USER_ID = #{userId}
+     ORDER BY CREATED_AT DESC
+  </select>
+
+  <!-- 상태 카운트 -->
+  <select id="countByPostAndStatus" resultType="int">
+    SELECT COUNT(*)
+      FROM PARTICIPATES
+     WHERE POST_ID = #{postId}
+       AND APPLY_STATUS = #{status}
+  </select>
+
+</mapper>
