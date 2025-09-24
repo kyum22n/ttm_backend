@@ -22,4 +22,9 @@ public class ReviewService {
   public List<Review> findAllByTargetId(int userId) {
     return reviewDao.selectAllByTargetId(userId);
   }
+
+  // 단건 조회 혹시 몰라서
+  public Review findOneByReviewId(int reviewId) {
+    return reviewDao.selectByReviewId(reviewId);
+  }
 }

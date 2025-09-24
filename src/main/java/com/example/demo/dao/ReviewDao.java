@@ -9,7 +9,7 @@ import com.example.demo.dto.Review;
 
 @Mapper
 public interface ReviewDao {
-  public Review selectByReviewId(Integer reviewId);
+  public Review selectByReviewId(@Param("reviewId") Integer reviewId);
 
   // Review는 받은 사람 id에 맞는거만 한 번에 불러올 수 있으면 될듯
   // 작성받은 사람 id로 받은 리뷰 모두 불러오기

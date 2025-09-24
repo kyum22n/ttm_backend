@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.Review;
@@ -23,12 +24,20 @@ public class ReviewController {
   private ReviewService reviewService;
 
   // 리뷰 쓰기
-  @PostMapping("/write")
-public Review reviewWrite(@RequestBody Review review) {
-    log.info(review.toString());
+  // @PostMapping("/write")
+  // public Review reviewWrite(@RequestBody Review review) {
+  // log.info(review.toString());
 
-  return reviewService.create(review);
-}
+  // return reviewService.create(review);
+  // }
+
+  // 리뷰 쓰기
+  @PostMapping("/write")
+  public Review reviewWrite(@RequestBody Review review) {
+    log.info(review.toString());
+    // 이미 존재하는 경우
+    return reviewService.create(review);
+  }
 
   // 해당 유저가 받은 리뷰 모두 가져오기
   @GetMapping("/users/{userId}/reviews")
@@ -38,4 +47,9 @@ public Review reviewWrite(@RequestBody Review review) {
     return reviewService.findAllByTargetId(userId);
   }
 
+  // 특정 리뷰 하나만 가져오기
+  @GetMapping("/detail")
+  public Review getReview(@RequestParam("reviewId") int reviewId) {
+    return reviewService.findOneByReviewId(reviewId);
+  }
 }
