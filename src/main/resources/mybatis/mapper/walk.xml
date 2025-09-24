@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.WalkDao">
+  
+    <!-- 산책 신청 -->
+    <insert id="insertWalkApply" parameterType="Walk">
+        <selectKey keyProperty="requestOneId" resultType="Integer" order="BEFORE"> 
+            select seq_wone_requests_request_one_id.nextval from dual 
+        </selectKey> 
+
+        insert into wone_requests ( request_one_id, request_user_id, receive_user_id, created_at, rstatus, walkstarted_at, walkended_at ) 
+        values ( #{requestOneId}, #{requestUserId}, #{receiveUserId}, SYSTIMESTAMP, #{rStatus}, #{walkStartedAt}, #{walkEndedAt} ) 
+    </insert>
+
+    <!-- 사용자 아이디로 산책 내역 불러오기 -->
+    <select id="selectAllWalkByUserId" parameterType="Integer" resultType="Walk">
+        select request_one_id, request_user_id, walkstarted_at, walkended_at
+        from wone_requests
+        where walkended_at = #{walkendedAt}
+        <!-- walkended_at에 값이 있으면 산책 종료한 거니까 산책 기록 불러옴 -->
+        <!-- 근데 rnum으로 범위 고정값 주고 처리해야 할 듯 -->
+    </select>
+
+    <!-- 사용자 아이디로 산책 신청받은 내역 불러오기 -->
+    <select id="selectAllWalkApplyByUserId" parameterType="Integer" resultType="Walk">
+        select request_one_id, request_user_id, receive_user_id, created_at, rStatus
+        from wone_requests
+        where receive_user_id = #{receiveUserId}
+    </select>
+
+    <!-- 산책 신청 상태 변경 -->
+    <update id="updateWalkApply" parameterType="Walk">
+        update wone_requests
+        set request_one_id = #{requestOneId},
+            request_user_id = #{requestUserId},
+            receive_user_id = #{receiveUserId},
+            rstatus = #{rStatus},
+            walkstarted_at = #{walkStartedAt},
+            walkended_at = #{walkEndedAt}
+        where request_one_id = #{requestOneId}
+    </update>
+
+    <!-- 산책 기록 추가 -->
+    <insert id="insertWalk" parameterType="Walk">
+        insert into wone_requests
+            (equest_one_id, request_user_id, receive_user_id, created_at, rstatus, walkstarted_at, walkended_at)
+        values ( #{requestOneId}, #{requestUserId}, #{receiveUserId}, SYSTIMESTAMP, #{rStatus}, #{walkStartedAt}, #{walkEndedAt} )
+    </insert>
+
+    <!-- 산책 기록 수정 -->
+    <update id="updateWalk" parameterType="Walk">
+        update wone_requests
+        set
+        where request_one_id = #{reqeustOneId}
+    </update>
+
+    <!-- 산책 기록 삭제 -->
+    <delete id="deleteWalk" parameterType="Integer">
+        delete from wone_requests
+        where request_one_id = #{requestOneId}
+    </delete>
+
+</mapper>

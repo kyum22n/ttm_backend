@@ -79,12 +79,14 @@ public class PostService {
 
   // 게시물 삭제
   public int removePost(Integer postId) {
-    int rows = postDao.deletePost(postId);
-
     Post post = postDao.selectByPostId(postId);
+    
     if(post.getPostAttachData() != null && post.getPostAttachData().length > 0) {
       postDao.deletePostImage(postId);
     }
+
+    int rows = postDao.deletePost(postId);
+
     return rows;
   }
 
