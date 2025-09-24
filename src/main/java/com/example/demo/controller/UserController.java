@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.User;
-import com.example.demo.service.UserJoinService;
+import com.example.demo.service.UserLoginService;
 import com.example.demo.service.UserService;
-import com.example.demo.service.UserJoinService.RemoveResult;
+import com.example.demo.service.UserService.RemoveResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,12 +29,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/user")
-public class UserJoinController {
+public class UserController {
 
 	@Autowired
-	private UserJoinService userJoinService;
-	@Autowired
 	private UserService userService;
+	@Autowired
+	private UserLoginService userLoginService;
 
 	@PostMapping("/join")
 	public Map<String, Object> userJoin(@RequestBody User user) {
@@ -43,6 +43,18 @@ public class UserJoinController {
 
 		Map<String, Object> map = new HashMap<>();
 
+		if (!userService.isEnglishOnly(user.getUserLoginId())) {
+        map.put("result", "fail");
+        map.put("message", "아이디는 영어로만 입력해야 합니다.");
+        return map;
+    }
+
+    if (!userService.isEnglishOnly(user.getUserPassword())) {
+        map.put("result", "fail");
+        map.put("message", "비밀번호는 영어로만 입력해야 합니다.");
+        return map;
+    }
+
 		// 암호화
 		try {
 			// Bcrypt 방식으로 암호화
@@ -50,8 +62,8 @@ public class UserJoinController {
 			String encodedPassword = passwordEncoder.encode(user.getUserPassword());
 			// user 객체의 필드 값 수정
 			user.setUserPassword(encodedPassword);
-			User user1 = userService.getUserByLoginId(user.getUserLoginId());
-			User user2 = userService.getUserByEmail(user.getUserEmail());
+			User user1 = userLoginService.getUserByLoginId(user.getUserLoginId());
+			User user2 = userLoginService.getUserByEmail(user.getUserEmail());
 			if (user1 != null) {
 				map.put("result", "fail");
 				map.put("message", "이미 사용중인 아이디입니다.");
@@ -63,7 +75,7 @@ public class UserJoinController {
 				return map;
 			}
 			// userService를 통해 DB에 저장
-			userJoinService.join(user);
+			userService.join(user);
 			map.put("result", "success");
 		} catch (Exception e) {
 			map.put("result", "fail");
@@ -75,39 +87,67 @@ public class UserJoinController {
 	@GetMapping("/info")
 	public Map<String, Object> userInfo(@RequestParam("userId") Integer userId) {
 		Map<String, Object> resultMap = new HashMap<>();
-		User user = userJoinService.info(userId);
-		resultMap.put("result", "success");
-		// fail 처리도 해야되나요..?
-		resultMap.put("data", user);
+		User user = userService.info(userId);
+		if (user == null) {
+			resultMap.put("result", "fail");
+			resultMap.put("message", "존재하지 않는 회원입니다.");
+			return resultMap;
+			// 테스트용 강제 500 에러
+			// throw new RuntimeErrorException(null, "forced500 for test");
+		} else {
+			resultMap.put("result", "success");
+			resultMap.put("data", user);
+		}
 		return resultMap;
 	}
 
 	@PutMapping("/update")
 	// 이거 modify로 바꾸면 안될까요?
 	public Map<String, Object> userUpdate(@RequestBody User user) {
+		Map<String, Object> map = new HashMap<>();
+
+		// userId로 회원 존재 여부 확인
+		User dbUser = userService.info(user.getUserId());
+		// 만약에 dbUser가 null이면 존재하지 않는 회원
+		if (dbUser == null) {
+			map.put("result", "fail");
+			map.put("message", "존재하지 않는 회원입니다.");
+			return map;
+		}
+
+		if (!userService.isEnglishOnly(user.getUserPassword())) {
+        map.put("result", "fail");
+        map.put("message", "비밀번호는 영어로만 입력해야 합니다.");
+        return map;
+    }
+
+		// 암호화
+		if (user.getUserPassword() == null)
+			user.setUserPassword(dbUser.getUserPassword());
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String encodedPassword = passwordEncoder.encode(user.getUserPassword());
 		// user 객체의 필드 값 수정
 		user.setUserPassword(encodedPassword);
-		User dbUser = userJoinService.update(user);
 
-		Map<String, Object> map = new HashMap<>();
-
-		// 만약에 dbUser가 null이면 존재하지 않는 회원
+		dbUser = userService.update(user);
+		// update가 실패하면 null 반환
 		if (dbUser == null) {
 			map.put("result", "fail");
-			// message도 넣어줄까요?
-			map.put("message", "존재하지 않는 회원입니다.");
-		} else {
+			map.put("message", "회원 정보 수정에 실패했습니다.");
+			return map;
+		}
+		// 성공
+		else {
 			map.put("result", "success");
 			map.put("data", dbUser);
 		}
+
 		return map;
 	}
 
 	@DeleteMapping("/remove/{userId}")
 	public String userRemove(@PathVariable("userId") Integer userId) {
-		RemoveResult removeResult = userJoinService.remove(userId);
+		RemoveResult removeResult = userService.remove(userId);
 
 		JSONObject jsonObject = new JSONObject();
 
