@@ -33,8 +33,8 @@ public class UserService {
     }
 
     // email을 통해 user 객체 조회(아이디 찾기용)
-    public User getUserByEmail(String email) {
-        User user = userDao.selectUserByEmail(email);
+    public User getUserByEmail(String userEmail) {
+        User user = userDao.selectUserByEmail(userEmail);
         return user;
     }
 
