@@ -1,0 +1,58 @@
+package com.example.demo.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.example.demo.dao.ParticipateDao;
+import com.example.demo.dto.Participate;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ParticipateService {
+
+  private final ParticipateDao participateDao;
+
+  /** 신청(P) – 바로 INSERT */
+  public void groupWalkApply(Participate p) {
+    participateDao.insert(p.getPostId(), p.getUserId(), "P");
+  }
+
+  /** 승인(A) */
+  public int groupWalkApprove(int postId, int userId) {
+    return participateDao.updateStatus(postId, userId, "A");
+  }
+
+  /** 거절(R) */
+  public int groupWalkReject(int postId, int userId) {
+    return participateDao.updateStatus(postId, userId, "R");
+  }
+
+  /** 완료(C) */
+  public int groupWalkComplete(int postId, int userId) {
+    return participateDao.updateStatus(postId, userId, "C");
+  }
+
+  /** 취소(레코드 삭제) */
+  public int groupWalkApplyCancel(int postId, int userId) {
+    return participateDao.delete(postId, userId);
+  }
+
+  /** 글 기준 목록 */
+  public List<Participate> listByPost(int postId) {
+    return participateDao.findByPost(postId);
+  }
+
+  /** 유저 기준 목록 */
+  public List<Participate> listByUser(int userId) {
+    return participateDao.findByUser(userId);
+  }
+
+  /** (옵션) 승인 인원수 */
+  public int countApproved(int postId) {
+    Integer c = participateDao.countByPostAndStatus(postId, "A");
+    return c == null ? 0 : c;
+  }
+}
