@@ -4,18 +4,18 @@
 <mapper namespace="com.example.demo.dao.UserDao">
 	<insert id="insert"
 		parameterType="User">
-		<!-- user 앞에 안 붙어있었음 -->
+		<!-- !!!user 앞에 안 붙어있었음 -->
 		<selectKey keyProperty="userId" resultType="Integer" order="BEFORE"> select
-		seq_users_user_id.nextval from dual </selectKey> insert into users (user_id, user_login_id,
-		user_password, user_name, user_email, user_address, user_birthDate, created_at) values
-		(#{userId}, #{userLoginId}, #{userPassword}, #{userName}, #{userEmail}, #{userAddress},
-		#{userBirthDate}, #{createdAt}) </insert>
+		seq_users_user_id.nextval from dual
+	</selectKey> insert into users (
+		user_id, user_login_id, user_password, user_name, user_email, user_address, user_birthDate, created_at)
+		values
+		(#{userId}, #{userLoginId}, #{userPassword}, #{userName}, #{userEmail}, #{userAddress}, #{userBirthDate}, SYSTIMESTAMP) </insert>
 
-	<!-- 대문자 작성 제대로 안함 -->
+	<!-- !!!대문자 작성 제대로 안함 -->
 	<update id="update" parameterType="User"> update users set user_login_id = #{userLoginId},
 		user_password = #{userPassword}, user_name = #{userName}, user_email = #{userEmail},
-		user_address = #{userAddress}, user_birthDate = #{userBirthDate}, created_at = #{createdAt}
-		where user_id = #{userId} </update>
+		user_address = #{userAddress} where user_id = #{userId} </update>
 
 	<!--로그인
 	아이디 기준으로 비밀번호 변경(임시 비밀번호 발급)-->
