@@ -24,19 +24,11 @@ public class ReviewController {
   private ReviewService reviewService;
 
   // 리뷰 쓰기
-  // @PostMapping("/write")
-  // public Review reviewWrite(@RequestBody Review review) {
-  // log.info(review.toString());
-
-  // return reviewService.create(review);
-  // }
-
-  // 리뷰 쓰기
   @PostMapping("/write")
   public Review reviewWrite(@RequestBody Review review) {
-    log.info(review.toString());
-    // 이미 존재하는 경우
-    return reviewService.create(review);
+  log.info(review.toString());
+
+  return reviewService.create(review);
   }
 
   // 해당 유저가 받은 리뷰 모두 가져오기
@@ -53,3 +45,4 @@ public class ReviewController {
     return reviewService.findOneByReviewId(reviewId);
   }
 }
+
