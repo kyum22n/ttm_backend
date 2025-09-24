@@ -90,4 +90,11 @@ public class PostService {
     return rows;
   }
 
+
+  // 여기서부터 GroupWalk 점령지
+  // 산책 지원(participates 등록)
+  public void applyGroupWalk(Interger ) {
+
+  }
+
 }

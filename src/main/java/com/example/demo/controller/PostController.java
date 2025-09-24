@@ -212,6 +212,19 @@ public class PostController {
   public void deleteTag(@RequestBody PostTag postTag) {
     postTagService.removeTag(postTag);
   }
+
+
+
+
+
+
+  // 이제 이 컨트롤러는 제껍니다
+  // 산책 신청(자기 자신을 participates에 등록)
+  @PostMapping("/groupwalk/apply")
+  public void groupWalkApply(@RequestBody ? ?) {
+    
+  }
+
   
 }
 
