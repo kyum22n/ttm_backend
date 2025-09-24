@@ -7,14 +7,21 @@ import com.example.demo.dao.UserDao;
 import com.example.demo.dto.User;
 
 import io.micrometer.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class UserJoinService {
 	@Autowired
 	private UserDao userDao;
 
 	public void join(User user) {
-		userDao.insert(user);
+		int rows = userDao.insert(user);
+		if (rows == 0) {
+			log.error("회원가입에 실패했습니다.", user);
+		} else {
+			log.info("회원가입에 성공했습니다.", user);
+		}
 		// !!! 회원가입 할때 지역, 생일은 어떤식으로 넣어야할까
 		// 지역은 외부 주소 찾기 api를 사용해서 넣어야 함
 		// 생일도 캘린더 띄워서 넣어야 함
@@ -45,14 +52,14 @@ public class UserJoinService {
 				dbUser.setUserAddress(user.getUserAddress());
 			}
 			// Date는 비문자열이기 때문에 null 체크
+			// 근데 이것도 바뀔 이유가 없지 않나...?
 			if (user.getUserBirthDate() != null) {
 				dbUser.setUserBirthDate(user.getUserBirthDate());
 			}
 			// createdAt은 회원가입일이므로 수정하지 않음 xml에서도 수정해야 하나..?
 		}
 
-		// row가 1 이상이면 수정된 것
-		int rows = userDao.update(dbUser);
+		userDao.update(dbUser);
 		return dbUser;
 	}
 
@@ -70,9 +77,4 @@ public class UserJoinService {
 	}
 }
 
-// 회원가입을 위해
-// 반려동물 등록부터 반려동물 등록시에는
-
 // 반려동물 등록할때 uid 널허용
-
-// 회원가입 탈퇴 정보조회 정보수정

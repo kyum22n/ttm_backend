@@ -11,9 +11,9 @@ public class Pet {
 	// 반려견 식별 번호
 	private Integer petId;
 	// 반려견 몸무게
-	private Integer weight;
+	private Integer petWeight;
 	// 반려견 품종
-	private String breed;
+	private String petBreed;
 	// 반려견 생년월일
 	private LocalDate petBirthDate;
 	// 반려견 이름
@@ -23,7 +23,5 @@ public class Pet {
 	// 반려견 좋아요 수
 	private Integer petLikeCount;
 	// 반려견 성별
-	private enum petGender {
-		M, F
-	};
+	private String petGender;
 }
