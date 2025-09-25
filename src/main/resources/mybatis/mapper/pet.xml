@@ -52,7 +52,7 @@
         pet_attach_type = #{petAttachType},
         pet_attach_data = #{petAttachData},
         created_at = systimestamp
-    where pet_image_id = #{petImageId} and pet_id = #{petId}
+    where pet_id = #{petId}
   </update>
 
   <!--반려견 정보 삭제-->
