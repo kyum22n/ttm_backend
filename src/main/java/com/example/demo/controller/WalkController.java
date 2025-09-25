@@ -27,7 +27,7 @@ public class WalkController {
 
     // 사용자 아이디로 1:1 산책 내역 불러오기
     @GetMapping("/list")
-    public Map<String, Object> walkList(@RequestParam Integer userId) {
+    public Map<String, Object> walkList(@RequestParam("userId") Integer userId) {
         List<Walk> walkList = walkService.getWalkListByUserId(userId);
         Map<String, Object> map = new HashMap<>();
 
@@ -39,7 +39,7 @@ public class WalkController {
 
     // 사용자 아이디로 1:1 산책 신청받은 내역 불러오기
     @GetMapping("/apply/receive-list")
-    public Map<String, Object> walkApplyReceiveList(@RequestParam Integer receiveUserId) {
+    public Map<String, Object> walkApplyReceiveList(@RequestParam("receiveUserId") Integer receiveUserId) {
         List<Walk> walkReceiveList = walkService.getWalkApplyListByReceiveUserId(receiveUserId);
 
         Map<String, Object> map = new HashMap<>();
@@ -52,7 +52,7 @@ public class WalkController {
     
     // 사용자 아이디로 1:1 산책 신청한 내역 불러오기
     @GetMapping("/apply/request-list")
-    public Map<String, Object> walkApplyRequestList(@RequestParam Integer requestUserId) {
+    public Map<String, Object> walkApplyRequestList(@RequestParam("requestUserId") Integer requestUserId) {
         List<Walk> walkRequestList = walkService.getWalkApplyListByRequestUserId(requestUserId);
 
         Map<String, Object> map = new HashMap<>();
@@ -81,9 +81,9 @@ public class WalkController {
 
     // 1:1 산책 신청 상태 변경
     @PutMapping("/apply/status")
-    public Map<String, Object> walkApplyStatus(@RequestParam Integer requestOneId,
-                                @RequestParam String rstatus,
-                                @RequestParam Integer receiveUserId) {
+    public Map<String, Object> walkApplyStatus(@RequestParam("requestOneId") Integer requestOneId,
+                                @RequestParam("rstatus") String rstatus,
+                                @RequestParam("receiveUserId") Integer receiveUserId) {
         Map<String, Object> map = new HashMap<>();
         
         int rows = walkService.modifyWalkApplyStatus(requestOneId, rstatus, receiveUserId);
@@ -99,8 +99,8 @@ public class WalkController {
 
     // 1:1 산책 시작
     @PutMapping("/start")
-    public Map<String, String> walkStart(@RequestParam Integer requestOneId,
-                          @RequestParam Integer userId) {
+    public Map<String, String> walkStart(@RequestParam("requestOneId") Integer requestOneId,
+                          @RequestParam("userId") Integer userId) {
         Map<String, String> map = new HashMap<>();
         
         int rows = walkService.modifyWalkStartedAt(requestOneId, userId);
@@ -117,8 +117,8 @@ public class WalkController {
     
     // 1:1 산책 종료
     @PutMapping("/end")
-    public Map<String, String> walkEnd(@RequestParam Integer requestOneId,
-    @RequestParam Integer userId) {
+    public Map<String, String> walkEnd(@RequestParam("requestOneId") Integer requestOneId,
+                                       @RequestParam("userId") Integer userId) {
         Map<String, String> map = new HashMap<>();
         
         int rows = walkService.modifyWalkEndedAt(requestOneId, userId);
@@ -135,8 +135,8 @@ public class WalkController {
     
     // 1:1 산책 기록 삭제
     @DeleteMapping("/delete")
-    public Map<String, String> walkDelete(@RequestParam Integer requestOneId,
-                                          @RequestParam Integer userId) {
+    public Map<String, String> walkDelete(@RequestParam("requestOneId") Integer requestOneId,
+                                          @RequestParam("userId") Integer userId) {
         Map<String, String> map = new HashMap<>();
         
         int rows = walkService.removeWalk(requestOneId, userId);

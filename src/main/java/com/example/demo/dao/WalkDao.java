@@ -3,6 +3,7 @@ package com.example.demo.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.example.demo.dto.Walk;
 
@@ -19,12 +20,14 @@ public interface WalkDao {
   // 1:1 산책 신청
   public int insertWalkApply(Walk walk);
   // 1:1 산책 신청 상태 변경
-  public int updateWalkApplyStatus(Integer requestOneId, String rstatus, Integer receiveUserId);
+  public int updateWalkApplyStatus(@Param("requestOneId") Integer requestOneId, 
+                                   @Param("rstatus") String rstatus, 
+                                   @Param("receiveUserId") Integer receiveUserId);
   
   // 1:1 산책 시작
-  public int updateWalkStartedAt(Integer requestOneId, Integer userId);
+  public int updateWalkStartedAt(@Param("requestOneId") Integer requestOneId, @Param("userId") Integer userId);
   // 1:1 산책 종료
-  public int updateWalkEndedAt(Integer requestOneId, Integer userId);
+  public int updateWalkEndedAt(@Param("requestOneId")Integer requestOneId, @Param("userId")Integer userId);
   // 1:1 산책 기록 삭제
-  public int deleteWalk(Integer requestOneId, Integer userId);
+  public int deleteWalk(@Param("requestOneId")Integer requestOneId, @Param("userId")Integer userId);
 }
