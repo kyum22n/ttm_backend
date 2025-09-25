@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,24 +52,24 @@ public class PostController {
   private ParticipateService participateService;
 
   // 게시물 작성
-  @PostMapping("/write")
-  public Post postWrite(Post post) throws Exception {
-    // 첨부 이미지 파일 변환
-    MultipartFile mf = post.getPostAttach();
-    if (mf != null && !mf.isEmpty()) {
-      log.info("이미지 저장 시도: {}", mf.getOriginalFilename());
-      post.setPostAttachOname(mf.getOriginalFilename());
-      post.setPostAttachType(mf.getContentType());
-      post.setPostAttachData(mf.getBytes());
+  @PostMapping(value = "/write", consumes = "multipart/form-data")
+  public Post postWrite(@ModelAttribute Post post) throws Exception {
+    // 기존 단일 파일 처리 → 서비스에서 이미 처리하므로 여기선 로깅만
+    if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
+      log.info("단일 이미지: {}", post.getPostAttach().getOriginalFilename());
     }
 
-    // 서비스 호출
+    // ✅ 다중 파일 로깅 (실제 저장은 서비스)
+    if (post.getPostAttaches() != null) {
+      for (var mf : post.getPostAttaches()) {
+        if (mf != null && !mf.isEmpty()) {
+          log.info("다중 이미지: {}", mf.getOriginalFilename());
+        }
+      }
+    }
+
     postService.writePost(post);
-
-    // DB에 새로 저장된 값 읽어오기
-    Post dbPost = postService.postDetail(post.getPostId());
-
-    return dbPost;
+    return postService.postDetail(post.getPostId());
   }
 
   // 전체 게시물 목록 불러오기(페이징)

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.PostImageDao">
+
+  <insert id="insert" parameterType="com.example.demo.dto.PostImage">
+    <selectKey keyProperty="postImageId" resultType="int" order="BEFORE">
+      select seq_post_images_post_image_id.nextval from dual
+    </selectKey>
+    insert into post_images (
+      post_image_id, post_attach_oname, post_attach_type, post_attach_data, created_at, post_id
+    ) values (
+      #{postImageId},
+      #{postAttachOname},
+      #{postAttachType},
+      #{postAttachData, jdbcType=BLOB},
+      SYSTIMESTAMP,
+      #{postId}
+    )
+  </insert>
+
+  <select id="selectById" parameterType="int" resultType="com.example.demo.dto.PostImage">
+    select
+      post_image_id     as postImageId,
+      post_id           as postId,
+      post_attach_oname as postAttachOname,
+      post_attach_type  as postAttachType,
+      post_attach_data  as postAttachData
+    from post_images
+    where post_image_id = #{value}
+  </select>
+
+  <select id="selectByPostId" parameterType="int" resultType="com.example.demo.dto.PostImage">
+    select
+      post_image_id     as postImageId,
+      post_id           as postId,
+      post_attach_oname as postAttachOname,
+      post_attach_type  as postAttachType,
+      post_attach_data  as postAttachData
+    from post_images
+    where post_id = #{value}
+    order by post_image_id
+  </select>
+
+  <delete id="deleteById" parameterType="int">
+    delete from post_images where post_image_id = #{value}
+  </delete>
+
+  <delete id="deleteByPostId" parameterType="int">
+    delete from post_images where post_id = #{value}
+  </delete>
+
+</mapper>

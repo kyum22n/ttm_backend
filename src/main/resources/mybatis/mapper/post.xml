@@ -8,29 +8,25 @@
   <!-- 게시물 작성 -->
   <insert id="insertPost" parameterType="Post">
     <selectKey keyProperty="postId" resultType="Integer" order="BEFORE">
-      <!--Insert 실행전 상태의 postId값의 자바 객체를 가져온 후 시퀀스 발동-->
       select seq_posts_post_id.nextval from dual
     </selectKey>
-
     insert into posts (
-      post_id, post_title, post_content, post_like_count, created_at, is_request, user_id, 
+      post_id, post_title, post_content, post_like_count, created_at, is_request, user_id,
       wapplyended_at, walkstarted_at, walkended_at
-    )
-    values (
+    ) values (
       #{postId}, #{postTitle}, #{postContent}, 0, SYSTIMESTAMP, #{isRequest}, #{postUserId},
       #{wApplyEndedAt}, #{walkStartedAt}, #{walkEndedAt}
     )
   </insert>
 
   <!-- 게시물 작성 시 이미지 처리 -->
-  <insert id="insertPostImage" parameterType="Post">
+  <insert id="insertPostImage" parameterType="com.example.demo.dto.PostImage">
     <selectKey keyProperty="postImageId" resultType="Integer" order="BEFORE">
       select seq_post_images_post_image_id.nextval from dual
     </selectKey>
-
     insert into post_images (
-      post_image_id, post_attach_oname, post_attach_type, post_attach_data, created_at, post_id)
-    values (
+      post_image_id, post_attach_oname, post_attach_type, post_attach_data, created_at, post_id
+    ) values (
       #{postImageId}, #{postAttachOname}, #{postAttachType}, #{postAttachData}, SYSTIMESTAMP, #{postId}
     )
   </insert>
@@ -85,15 +81,13 @@
     where post_id = #{postId}
   </update>
 
+  <!-- ✅ 전체 이미지 삭제(해당 게시물) -->
+  <delete id="deletePostImagesByPostId" parameterType="int">
+    delete from post_images where post_id = #{value}
+  </delete>
+
   <!-- 게시물 수정 시 이미지 처리 -->
-  <update id="updatePostImage" parameterType="Post">
-    update post_images
-    set post_attach_oname = #{postAttachOname},
-        post_attach_type = #{postAttachType},
-        post_attach_data = #{postAttachData},
-        created_at = sysdate
-    where post_id = #{postId} and post_image_id = #{postImageId};
-  </update>
+  
 
   <!-- 게시물 좋아요 수 증가 -->
   <update id="increasePostLikecount" parameterType="int">
