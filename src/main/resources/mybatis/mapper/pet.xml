@@ -5,6 +5,7 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.dao.mybatis.PetDao">
+  <!--반려견 등록-->
   <insert id="insertPet" 
       parameterType="Pet">
     <selectKey keyProperty="petId" resultType="Integer" order="BEFORE">
@@ -17,8 +18,22 @@
       #{petName}, #{petDesc}, #{petGender}, #{petLikeCount}, #{petUserId}, systimestamp)
   </insert>
 
-  <update id="update"
-          parameterType="Pet">
+  <!--반려견 이미지 등록-->
+  <insert id="insertPetImage"
+    parameterType="Pet">
+    <selectKey keyProperty="petImageId" resultType="Integer" order="BEFORE">
+      select seq_pet_images_pet_image_id.nextval from dual
+    </selectKey>
+
+    insert into pet_images (
+      pet_image_id, pet_id, pet_attach_oname, pet_attach_type, pet_attach_data, created_at)
+    values (
+      #{petImageId}, #{petId}, #{petAttachOname}, #{petAttachType}, #{petAttachData}, systimestamp)
+  </insert>
+
+  <!--반려견 정보 수정하기-->
+  <update id="updatePet"
+      parameterType="Pet">
     update ttm.pets
     set pet_weight = #{petWeight}, 
         pet_breed = #{petBreed}, 
@@ -29,23 +44,64 @@
     where pet_Id = #{petId}
   </update>
 
-  <delete id="delete"
+  <!--반려견 이미지 수정하기-->
+  <update id="updatePetImage"
+    parameterType="Pet">
+    upadte pet_images
+    set pet_attach_oname = #{petAttachOname},
+        pet_attach_type = #{petAttachType},
+        pet_attach_data = #{petAttachData},
+        created_at = systimestamp
+    where pet_image_id = #{petImageId} and pet_id = #{petId};
+  </update>
+
+  <!--반려견 정보 삭제-->
+  <delete id="deletePet"
           parameterType="Integer">
-    delete from ttm.pets
+    delete from pets
     where pet_Id=#{value}
   </delete>
 
+  <!--반려견 이미지 삭제-->
+  <delete id="deletePetImage"
+    parameterType="Integer">
+    delete from pet_images
+    where pet_id=#{value}
+  </delete>
+
+  <!--반려견 좋아요 증가-->
+  <update id="increasePetLikecount"
+    parameterType="Integer">
+    update pets
+    set pet_like_count = pet_like_count +1
+    where pet_id = #{value};
+  </update>
+
+  <!--반려견 좋아요 감소-->
+  <update id="decreasePetLikecount"
+    parameterType="Integer">
+    <![CDATA[
+    update pets
+    set pet_like_count = pet_like_count -1
+    where pet_like_count > 0 and pet_id = #{petId};
+    ]]>
+  </update>
+
+  <!--특정 반려견 1마리 조회-->
   <select id="selectByPetId"
           parameterType="Integer"
           resultType="Pet">
-    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount
-    from ttm.pets
+    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount, user_id, created_at
+    from pets
     where pet_Id = #{value}
   </select>
 
+  <!--사용자가 등록한 모든 반려견의 조회-->
   <select id="selectAllByPetId"
-          resultType="Pet">
-    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount
-    from ttm.pets
+    parameterType="Integer"
+    resultType="Pet">
+    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount, user_id, created_at
+    from pets
+    where user_id = #{petUserId};
   </select>
 </mapper>

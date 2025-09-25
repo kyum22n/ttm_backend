@@ -1,13 +1,15 @@
 package com.example.demo.controller;
 
-import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +19,7 @@ import com.example.demo.dto.Pet;
 import com.example.demo.service.PetService;
 
 import lombok.extern.slf4j.Slf4j;
+
 
 
 
@@ -38,11 +41,34 @@ public class PetController {
     }
     petService.register(pet);
 
-    Pet dbPet = petService.info(pet.getPetId());
+    Pet dbPet = petService.getPet(pet.getPetId());
 
     return dbPet;
   }
   
+  // 특정 반려견 정보 보기
+  @GetMapping("/find")
+  public Pet petFind(@RequestParam("petId") Integer petId) {
+    Pet dbPet = petService.getPet(petId);
+    return dbPet;
+  }
+
+  @GetMapping("/find-allpetbyuser")
+  public Map<String, Object> findAllpetbyuser(@RequestParam("petUserId") Integer petUserId) {
+    Map<String, Object> map = new HashMap<>();
+    List<Pet> dbpets = petService.getAllPetByUserId(petUserId);
+    if(petUserId == null && petUserId <= 0){
+      map.put("result", "faill");
+      map.put("message", "사용자 없음");
+    } else{
+      map.put("result", "success");
+      map.put("pet", dbpets);
+    }
+    return map;
+  }
+  
+  
+
   // 반려견 정보 수정하기
   @PutMapping("/update")
   public Pet petUpdate(@ModelAttribute Pet pet) throws Exception{
@@ -54,7 +80,7 @@ public class PetController {
     }
     petService.update(pet);
   
-    Pet dbPet = petService.info(pet.getPetId());
+    Pet dbPet = petService.getPet(pet.getPetId());
   
     return dbPet;
     
@@ -62,12 +88,16 @@ public class PetController {
 
   // 반려견 정보 삭제하기
   @DeleteMapping("/remove")
-  public String petRemove(@RequestParam("petId") Integer petId){
-    petService.remove(petId);
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("result", "success");
+  public Map<String, String> petRemove(@RequestParam("petId") Integer petId){
+    Map<String, String> map = new HashMap<>();
+    int pet = petService.remove(petId);
 
-    return jsonObject.toString(); // {"result": "success"}
+    if(petId == null && pet < 0){
+      map.put("result", "fail");
+    }else{
+      map.put("result", "success");
+    }
+    return map;
   }
 
 }

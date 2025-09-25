@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +27,14 @@ public class PetService {
 	}
 
 	// 반려견 1마리 정보 보기
-	public Pet info(Integer petId) {
+	public Pet getPet(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
+		return pet;
+	}
+
+	// 특정 반려인의 모든 반려견 정보 보기
+	public List<Pet> getAllPetByUserId(Integer petUserId){
+		List<Pet> pet = petDao.selectAllPetByUserId(petUserId);
 		return pet;
 	}
 
