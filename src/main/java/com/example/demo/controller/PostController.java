@@ -218,8 +218,60 @@ public class PostController {
   // 이제 이 컨트롤러는 제껍니다
   // 산책 신청(자기 자신을 participates에 등록)
   @PostMapping("/groupwalk/apply")
-public void groupWalkApply(@RequestBody Participate participate) {
-  participateService.groupWalkApply(participate);
-}
+  public void groupWalkApply(@RequestBody Participate participate) {
+    participateService.groupWalkApply(participate);
+  }
+
+  static class ApproveReq {
+    public int postId;
+    public int userId;
+  }
+
+  @PutMapping(value = "/groupwalk/approve", consumes = "application/json")
+  public void groupWalkApprove(@RequestBody ApproveReq req) {
+    participateService.groupWalkApprove(req.postId, req.userId);
+  }
+
+  static class RejectReq {
+    public int postId;
+    public int userId;
+  }
+
+  @PutMapping(value = "/groupwalk/reject", consumes = "application/json")
+  public void groupWalkReject(@RequestBody RejectReq req) {
+    participateService.groupWalkReject(req.postId, req.userId);
+  }
+
+  static class CompleteReq {
+    public int postId;
+    public int userId;
+  }
+
+  @PutMapping(value = "/groupwalk/complete", consumes = "application/json")
+  public void groupWalkComplete(@RequestBody CompleteReq req) {
+    participateService.groupWalkComplete(req.postId, req.userId);
+  }
+
+  static class CancelReq {
+    public int postId;
+    public int userId;
+  }
+
+  @DeleteMapping(value = "/groupwalk/cancel", consumes = "application/json")
+  public void groupWalkCancel(@RequestBody CancelReq req) {
+    participateService.groupWalkApplyCancel(req.postId, req.userId);
+  }
+
+  // 특정 글의 대기(P) 참가자 목록
+  @GetMapping("/groupwalk/{postId}/participants/pending")
+  public List<Participate> listPendingParticipants(@PathVariable("postId") int postId) {
+    return participateService.listPendingByPost(postId);
+  }
+
+  // 특정 글의 승인(A) 참가자 목록
+  @GetMapping("/groupwalk/{postId}/participants/approved")
+  public List<Participate> listApprovedParticipants(@PathVariable("postId") int postId) {
+    return participateService.listApprovedByPost(postId);
+  }
 
 }

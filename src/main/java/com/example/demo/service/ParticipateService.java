@@ -40,6 +40,18 @@ public class ParticipateService {
     return participateDao.delete(postId, userId);
   }
 
+  /** 해당 post의 대기(P) 목록 */
+  public List<Participate> listPendingByPost(int postId) {
+    return participateDao.findByPostAndStatus(postId, "P");
+  }
+
+  /** 해당 post의 승인(A) 목록 */
+  public List<Participate> listApprovedByPost(int postId) {
+    return participateDao.findByPostAndStatus(postId, "A");
+  }
+
+
+  
   /** 글 기준 목록 */
   public List<Participate> listByPost(int postId) {
     return participateDao.findByPost(postId);

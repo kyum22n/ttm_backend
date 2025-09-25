@@ -22,6 +22,9 @@ public interface ParticipateDao {
   int exists(@Param("postId") int postId,
              @Param("userId") int userId);
 
+  List<Participate> findByPostAndStatus(@Param("postId") int postId,
+                                        @Param("status") String status);
+
   List<Participate> findByPost(@Param("postId") int postId);
   List<Participate> findByUser(@Param("userId") int userId);
 

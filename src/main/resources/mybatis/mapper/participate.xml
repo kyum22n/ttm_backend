@@ -71,4 +71,12 @@
        AND APPLY_STATUS = #{status}
   </select>
 
+  <select id="findByPostAndStatus" resultMap="ParticipateMap">
+    SELECT POST_ID, USER_ID, APPLY_STATUS
+      FROM PARTICIPATES
+     WHERE POST_ID = #{postId}
+       AND APPLY_STATUS = #{status}
+     ORDER BY UPDATED_AT DESC
+  </select>
+
 </mapper>
