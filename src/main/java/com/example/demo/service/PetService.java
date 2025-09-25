@@ -23,7 +23,7 @@ public class PetService {
 		}
 	}
 
-	// 반려견 1마리 정보 불러오기
+	// 반려견 1마리 정보 보기
 	public Pet info(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
 		return pet;
@@ -37,7 +37,7 @@ public class PetService {
 	}
 
 	// 반려견 정보 삭제
-	public int removePet(Integer petId) {
+	public int remove(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
 
 		if (pet.getPetAttachData() != null && pet.getPetAttachData().length > 0) {
