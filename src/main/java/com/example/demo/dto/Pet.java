@@ -18,7 +18,7 @@ public class Pet {
 	// 반려견 품종
 	private String petBreed;
 	// 반려견 생년월일
-	private LocalDate petBirthDate;
+	private LocalDate petBirthDay;
 	// 반려견 이름
 	private String petName;
 	// 반려견 소개말

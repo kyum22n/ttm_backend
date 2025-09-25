@@ -25,29 +25,36 @@ public class PetService {
 			petDao.insertPetImage(pet);
 		}
 	}
-
+	
 	// 반려견 1마리 정보 보기
 	public Pet getPet(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
 		return pet;
 	}
-
+	
 	// 특정 반려인의 모든 반려견 정보 보기
 	public List<Pet> getAllPetByUserId(Integer petUserId){
 		List<Pet> pet = petDao.selectAllPetByUserId(petUserId);
+		// log.info("pet: {}", pet);
 		return pet;
 	}
-
+	
 	// 반려견 수정하기
 	public Pet update(Pet pet) {
+		petDao.updatePet(pet);
+		if (pet.getPetAttachData() != null && pet.getPetAttachData().length > 0) {
+			petDao.updatePetImage(pet);
+		}
 		Pet dbPet = petDao.selectByPetId(pet.getPetId());
-		petDao.updatePet(dbPet);
 		return dbPet;
 	}
 
 	// 반려견 정보 삭제
 	public int remove(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
+		if(pet == null){
+			return 0;
+		}
 
 		if (pet.getPetAttachData() != null && pet.getPetAttachData().length > 0) {
 			petDao.deletePetImage(petId);

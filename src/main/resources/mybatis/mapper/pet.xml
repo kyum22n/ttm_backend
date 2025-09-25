@@ -4,7 +4,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.dao.mybatis.PetDao">
+<mapper namespace="com.example.demo.dao.PetDao">
   <!--반려견 등록-->
   <insert id="insertPet" 
       parameterType="Pet">
@@ -12,10 +12,10 @@
       select seq_pets_pet_id.nextval from dual
     </selectKey>
 
-    insert into ttm.pets (pet_id, pet_weight, pet_breed, 
-      pet_birthdate, pet_name, pet_desc, pet_gender, pet_likecount, user_id, created_at)
-    values (#{petId}, #{petWeight}, #{petBreed}, #{petBirthDate}, 
-      #{petName}, #{petDesc}, #{petGender}, #{petLikeCount}, #{petUserId}, systimestamp)
+    insert into pets (pet_id, pet_weight, pet_breed, 
+      pet_birthday, pet_name, pet_desc, pet_gender, pet_like_count, user_id, created_at)
+    values (#{petId}, #{petWeight}, #{petBreed}, #{petBirthDay}, 
+      #{petName}, #{petDesc}, #{petGender}, 0, #{petUserId}, systimestamp)
   </insert>
 
   <!--반려견 이미지 등록-->
@@ -37,7 +37,7 @@
     update ttm.pets
     set pet_weight = #{petWeight}, 
         pet_breed = #{petBreed}, 
-        pet_BirthDate = #{petBirthDate},
+        pet_BirthDay = #{petBirthDay},
         pet_Name = #{petName},
         pet_Desc = #{petDesc},
         pet_Gender = #{petGender}
@@ -47,12 +47,12 @@
   <!--반려견 이미지 수정하기-->
   <update id="updatePetImage"
     parameterType="Pet">
-    upadte pet_images
+    update pet_images
     set pet_attach_oname = #{petAttachOname},
         pet_attach_type = #{petAttachType},
         pet_attach_data = #{petAttachData},
         created_at = systimestamp
-    where pet_image_id = #{petImageId} and pet_id = #{petId};
+    where pet_image_id = #{petImageId} and pet_id = #{petId}
   </update>
 
   <!--반려견 정보 삭제-->
@@ -74,7 +74,7 @@
     parameterType="Integer">
     update pets
     set pet_like_count = pet_like_count +1
-    where pet_id = #{value};
+    where pet_id = #{value}
   </update>
 
   <!--반려견 좋아요 감소-->
@@ -91,17 +91,17 @@
   <select id="selectByPetId"
           parameterType="Integer"
           resultType="Pet">
-    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount, user_id, created_at
+    select pet_id, pet_weight, pet_breed, pet_BirthDay, pet_Name, pet_Desc, pet_Gender, pet_like_count, user_id as petUserId, created_at
     from pets
     where pet_Id = #{value}
   </select>
 
   <!--사용자가 등록한 모든 반려견의 조회-->
-  <select id="selectAllByPetId"
+  <select id="selectAllPetByUserId"
     parameterType="Integer"
     resultType="Pet">
-    select pet_weight, pet_breed, pet_BirthDate, pet_Name, pet_Desc, pet_Gender, pet_LikeCount, user_id, created_at
+    select pet_id, pet_weight, pet_breed, pet_BirthDay, pet_Name, pet_Desc, pet_Gender, pet_Like_Count, user_id as petUserId, created_at
     from pets
-    where user_id = #{petUserId};
+    where user_id = #{petUserId}
   </select>
 </mapper>
