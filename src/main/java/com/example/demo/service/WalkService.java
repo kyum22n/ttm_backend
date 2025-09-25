@@ -33,12 +33,29 @@ public class WalkService {
 
     // 1:1 산책 신청
     public void createWalkApply(Walk walk) {
+        walk.setRstatus("P");
         walkDao.insertWalkApply(walk);
     }
 
     // 1:1 산책 신청 상태 변경
     public int modifyWalkApplyStatus(Integer requestOneId, String rstatus, Integer receiveUserId) {
+        Walk walk = new Walk();
+        walk.setRequestOneId(requestOneId);
+        walk.setReceiveUserId(receiveUserId);
+
+        switch(rstatus) {
+            case("A"): 
+                walk.setRstatus("A");   // 승인(Accept)
+                break;
+            case("R"):
+                walk.setRstatus("R");   // 거절(Reject)
+                break;
+            default:
+                walk.setRstatus("P");    // 대기(Pending)
+        }
+
         int rows = walkDao.updateWalkApplyStatus(requestOneId, rstatus, receiveUserId);
+
         return rows;
     }
 
