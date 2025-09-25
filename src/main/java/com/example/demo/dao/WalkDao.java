@@ -9,20 +9,22 @@ import com.example.demo.dto.Walk;
 @Mapper
 public interface WalkDao {
 
-  // 사용자 아이디로 산책 내역 불러오기
+  // 사용자 아이디로 1:1 산책 내역 불러오기
   public List<Walk> selectAllWalkByUserId(Integer userId);
-  // 사용자 아이디로 산책 신청받은 내역 불러오기
-  public List<Walk> selectAllWalkApplyByUserId(Integer userId);
+  // 사용자 아이디로 1:1 산책 신청받은 내역 불러오기
+  public List<Walk> selectAllWalkApplyByReceiveUserId(Integer receiveUserId);
+  // 사용자 아이디로 1:1 산책 신청한 내역 불러오기
+  public List<Walk> selectAllWalkApplyByRequestUserId(Integer requestUserId);
   
-  // 산책 신청
+  // 1:1 산책 신청
   public int insertWalkApply(Walk walk);
-  // 산책 신청 상태 변경
-  public int updateWalkApply(Walk walk);
+  // 1:1 산책 신청 상태 변경
+  public int updateWalkApplyStatus(Integer requestOneId, String rstatus, Integer receiveUserId);
   
-  // 산책 기록 추가
-  public int insertWalk(Walk walk);
-  // 산책 기록 수정
-  public int updateWalk(Walk walk);
-  // 산책 기록 삭제
-  public int deleteWalk(Integer requestOneId);
+  // 1:1 산책 시작
+  public int updateWalkStartedAt(Integer requestOneId, Integer userId);
+  // 1:1 산책 종료
+  public int updateWalkEndedAt(Integer requestOneId, Integer userId);
+  // 1:1 산책 기록 삭제
+  public int deleteWalk(Integer requestOneId, Integer userId);
 }
