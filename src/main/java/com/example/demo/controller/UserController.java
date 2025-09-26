@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -38,7 +39,8 @@ public class UserController {
 	private UserLoginService userLoginService;
 
 	@PostMapping("/join")
-	public Map<String, Object> userJoin(@RequestBody User user, @RequestBody Pet pet) throws Exception {
+	public Map<String, Object> userJoin(@ModelAttribute User user,
+                                      @ModelAttribute Pet pet) throws Exception {
 		// 입력 값 확인
 		log.info(user.toString());
 
@@ -46,15 +48,20 @@ public class UserController {
 
 		String result = userService.join(user, pet);
 
-		if(result == "success") {
+		if("success".equals(result)) {
 			map.put("result", "success");
-		} else if(result == "exisID") {
+		}else if("existBoth".equals(result)){
+			map.put("result", "fail");
+			map.put("message", "이미 존재하는 아이디와 이메일입니다.");
+		}else if("existID".equals(result)) {
 			map.put("result", "fail");
 			map.put("message", "이미 존재하는 아이디입니다.");
-		} else if(result == "existEmail") {
+		} 
+		else if("existEmail".equals(result)) {
 			map.put("result", "fail");
 			map.put("message", "이미 존재하는 이메일입니다.");
-		} else {
+		} 
+		else {
 			map.put("result", "fail");
 			map.put("message", "회원가입 실패");
 		}
@@ -94,10 +101,10 @@ public class UserController {
 		}
 
 		if (!userService.isEnglishOnly(user.getUserPassword())) {
-        map.put("result", "fail");
-        map.put("message", "비밀번호는 영어로만 입력해야 합니다.");
-        return map;
-    }
+			map.put("result", "fail");
+			map.put("message", "비밀번호는 영어로만 입력해야 합니다.");
+			return map;
+		}
 
 		// 암호화
 		if (user.getUserPassword() == null)
