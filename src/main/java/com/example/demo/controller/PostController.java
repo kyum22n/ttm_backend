@@ -55,39 +55,7 @@ public class PostController {
   // 게시물 작성
   @PostMapping(value = "/write", consumes = "multipart/form-data")
   public Post postWrite(@ModelAttribute Post post) throws Exception {
-    // 기존 단일 파일 처리 → 서비스에서 이미 처리하므로 여기선 로깅만
-    if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
-      log.info("단일 이미지: {}", post.getPostAttach().getOriginalFilename());
-    }
-
-    // 다중 파일 로깅 (실제 저장은 서비스에서 한다)
-    if (post.getPostAttaches() != null) {
-      for (var mf : post.getPostAttaches()) {
-        if (mf != null && !mf.isEmpty()) {
-          log.info("다중 이미지: {}", mf.getOriginalFilename());
-        }
-      }
-    }
-
-    postService.writePost(post);
-
-    if ("Y".equals(post.getIsRequest())) {
-      Integer pid = post.getPostId();
-      Integer uid = post.getPostUserId();
-      // 둘 중 하나라도 null이면 예외처리
-      if (pid == null || uid == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "postId/postUserId 누락");
-      }
-      Participate req = new Participate();
-      req.setPostId(pid);
-      req.setUserId(uid);
-      // 즉시 산책 모집자 신청자 목록에 넣기
-      participateService.groupWalkApply(req);
-      // 즉시 산책 모집자 상태를 승인 상태로 변경
-      participateService.groupWalkApproveAuto(req);
-    }
-
-    return postService.postDetail(post.getPostId());
+    return postService.write(post);
   }
 
   // 전체 게시물 목록 불러오기(페이징)

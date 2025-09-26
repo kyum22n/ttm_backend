@@ -27,7 +27,7 @@
   <update id="updateStatus">
     UPDATE PARTICIPATES
        SET APPLY_STATUS = #{status},
-           UPDATED_AT   = SYSTIMESTAMP
+           UPDATED_AT = SYSTIMESTAMP
      WHERE POST_ID = #{postId}
        AND USER_ID = #{userId}
   </update>

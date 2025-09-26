@@ -15,19 +15,16 @@ public interface PostDao {
 
   public int insertPost(Post post);
   // public int insertPostImage(Post post); 분리!
-
   public int updatePost(Post post);
+  public int deletePost(Integer postId);
   // public int updatePostImage(Post post);
   public int increasePostLikecount(Integer postId);
   public int decreasePostLikecount(Integer postId);
 
-  public int deletePost(Integer postId);
-  // public int deletePostImage(Integer postId);
-
   
-    int markWalkStartedNow(@Param("postId") int postId);
-  int markWalkEndedNow(@Param("postId") int postId);
-  int markWApplyEndedNow(@Param("postId") int postId);
+  int markWalkStartedNow(Integer postId);
+  int markWalkEndedNow(Integer postId);
+  int markWApplyEndedNow(Integer postId);
   
 
   // Pager

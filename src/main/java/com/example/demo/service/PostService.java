@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.dao.ParticipateDao;
 import com.example.demo.dao.PostDao;
 import com.example.demo.dao.PostImageDao;
 import com.example.demo.dto.Pager;
@@ -24,12 +25,15 @@ public class PostService {
   private PostDao postDao;
   @Autowired
   private PostImageDao postImageDao;
+  @Autowired
+  private ParticipateDao participateDao;
 
   // 게시물 작성
-  public void writePost(Post post) throws Exception {
-    postDao.insertPost(post); // postId 채워짐
+  public Post write(Post post) throws Exception {
+    // 1) 글 저장 (postId 채워짐)
+    postDao.insertPost(post);
 
-    // 1) 기존 단일 파일도 지원
+    // 2) 이미지 저장 (단일 + 다중)
     if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
       PostImage img = new PostImage();
       img.setPostId(post.getPostId());
@@ -38,10 +42,9 @@ public class PostService {
       img.setPostAttachData(post.getPostAttach().getBytes());
       postImageDao.insert(img);
     }
-
-    // 2) ✅ 다중 파일 처리
-    if (post.getPostAttaches() != null && !post.getPostAttaches().isEmpty()) {
-      for (var mf : post.getPostAttaches()) {
+    List<MultipartFile> files = post.getPostAttaches();
+    if (files != null) {
+      for (MultipartFile mf : files) {
         if (mf != null && !mf.isEmpty()) {
           PostImage img = new PostImage();
           img.setPostId(post.getPostId());
@@ -52,7 +55,57 @@ public class PostService {
         }
       }
     }
+
+    // 3) 요청글이면 작성자 자동 신청(P) 후 승인(A)
+    if ("Y".equalsIgnoreCase(String.valueOf(post.getIsRequest()))) {
+      Integer pid = post.getPostId();
+      Integer uid = post.getPostUserId();
+      if (pid == null || uid == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "postId/postUserId 누락");
+      }
+      if (participateDao.exists(pid, uid) == 0) {
+        participateDao.insert(pid, uid, "P");
+      }
+      participateDao.updateStatus(pid, uid, "A");
+    }
+
+    // 4) 최신 글 반환
+    return postDao.selectByPostId(post.getPostId());
   }
+
+
+
+
+
+
+
+  // public void writePostAndAutoApplyIfNeeded(Post post) throws Exception {
+  //   postDao.insertPost(post); // postId 채워짐
+
+  //   // 1) 기존 단일 파일도 지원
+  //   if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
+  //     PostImage img = new PostImage();
+  //     img.setPostId(post.getPostId());
+  //     img.setPostAttachOname(post.getPostAttach().getOriginalFilename());
+  //     img.setPostAttachType(post.getPostAttach().getContentType());
+  //     img.setPostAttachData(post.getPostAttach().getBytes());
+  //     postImageDao.insert(img);
+  //   }
+
+  // 2) ✅ 다중 파일 처리
+  //   if (post.getPostAttaches() != null && !post.getPostAttaches().isEmpty()) {
+  //     for (var mf : post.getPostAttaches()) {
+  //       if (mf != null && !mf.isEmpty()) {
+  //         PostImage img = new PostImage();
+  //         img.setPostId(post.getPostId());
+  //         img.setPostAttachOname(mf.getOriginalFilename());
+  //         img.setPostAttachType(mf.getContentType());
+  //         img.setPostAttachData(mf.getBytes());
+  //         postImageDao.insert(img);
+  //       }
+  //     }
+  //   }
+  // }
 
   // 전체 게시물 목록 불러오기(페이지)
   public List<Post> getPostListByPage(Pager pager) {
