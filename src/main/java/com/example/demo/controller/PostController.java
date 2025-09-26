@@ -153,7 +153,7 @@ public class PostController {
   }
 
   // 게시물 좋아요 취소
-  @DeleteMapping("/{postId}/like/cancel")
+  @PutMapping("/{postId}/like/cancel")
   public void postLikeCancel(@PathVariable("postId") Integer postId) {
     postService.decreasePostLikecount(postId);
   }
