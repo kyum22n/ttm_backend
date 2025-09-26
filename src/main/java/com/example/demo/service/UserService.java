@@ -3,6 +3,7 @@ package com.example.demo.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dao.PetDao;
 import com.example.demo.dao.UserDao;
 import com.example.demo.dto.User;
 
@@ -15,12 +16,16 @@ public class UserService {
 	@Autowired
 	private UserDao userDao;
 
+	@Autowired
+	private PetDao petDao;
+
 	public void join(User user) {
 		int rows = userDao.insert(user);
 		if (rows == 0) {
 			log.error("회원가입에 실패했습니다.", user);
 		} else {
 			log.info("회원가입에 성공했습니다.", user);
+
 		}
 		// !!! 회원가입 할때 지역, 생일은 어떤식으로 넣어야할까
 		// 지역은 외부 주소 찾기 api를 사용해서 넣어야 함

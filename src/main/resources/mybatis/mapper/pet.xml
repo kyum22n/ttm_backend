@@ -83,7 +83,7 @@
     <![CDATA[
     update pets
     set pet_like_count = pet_like_count -1
-    where pet_like_count > 0 and pet_id = #{petId};
+    where pet_like_count > 0 and pet_id = #{petId}
     ]]>
   </update>
 
