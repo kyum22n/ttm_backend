@@ -73,40 +73,6 @@ public class PostService {
     return postDao.selectByPostId(post.getPostId());
   }
 
-
-
-
-
-
-
-  // public void writePostAndAutoApplyIfNeeded(Post post) throws Exception {
-  //   postDao.insertPost(post); // postId 채워짐
-
-  //   // 1) 기존 단일 파일도 지원
-  //   if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
-  //     PostImage img = new PostImage();
-  //     img.setPostId(post.getPostId());
-  //     img.setPostAttachOname(post.getPostAttach().getOriginalFilename());
-  //     img.setPostAttachType(post.getPostAttach().getContentType());
-  //     img.setPostAttachData(post.getPostAttach().getBytes());
-  //     postImageDao.insert(img);
-  //   }
-
-  // 2) ✅ 다중 파일 처리
-  //   if (post.getPostAttaches() != null && !post.getPostAttaches().isEmpty()) {
-  //     for (var mf : post.getPostAttaches()) {
-  //       if (mf != null && !mf.isEmpty()) {
-  //         PostImage img = new PostImage();
-  //         img.setPostId(post.getPostId());
-  //         img.setPostAttachOname(mf.getOriginalFilename());
-  //         img.setPostAttachType(mf.getContentType());
-  //         img.setPostAttachData(mf.getBytes());
-  //         postImageDao.insert(img);
-  //       }
-  //     }
-  //   }
-  // }
-
   // 전체 게시물 목록 불러오기(페이지)
   public List<Post> getPostListByPage(Pager pager) {
     List<Post> list = postDao.selectByPage(pager);
@@ -137,7 +103,7 @@ public class PostService {
     return post;
   }
 
-  // ✅ 이미지 조회 보조 메서드
+  // 이미지 조회 보조 메서드
   public List<PostImage> getImagesByPostId(Integer postId) {
     List<PostImage> images = postImageDao.selectByPostId(postId);
     return images != null ? images : new ArrayList<>();
@@ -198,6 +164,13 @@ public class PostService {
     postImageDao.deleteByPostId(postId);
     return postDao.deletePost(postId);
   }
+
+  // //////////////////////////////////////////////////////
+
+  // 그룹 산책 모집글만 조회
+
+  
+  // 그룹 산책 완료된 글만 조회
 
   // 산책 상태 변경 및 시간 입력
   public Post markWApplyEndedNow(int postId) {

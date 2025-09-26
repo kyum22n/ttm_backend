@@ -269,7 +269,7 @@ public class PostController {
     return participateService.listApprovedByPost(postId);
   }
 
-  //
+  // 그룹 산책 신청 처리 상태
   @PutMapping("/groupwalk/apply-end/now")
   public Post setApplyEndNow(@RequestParam("postId") int postId) {
     return postService.markWApplyEndedNow(postId);

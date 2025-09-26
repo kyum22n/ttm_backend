@@ -28,8 +28,8 @@ public class Post {
 	private String postAttachType;	// 게시물 이미지 파일 타입
 	private byte[] postAttachData;	// 게시물 이미지 바이너리 데이터
 
-	 // 다중 업로드용
-  private List<MultipartFile> postAttaches; // form-data name: "postAttaches"
+	// 다중 업로드용
+  	private List<MultipartFile> postAttaches; // form-data name: "postAttaches"
 	
 	// 산책 모집 글
 	private String isRequest;	// 산책 모집 글 여부

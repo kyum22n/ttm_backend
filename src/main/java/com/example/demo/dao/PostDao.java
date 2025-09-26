@@ -3,23 +3,36 @@ package com.example.demo.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import com.example.demo.dto.Pager;
 import com.example.demo.dto.Post;
 
 @Mapper
 public interface PostDao {
+
+  // 게시물 식별 번호로 게시물 조회
   public Post selectByPostId(Integer postId);
+  // 특정 사용자의 모든 게시물 조회
   public List<Post> selectAllPostByUserId(Integer userId);
 
+  // 게시물 작성
   public int insertPost(Post post);
-  // public int insertPostImage(Post post); 분리!
+  // 게시물 수정
   public int updatePost(Post post);
+  // 게시물 삭제
   public int deletePost(Integer postId);
-  // public int updatePostImage(Post post);
+
+  // 게시물 좋아요 수 증가
   public int increasePostLikecount(Integer postId);
+  // 게시물 좋아요 수 감소
   public int decreasePostLikecount(Integer postId);
+
+  //////////////////////////////////////////////////////////////
+
+  // 그룹 산책 모집글만 조회
+  public List<Post> selectAllGroupWalkPost(String isRequest);
+  // 그룹 산책 완료된 글만 조회
+  public List<Post> selectAllEndedGroupWalk();
 
   
   int markWalkStartedNow(Integer postId);
