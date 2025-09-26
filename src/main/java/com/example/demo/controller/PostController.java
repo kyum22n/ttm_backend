@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.Comment;
 import com.example.demo.dto.Pager;
@@ -68,6 +70,23 @@ public class PostController {
     }
 
     postService.writePost(post);
+
+    if ("Y".equals(post.getIsRequest())) {
+      Integer pid = post.getPostId();
+      Integer uid = post.getPostUserId();
+      // 둘 중 하나라도 null이면 예외처리
+      if (pid == null || uid == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "postId/postUserId 누락");
+      }
+      Participate req = new Participate();
+      req.setPostId(pid);
+      req.setUserId(uid);
+      // 즉시 산책 모집자 신청자 목록에 넣기
+      participateService.groupWalkApply(req);
+      // 즉시 산책 모집자 상태를 승인 상태로 변경
+      participateService.groupWalkApproveAuto(req);
+    }
+
     return postService.postDetail(post.getPostId());
   }
 
@@ -282,7 +301,7 @@ public class PostController {
     return participateService.listApprovedByPost(postId);
   }
 
-  // 
+  //
   @PutMapping("/groupwalk/apply-end/now")
   public Post setApplyEndNow(@RequestParam("postId") int postId) {
     return postService.markWApplyEndedNow(postId);

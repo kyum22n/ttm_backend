@@ -25,6 +25,12 @@ public class ParticipateService {
     return participateDao.updateStatus(postId, userId, "A");
   }
 
+  /** 산책 모집 포스트 작성시 작성자 즉시 승인처리할 오버로드 */
+  public void groupWalkApproveAuto(Participate p) {
+    participateDao.updateStatus(p.getPostId(), p.getUserId(), "A");
+  }
+
+
   /** 거절(R) */
   public int groupWalkReject(int postId, int userId) {
     return participateDao.updateStatus(postId, userId, "R");
@@ -67,4 +73,5 @@ public class ParticipateService {
     Integer c = participateDao.countByPostAndStatus(postId, "A");
     return c == null ? 0 : c;
   }
+
 }
