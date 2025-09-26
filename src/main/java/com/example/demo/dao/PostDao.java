@@ -3,6 +3,7 @@ package com.example.demo.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.example.demo.dto.Pager;
 import com.example.demo.dto.Post;
@@ -22,6 +23,11 @@ public interface PostDao {
 
   public int deletePost(Integer postId);
   // public int deletePostImage(Integer postId);
+
+  
+    int markWalkStartedNow(@Param("postId") int postId);
+  int markWalkEndedNow(@Param("postId") int postId);
+  int markWApplyEndedNow(@Param("postId") int postId);
   
 
   // Pager

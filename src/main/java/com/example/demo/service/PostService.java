@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dao.PostDao;
 import com.example.demo.dao.PostImageDao;
@@ -88,24 +91,42 @@ public class PostService {
   }
 
   // 게시물 수정
-  public int modifyPost(Post post) throws Exception {
+  public int modifyPostWithImages(Post post, String imageMode, boolean clearImages) throws Exception {
     int rows = postDao.updatePost(post);
 
-    // 수정 시 이미지 교체 전략 예시:
-    // - 간단히: 기존 전부 삭제 후 새로 넣기
-    if (post.getPostAttaches() != null && !post.getPostAttaches().isEmpty()) {
+    // 새 파일 수집
+    List<MultipartFile> files = new ArrayList<>();
+    if (post.getPostAttach() != null && !post.getPostAttach().isEmpty())
+      files.add(post.getPostAttach());
+    if (post.getPostAttaches() != null) {
+      for (var mf : post.getPostAttaches())
+        if (mf != null && !mf.isEmpty())
+          files.add(mf);
+    }
+    boolean hasNewFiles = !files.isEmpty();
+
+    // 1) 명시 전체삭제
+    if (clearImages) {
       postImageDao.deleteByPostId(post.getPostId());
-      for (var mf : post.getPostAttaches()) {
-        if (mf != null && !mf.isEmpty()) {
-          PostImage img = new PostImage();
-          img.setPostId(post.getPostId());
-          img.setPostAttachOname(mf.getOriginalFilename());
-          img.setPostAttachType(mf.getContentType());
-          img.setPostAttachData(mf.getBytes());
-          postImageDao.insert(img);
-        }
+    }
+
+    // 2) 교체 모드면(그리고 새 파일이 있으면) 기존 이미지 삭제 후 교체
+    if (!clearImages && "replace".equalsIgnoreCase(imageMode) && hasNewFiles) {
+      postImageDao.deleteByPostId(post.getPostId());
+    }
+
+    // 3) 새 파일 저장 (append면 기존 유지 + 추가, replace면 위에서 삭제 후 재삽입)
+    if (hasNewFiles) {
+      for (var mf : files) {
+        PostImage img = new PostImage();
+        img.setPostId(post.getPostId());
+        img.setPostAttachOname(mf.getOriginalFilename());
+        img.setPostAttachType(mf.getContentType());
+        img.setPostAttachData(mf.getBytes());
+        postImageDao.insert(img);
       }
     }
+
     return rows;
   }
 
@@ -120,8 +141,28 @@ public class PostService {
   }
 
   // 게시물 삭제
- public int removePost(Integer postId) {
+  public int removePost(Integer postId) {
     postImageDao.deleteByPostId(postId);
     return postDao.deletePost(postId);
   }
+
+  // 산책 상태 변경 및 시간 입력
+  public Post markWApplyEndedNow(int postId) {
+    int rows = postDao.markWApplyEndedNow(postId);
+    if (rows == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(모집글 아님/이미 마감)");
+    return postDao.selectByPostId(postId);
+  }
+
+  public Post markWalkStartedNow(int postId) {
+    int rows = postDao.markWalkStartedNow(postId);
+    if (rows == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(마감 없음/이미 시작)");
+    return postDao.selectByPostId(postId);
+  }
+
+  public Post markWalkEndedNow(int postId) {
+    int rows = postDao.markWalkEndedNow(postId);
+    if (rows == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(시작 없음/이미 종료)");
+    return postDao.selectByPostId(postId);
+  }
+
 }

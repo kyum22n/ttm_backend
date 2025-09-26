@@ -19,6 +19,7 @@ public class Post {
 	private String postContent;	// 게시물 내용
 	private Integer postLikeCount;	// 게시물 좋아요 수
 	private LocalDateTime createdAt;	// 게시물 등록일
+	private LocalDateTime updatedAt; // 게시물 수정일
 	
 	// 첨부 이미지
 	private Integer postImageId; // 0919 imageId 필드가 없으면 바인딩예외 에러 발생

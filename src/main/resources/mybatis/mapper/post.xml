@@ -72,7 +72,8 @@
     update posts
     set post_title = #{postTitle},
         post_content = #{postContent},
-        is_request = #{isRequest}
+        is_request = #{isRequest},
+        updated_at = SYSTIMESTAMP
         <if test='isRequest != null and isRequest.equals("Y")'>
           , wapplyended_at = #{wApplyEndedAt}
           , walkstarted_at = #{walkStartedAt}
@@ -129,5 +130,36 @@
     from posts
     where user_id = #{value}
   </select>
+
+  <!-- 그룹산책 상태 변경과 그 시각 입력 -->
+  <update id="markWalkStartedNow">
+    update posts
+    set walkstarted_at = SYSTIMESTAMP,
+        updated_at     = SYSTIMESTAMP
+    where post_id = #{postId}
+      and is_request = 'Y'
+      and wapplyended_at is not null
+      and walkstarted_at is null
+
+  </update>
+
+  <update id="markWalkEndedNow">
+    update posts
+    set walkended_at = SYSTIMESTAMP,
+        updated_at   = SYSTIMESTAMP
+    where post_id = #{postId}
+      and is_request = 'Y'
+      and walkstarted_at is not null
+      and walkended_at is null
+  </update>
+
+  <update id="markWApplyEndedNow">
+    update posts
+    set wapplyended_at = SYSTIMESTAMP,
+        updated_at     = SYSTIMESTAMP
+    where post_id = #{postId}
+      and is_request = 'Y'
+      and wapplyended_at is null
+  </update>
 
 </mapper>

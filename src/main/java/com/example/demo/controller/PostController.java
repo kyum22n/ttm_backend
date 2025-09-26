@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.Comment;
 import com.example.demo.dto.Pager;
@@ -59,7 +58,7 @@ public class PostController {
       log.info("단일 이미지: {}", post.getPostAttach().getOriginalFilename());
     }
 
-    // ✅ 다중 파일 로깅 (실제 저장은 서비스)
+    // 다중 파일 로깅 (실제 저장은 서비스에서 한다)
     if (post.getPostAttaches() != null) {
       for (var mf : post.getPostAttaches()) {
         if (mf != null && !mf.isEmpty()) {
@@ -122,21 +121,29 @@ public class PostController {
   }
 
   // 게시물 수정
-  @PutMapping("/update")
-  public Post postUpdate(Post post) throws Exception {
+  @PutMapping(value = "/update", consumes = "multipart/form-data")
+  public Post postUpdate(
+      @ModelAttribute Post post,
+      @RequestParam(name = "imageMode", defaultValue = "replace") String imageMode,
+      @RequestParam(name = "clearImages", defaultValue = "N") String clearImages) throws Exception {
 
-    MultipartFile mf = post.getPostAttach();
-    if (mf != null && !mf.isEmpty()) {
-      post.setPostAttachOname(mf.getOriginalFilename());
-      post.setPostAttachType(mf.getContentType());
-      post.setPostAttachData(mf.getBytes());
+    // 단일 파일 로깅 (서비스에서 저장 처리함)
+    if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
+      log.info("단일 이미지(수정): {}", post.getPostAttach().getOriginalFilename());
     }
 
-    postService.modifyPost(post);
+    // 다중 파일 로깅
+    if (post.getPostAttaches() != null) {
+      log.info("다중 이미지 개수(수정): {}", post.getPostAttaches().size());
+      for (var mf : post.getPostAttaches()) {
+        if (mf != null && !mf.isEmpty()) {
+          log.info("다중 이미지(수정): {} ({} bytes)", mf.getOriginalFilename(), mf.getSize());
+        }
+      }
+    }
 
-    Post dbPost = postService.postDetail(post.getPostId());
-
-    return dbPost;
+    postService.modifyPostWithImages(post, imageMode, "Y".equalsIgnoreCase(clearImages));
+    return postService.postDetail(post.getPostId());
   }
 
   // 게시물 좋아요
@@ -273,6 +280,22 @@ public class PostController {
   @GetMapping("/groupwalk/{postId}/participants/approved")
   public List<Participate> listApprovedParticipants(@PathVariable("postId") int postId) {
     return participateService.listApprovedByPost(postId);
+  }
+
+  // 
+  @PutMapping("/groupwalk/apply-end/now")
+  public Post setApplyEndNow(@RequestParam("postId") int postId) {
+    return postService.markWApplyEndedNow(postId);
+  }
+
+  @PutMapping("/groupwalk/start/now")
+  public Post setWalkStartNow(@RequestParam("postId") int postId) {
+    return postService.markWalkStartedNow(postId);
+  }
+
+  @PutMapping("/groupwalk/end/now")
+  public Post setWalkEndNow(@RequestParam("postId") int postId) {
+    return postService.markWalkEndedNow(postId);
   }
 
 }
