@@ -17,4 +17,5 @@ public interface LikeDao {
     // 좋아요 취소
     public int deleteLikeFromPet(Integer petId);
     public int deleteLikeFromPost(Integer postId);
+    
 }
