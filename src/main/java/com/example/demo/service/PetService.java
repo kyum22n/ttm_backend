@@ -17,14 +17,14 @@ public class PetService {
 	@Autowired
 	private PetDao petDao;
 
-	// 반려견 등록
-	public void register(Pet pet) {
-		petDao.insertPet(pet);
+	// // 반려견 등록
+	// public void register(Pet pet) {
+	// 	petDao.insertPet(pet);
 
-		if (pet.getPetAttachData() != null && pet.getPetAttachData().length > 0) {
-			petDao.insertPetImage(pet);
-		}
-	}
+	// 	if (pet.getPetAttachData() != null && pet.getPetAttachData().length > 0) {
+	// 		petDao.insertPetImage(pet);
+	// 	}
+	// }
 	
 	// 반려견 1마리 정보 보기
 	public Pet getPet(Integer petId) {

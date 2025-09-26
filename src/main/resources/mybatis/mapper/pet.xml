@@ -104,4 +104,11 @@
     from pets
     where user_id = #{petUserId}
   </select>
+
+  <!-- 사용자가 등록한 모든 반려견 수 조회 -->
+  <select id="countAllPetByUserId" parameterType = "Integer">
+    select COUNT(*)
+    from pets
+    where user_id = #{petUserId}
+  </select>
 </mapper>

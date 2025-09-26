@@ -23,5 +23,8 @@ public interface PetDao {
   public int insertPetImage(Pet pet);
   public int updatePetImage(Pet pet);
   public int deletePetImage(Integer petId);
+
+  // 특정 반려인의 반려견 수 
+  public int countAllPetByUserId(Integer petUserId);
 }
 

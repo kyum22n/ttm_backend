@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 import com.example.demo.service.UserLoginService;
 import com.example.demo.service.UserService;
@@ -37,50 +38,27 @@ public class UserController {
 	private UserLoginService userLoginService;
 
 	@PostMapping("/join")
-	public Map<String, Object> userJoin(@RequestBody User user) {
+	public Map<String, Object> userJoin(@RequestBody User user, @RequestBody Pet pet) throws Exception {
 		// 입력 값 확인
 		log.info(user.toString());
 
 		Map<String, Object> map = new HashMap<>();
 
-		if (!userService.isEnglishOnly(user.getUserLoginId())) {
-        map.put("result", "fail");
-        map.put("message", "아이디는 영어로만 입력해야 합니다.");
-        return map;
-    }
+		String result = userService.join(user, pet);
 
-    if (!userService.isEnglishOnly(user.getUserPassword())) {
-        map.put("result", "fail");
-        map.put("message", "비밀번호는 영어로만 입력해야 합니다.");
-        return map;
-    }
-
-		// 암호화
-		try {
-			// Bcrypt 방식으로 암호화
-			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-			String encodedPassword = passwordEncoder.encode(user.getUserPassword());
-			// user 객체의 필드 값 수정
-			user.setUserPassword(encodedPassword);
-			User user1 = userLoginService.getUserByLoginId(user.getUserLoginId());
-			User user2 = userLoginService.getUserByEmail(user.getUserEmail());
-			if (user1 != null) {
-				map.put("result", "fail");
-				map.put("message", "이미 사용중인 아이디입니다.");
-				return map;
-			}
-			if (user2 != null) {
-				map.put("result", "fail");
-				map.put("message", "이미 등록된 이메일입니다.");
-				return map;
-			}
-			// userService를 통해 DB에 저장
-			userService.join(user);
+		if(result == "success") {
 			map.put("result", "success");
-		} catch (Exception e) {
+		} else if(result == "exisID") {
 			map.put("result", "fail");
-			map.put("message", e.getMessage());
+			map.put("message", "이미 존재하는 아이디입니다.");
+		} else if(result == "existEmail") {
+			map.put("result", "fail");
+			map.put("message", "이미 존재하는 이메일입니다.");
+		} else {
+			map.put("result", "fail");
+			map.put("message", "회원가입 실패");
 		}
+
 		return map;
 	}
 

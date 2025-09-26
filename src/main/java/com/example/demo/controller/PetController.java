@@ -34,21 +34,21 @@ public class PetController {
   @Autowired
   private UserService userService;
 
-  // 반려견 정보 등록하기
-  @PostMapping("/register")
-  public Pet petRegister(@ModelAttribute Pet pet) throws Exception{
-    MultipartFile mf = pet.getPetAttach();
-    if(mf != null && !mf.isEmpty()){
-      pet.setPetAttachOname(mf.getOriginalFilename());
-      pet.setPetAttachType(mf.getContentType());
-      pet.setPetAttachData(mf.getBytes());
-    }
-    petService.register(pet);
+  // // 반려견 정보 등록하기
+  // @PostMapping("/register")
+  // public Pet petRegister(@ModelAttribute Pet pet) throws Exception{
+  //   MultipartFile mf = pet.getPetAttach();
+  //   if(mf != null && !mf.isEmpty()){
+  //     pet.setPetAttachOname(mf.getOriginalFilename());
+  //     pet.setPetAttachType(mf.getContentType());
+  //     pet.setPetAttachData(mf.getBytes());
+  //   }
+  //   petService.register(pet);
 
-    Pet dbPet = petService.getPet(pet.getPetId());
+  //   Pet dbPet = petService.getPet(pet.getPetId());
 
-    return dbPet;
-  }
+  //   return dbPet;
+  // }
   
   // 특정 반려견 정보 조회
   @GetMapping("/find")
