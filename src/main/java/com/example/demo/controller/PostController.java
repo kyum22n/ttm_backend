@@ -52,8 +52,20 @@ public class PostController {
 
   // 게시물 작성
   @PostMapping(value = "/write", consumes = "multipart/form-data")
-  public Post postWrite(@ModelAttribute Post post) throws Exception {
-    return postService.write(post);
+  public Map<String, Object> postWrite(@ModelAttribute Post post) throws Exception {
+
+    Map<String, Object> map = new HashMap<>();
+    Post newpPost = postService.write(post);
+
+    if(newpPost == null) {
+      map.put("result", "fail");
+      map.put("message", "게시물 작성 실패");
+    } else {
+      map.put("result", "success");
+      map.put("newPost", newpPost);
+    }
+
+    return map;
   }
 
   // 전체 게시물 목록 불러오기(페이징)
@@ -131,29 +143,14 @@ public class PostController {
     return postService.postDetail(post.getPostId());
   }
 
-  // 게시물 좋아요
-  @PostMapping("/{postId}/like")
-  public void postLike(@PathVariable("postId") Integer postId) {
-    postService.increasePostLikecount(postId);
-  }
-
-  // 게시물 좋아요 취소
-  @PutMapping("/{postId}/like/cancel")
-  public void postLikeCancel(@PathVariable("postId") Integer postId) {
-    postService.decreasePostLikecount(postId);
-  }
-
   // 게시물 삭제
   @DeleteMapping("/delete")
   public Map<String, String> postDelete(@RequestParam("postId") Integer postId) {
     int rows = postService.removePost(postId);
 
     Map<String, String> map = new HashMap<>();
-    if (postId == null && rows < 0) {
-      map.put("result", "fail");
-    } else {
-      map.put("result", "success");
-    }
+
+    map.put("result", rows > 0 ? "success" : "fail");
 
     return map;
   }
@@ -207,6 +204,41 @@ public class PostController {
   public void deleteTag(@RequestBody PostTag postTag) {
     postTagService.removeTag(postTag);
   }
+
+  // 그룹 산책 모집글만 조회
+  @GetMapping("/groupwalk/recruitment-list")
+  public Map<String, Object> groupWalkRecruitment(String isRequest) {
+    Map<String, Object> map = new HashMap<>();
+    List<Post> groupWalkPost = postService.getAllGroupWalkPost(isRequest);
+
+    if(groupWalkPost == null) {
+      map.put("result", "fail");
+      map.put("message", "산책 모집글이 없습니다.");
+    } else {
+      map.put("result", "success");
+      map.put("groupWalkPost", groupWalkPost);
+    }
+
+    return map;
+  }
+
+  // 그룹 산책 완료된 글만 조회
+  @GetMapping("/groupwalk/ended-list")
+  public Map<String, Object> endedGroupWalk() {
+    Map<String, Object> map = new HashMap<>();
+    List<Post> endedGroupWalk = postService.getAllEndedGroupWalk();
+
+    if (endedGroupWalk == null) {
+      map.put("result", "fail");
+      map.put("message", "완료된 그룹 산책이 없습니다.");
+    } else {
+      map.put("result", "success");
+      map.put("message", endedGroupWalk);
+    }
+
+    return map;
+  }
+
 
   // 이제 이 컨트롤러는 제껍니다
   // 산책 신청(자기 자신을 participates에 등록)

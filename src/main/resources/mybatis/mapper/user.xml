@@ -35,8 +35,10 @@
 	필요한 정보 조회 or 비밀번호 찾기-->
 	<select id="selectUserByLoginId"
 		parameterType="String"
-		resultType="User"> select user_login_id, user_password, user_email from users where
-		user_login_id = #{value} </select>
+		resultType="User"> 
+		select user_login_id, user_password, user_email 
+		from users 
+		where user_login_id = #{value} </select>
 
 	<!--이메일로
 	사용자 조회(아이디 찾기용)-->

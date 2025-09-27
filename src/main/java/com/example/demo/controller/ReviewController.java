@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,10 +27,22 @@ public class ReviewController {
 
   // 리뷰 쓰기
   @PostMapping("/write")
-  public Review reviewWrite(@RequestBody Review review) {
-  log.info(review.toString());
+  public Map<String, Object> reviewWrite(@RequestBody Review review) {
+    log.info(review.toString());
 
-  return reviewService.create(review);
+    Map<String, Object> map = new HashMap<>();
+    String result = reviewService.create(review);
+
+    if("fail".equals(result)) {
+      map.put("result", "fail");
+      map.put("message", "리뷰 등록 실패");
+
+    } else {
+      map.put("result", "success");
+      map.put("review", review);
+    }
+
+    return map;
   }
 
   // 해당 유저가 받은 리뷰 모두 가져오기

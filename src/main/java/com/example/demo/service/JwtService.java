@@ -64,6 +64,7 @@ public class JwtService {
   // Jwt 토큰 유효 검사
   public boolean validateJwt(String jwt){
     boolean result = false;
+
     try{
       // JWT를 해석하는 JwtParser 얻기
       JwtParserBuilder jwtParserBuilder = Jwts.parser();
@@ -73,6 +74,7 @@ public class JwtService {
       // JWT를 해석 Jws= "서명된 JWT(JSON Web Signature)"
       Jws<Claims> jws = jwtParser.parseSignedClaims(jwt);
       result = true;
+      
     }catch (ExpiredJwtException e){
       log.info("기간이 만료된 토큰입니다.");
     } catch (io.jsonwebtoken.security.SecurityException e){

@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dao.UserDao;
 import com.example.demo.dto.User;
@@ -20,9 +21,30 @@ public class UserLoginService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // loginId를 통해 user 객체 받아오기(로그인/비밀번호 찾기용)
+    @Autowired
+    private JwtService jwtService;
+
+    // 로그인 서비스
+    @Transactional
+    public String userLogin(String userLoginId ,String userPassword) {
+        User user = userDao.selectUserByLoginId(userLoginId);
+        if(user == null){
+            throw new IllegalArgumentException("아이디가 없음");
+        }
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if(!passwordEncoder.matches(userPassword, user.getUserPassword())){
+            throw new IllegalArgumentException("비밀번호가 틀림");
+        }
+
+        return jwtService.createJwt(user.getUserId(), user.getUserLoginId(), user.getUserEmail());
+    }
+
+    // 비밀번호 찾기
     public User getUserByLoginId(String userLoginId) {
         User user = userDao.selectUserByLoginId(userLoginId);
+        if(user == null){
+            throw new IllegalArgumentException("아이디가 없음");
+        }
         return user;
     }
 
@@ -32,7 +54,7 @@ public class UserLoginService {
         return user;
     }
 
-    // email을 통해 user 객체 조회(아이디 찾기용)
+    // 아이디 찾기
     public User getUserByEmail(String email) {
         User user = userDao.selectUserByEmail(email);
         return user;

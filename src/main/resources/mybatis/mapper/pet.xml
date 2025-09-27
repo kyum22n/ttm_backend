@@ -34,14 +34,14 @@
   <!--반려견 정보 수정하기-->
   <update id="updatePet"
       parameterType="Pet">
-    update ttm.pets
+    update pets
     set pet_weight = #{petWeight}, 
         pet_breed = #{petBreed}, 
         pet_BirthDay = #{petBirthDay},
         pet_Name = #{petName},
         pet_Desc = #{petDesc},
         pet_Gender = #{petGender}
-    where pet_Id = #{petId}
+    where pet_Id = #{petId} and user_id = #{petUserId}
   </update>
 
   <!--반려견 이미지 수정하기-->
@@ -96,11 +96,28 @@
     where pet_Id = #{value}
   </select>
 
+  <!--반려견 이미지 조회-->
+  <select id="selectPetImageByPetId" parameterType="Integer" resultType="Pet">
+  SELECT pet_image_id,
+         pet_attach_oname,
+         pet_attach_type,
+         pet_attach_data
+  FROM pet_images
+  WHERE pet_id = #{value}
+</select>
+
   <!--사용자가 등록한 모든 반려견의 조회-->
   <select id="selectAllPetByUserId"
     parameterType="Integer"
     resultType="Pet">
     select pet_id, pet_weight, pet_breed, pet_BirthDay, pet_Name, pet_Desc, pet_Gender, pet_Like_Count, user_id as petUserId, created_at
+    from pets
+    where user_id = #{petUserId}
+  </select>
+
+  <!-- 사용자가 등록한 모든 반려견 수 조회 -->
+  <select id="countAllPetByUserId" parameterType = "Integer">
+    select COUNT(*)
     from pets
     where user_id = #{petUserId}
   </select>

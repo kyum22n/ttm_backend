@@ -5,6 +5,7 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.dao.PostDao">
+
   <!-- 게시물 작성 -->
   <insert id="insertPost" parameterType="Post">
     <selectKey keyProperty="postId" resultType="Integer" order="BEFORE">
@@ -31,6 +32,7 @@
     )
   </insert>
   
+  
   <!-- 게시물 하나 가져오기 -->
   <select id="selectByPostId" parameterType="Integer" resultType="Post">
     select
@@ -52,9 +54,9 @@
             from  posts
             order by post_id desc
         )
-        where rownum <= #{endRowNo}
+        where rownum <= 10
     )
-    where rnum >= #{startRowNo} 
+    where rnum >= 1
     ]]>
   </select>
   
@@ -82,7 +84,7 @@
     where post_id = #{postId}
   </update>
 
-  <!-- ✅ 전체 이미지 삭제(해당 게시물) -->
+  <!-- 전체 이미지 삭제(해당 게시물) -->
   <delete id="deletePostImagesByPostId" parameterType="int">
     delete from post_images where post_id = #{value}
   </delete>
@@ -129,6 +131,61 @@
     select count(*)
     from posts
     where user_id = #{value}
+  </select>
+
+
+  <!--          -->
+  <!-- 그룹 산책 -->
+  <!--          -->
+
+  <!-- 그룹 산책 모집글 목록 조회 -->
+  <select id="selectAllGroupWalkPost" parameterType="String">
+    <![CDATA[ 
+    select rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
+          wapplyended_at, walkstarted_at, walkended_at
+    from (
+      select rownum as rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, 
+          user_id as postUserId, wapplyended_at, walkstarted_at, walkended_at
+      from(
+        select post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
+          wapplyended_at, walkstarted_at, walkended_at
+        from posts
+        where is_request = 'Y'
+        order by post_id desc
+      )
+      where rownum < 10
+    )
+    where rnum > 1
+    ]]>
+  </select>
+  
+  <!-- 그룹 산책 완료된 글 목록 조회 -->
+  <select id="selectAllEndedGroupWalk" parameterType="Post">
+    <![CDATA[ 
+    select rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
+          wapplyended_at, walkstarted_at, walkended_at
+    from (
+      select rownum as rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, 
+          user_id as postUserId, wapplyended_at, walkstarted_at, walkended_at
+      from(
+        select post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
+          wapplyended_at, walkstarted_at, walkended_at
+        from posts
+        where walkended_at is not null
+        order by walkended_at desc
+      )
+      where rownum < 10
+    )
+    where rnum > 1
+    ]]>
+  </select>
+
+  <!-- 그룹 산책 완료된 글 하나 조회 -->
+  <select id="selectEndedGroupWalk" parameterType="Integer" resultType="Post">
+    select post_id, post_title, post_content, post_like_count, created_at, is_request, 
+        user_id as postUserId, wapplyended_at, walkstarted_at, walkended_at
+    from posts
+    where post_id = #{postId} and walkended_at is not null
   </select>
 
   <!-- 그룹산책 상태 변경과 그 시각 입력 -->
