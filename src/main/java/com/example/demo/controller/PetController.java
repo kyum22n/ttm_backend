@@ -32,11 +32,11 @@ public class PetController {
     Map<String, Object> map = new HashMap<>();
     try {
       Pet result = petService.register(pet);
-      map.put("result", "succes");
+      map.put("result", "success");
       map.put("pet", result);
     } catch (Exception e) {
       map.put("result", "fail");
-      map.put("result", e.getMessage());
+      map.put("message", e.getMessage());
     }
     return map;
   }
@@ -82,6 +82,7 @@ public class PetController {
 
     try{
     Pet dbPet = petService.update(pet);
+    map.put("result", "success");
     map.put("pet", dbPet);
     }catch(Exception e){
       map.put("result", "수정 실패");

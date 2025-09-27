@@ -96,6 +96,16 @@
     where pet_Id = #{value}
   </select>
 
+  <!--반려견 이미지 조회-->
+  <select id="selectPetImageByPetId" parameterType="Integer" resultType="Pet">
+  SELECT pet_image_id,
+         pet_attach_oname,
+         pet_attach_type,
+         pet_attach_data
+  FROM pet_images
+  WHERE pet_id = #{value}
+</select>
+
   <!--사용자가 등록한 모든 반려견의 조회-->
   <select id="selectAllPetByUserId"
     parameterType="Integer"

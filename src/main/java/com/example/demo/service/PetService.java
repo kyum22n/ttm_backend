@@ -27,6 +27,7 @@ public class PetService {
 	// 반려견 등록
 	public Pet register(Pet pet) throws Exception {
 		petDao.insertPet(pet);
+
 		MultipartFile mf = pet.getPetAttach();
 		if (mf != null && !mf.isEmpty()) {
 			pet.setPetAttachOname(mf.getOriginalFilename());
@@ -34,8 +35,18 @@ public class PetService {
 			pet.setPetAttachData(mf.getBytes());
 			petDao.insertPetImage(pet);
 		}
+		Pet dbPet = petDao.selectByPetId(pet.getPetId());
+		Pet image = petDao.selectPetImageByPetId(pet.getPetId());
 		
-		return petDao.selectByPetId(pet.getPetId());
+		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
+		if(image != null) {
+			dbPet.setPetImageId(image.getPetImageId());
+			dbPet.setPetAttachOname(image.getPetAttachOname());
+			dbPet.setPetAttachType(image.getPetAttachType());
+			dbPet.setPetAttachData(image.getPetAttachData());
+		}
+		
+		return dbPet;
 	}
 
 	// 반려견 1마리 정보 보기
@@ -61,6 +72,8 @@ public class PetService {
 	@Transactional
 	public Pet update(Pet pet) throws Exception {
 		// userId 검사 보류(예외 처리)
+		petDao.updatePet(pet);
+
 		MultipartFile mf = pet.getPetAttach();
 		if (mf != null && !mf.isEmpty()) {
 			pet.setPetAttachOname(mf.getOriginalFilename());
@@ -68,9 +81,19 @@ public class PetService {
 			pet.setPetAttachData(mf.getBytes());
 			petDao.updatePetImage(pet);
 		}
-		petDao.updatePet(pet);
 
-		return petDao.selectByPetId(pet.getPetId());
+		Pet dbPet = petDao.selectByPetId(pet.getPetId());
+		Pet image = petDao.selectPetImageByPetId(pet.getPetId());
+
+		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
+		if(image != null) {
+			dbPet.setPetImageId(image.getPetImageId());
+			dbPet.setPetAttachOname(image.getPetAttachOname());
+			dbPet.setPetAttachType(image.getPetAttachType());
+			dbPet.setPetAttachData(image.getPetAttachData());
+		}
+		
+		return dbPet;
 	}
 
 	// 반려견 정보 삭제
