@@ -22,11 +22,13 @@ public interface PostDao {
   public int decreasePostLikecount(Integer postId);
 
   
-  int markWalkStartedNow(Integer postId);
-  int markWalkEndedNow(Integer postId);
-  int markWApplyEndedNow(Integer postId);
-  
+  public int markWalkStartedNow(Integer postId);
+  public int markWalkEndedNow(Integer postId);
+  public int markWApplyEndedNow(Integer postId);
 
+  // 합치기 (합친 후엔 위에거 삭제 가능)
+  public int markWalkByCode(@Param("postId") int postId, @Param("code") int code);
+  
   // Pager
   public List<Post> selectByPage(Pager pager);
   public int countAll();

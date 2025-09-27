@@ -132,7 +132,7 @@
   </select>
 
   <!-- 그룹산책 상태 변경과 그 시각 입력 -->
-  <update id="markWalkStartedNow">
+  <!-- <update id="markWalkStartedNow">
     update posts
     set walkstarted_at = SYSTIMESTAMP,
         updated_at     = SYSTIMESTAMP
@@ -160,6 +160,39 @@
     where post_id = #{postId}
       and is_request = 'Y'
       and wapplyended_at is null
-  </update>
+  </update> -->
+
+  <update id="markWalkByCode">
+  update posts
+  <set>
+    <choose>
+      <when test="code == 1">
+        wapplyended_at = SYSTIMESTAMP,
+      </when>
+      <when test="code == 2">
+        walkstarted_at = SYSTIMESTAMP,
+      </when>
+      <when test="code == 3">
+        walkended_at = SYSTIMESTAMP,
+      </when>
+    </choose>
+    updated_at = SYSTIMESTAMP
+  </set>
+  where post_id = #{postId}
+    and is_request = 'Y'
+    <choose>
+      <when test="code == 1">
+        and wapplyended_at is null
+      </when>
+      <when test="code == 2">
+        and wapplyended_at is not null
+        and walkstarted_at is null
+      </when>
+      <when test="code == 3">
+        and walkstarted_at is not null
+        and walkended_at is null
+      </when>
+    </choose>
+</update>
 
 </mapper>

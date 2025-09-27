@@ -33,7 +33,7 @@ public class PostService {
     // 1) 글 저장 (postId 채워짐)
     postDao.insertPost(post);
 
-    // 2) 이미지 저장 (단일 + 다중)
+    // 이미지 저장 (단일)
     if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
       PostImage img = new PostImage();
       img.setPostId(post.getPostId());
@@ -42,6 +42,7 @@ public class PostService {
       img.setPostAttachData(post.getPostAttach().getBytes());
       postImageDao.insert(img);
     }
+    // 이미지 저장 (다중)
     List<MultipartFile> files = post.getPostAttaches();
     if (files != null) {
       for (MultipartFile mf : files) {
@@ -73,38 +74,32 @@ public class PostService {
     return postDao.selectByPostId(post.getPostId());
   }
 
-
-
-
-
-
-
   // public void writePostAndAutoApplyIfNeeded(Post post) throws Exception {
-  //   postDao.insertPost(post); // postId 채워짐
+  // postDao.insertPost(post); // postId 채워짐
 
-  //   // 1) 기존 단일 파일도 지원
-  //   if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
-  //     PostImage img = new PostImage();
-  //     img.setPostId(post.getPostId());
-  //     img.setPostAttachOname(post.getPostAttach().getOriginalFilename());
-  //     img.setPostAttachType(post.getPostAttach().getContentType());
-  //     img.setPostAttachData(post.getPostAttach().getBytes());
-  //     postImageDao.insert(img);
-  //   }
+  // // 1) 기존 단일 파일도 지원
+  // if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
+  // PostImage img = new PostImage();
+  // img.setPostId(post.getPostId());
+  // img.setPostAttachOname(post.getPostAttach().getOriginalFilename());
+  // img.setPostAttachType(post.getPostAttach().getContentType());
+  // img.setPostAttachData(post.getPostAttach().getBytes());
+  // postImageDao.insert(img);
+  // }
 
   // 2) ✅ 다중 파일 처리
-  //   if (post.getPostAttaches() != null && !post.getPostAttaches().isEmpty()) {
-  //     for (var mf : post.getPostAttaches()) {
-  //       if (mf != null && !mf.isEmpty()) {
-  //         PostImage img = new PostImage();
-  //         img.setPostId(post.getPostId());
-  //         img.setPostAttachOname(mf.getOriginalFilename());
-  //         img.setPostAttachType(mf.getContentType());
-  //         img.setPostAttachData(mf.getBytes());
-  //         postImageDao.insert(img);
-  //       }
-  //     }
-  //   }
+  // if (post.getPostAttaches() != null && !post.getPostAttaches().isEmpty()) {
+  // for (var mf : post.getPostAttaches()) {
+  // if (mf != null && !mf.isEmpty()) {
+  // PostImage img = new PostImage();
+  // img.setPostId(post.getPostId());
+  // img.setPostAttachOname(mf.getOriginalFilename());
+  // img.setPostAttachType(mf.getContentType());
+  // img.setPostAttachData(mf.getBytes());
+  // postImageDao.insert(img);
+  // }
+  // }
+  // }
   // }
 
   // 전체 게시물 목록 불러오기(페이지)
@@ -200,21 +195,32 @@ public class PostService {
   }
 
   // 산책 상태 변경 및 시간 입력
-  public Post markWApplyEndedNow(int postId) {
-    int rows = postDao.markWApplyEndedNow(postId);
-    if (rows == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(모집글 아님/이미 마감)");
-    return postDao.selectByPostId(postId);
-  }
+  // public Post markWApplyEndedNow(int postId) {
+  // int rows = postDao.markWApplyEndedNow(postId);
+  // if (rows == 0)
+  // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(모집글 아님/이미
+  // 마감)");
+  // return postDao.selectByPostId(postId);
+  // }
 
-  public Post markWalkStartedNow(int postId) {
-    int rows = postDao.markWalkStartedNow(postId);
-    if (rows == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(마감 없음/이미 시작)");
-    return postDao.selectByPostId(postId);
-  }
+  // public Post markWalkStartedNow(int postId) {
+  // int rows = postDao.markWalkStartedNow(postId);
+  // if (rows == 0)
+  // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(마감 없음/이미
+  // 시작)");
+  // return postDao.selectByPostId(postId);
+  // }
 
-  public Post markWalkEndedNow(int postId) {
-    int rows = postDao.markWalkEndedNow(postId);
-    if (rows == 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(시작 없음/이미 종료)");
+  // public Post markWalkEndedNow(int postId) {
+  // int rows = postDao.markWalkEndedNow(postId);
+  // if (rows == 0)
+  // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조건 불충족(시작 없음/이미
+  // 종료)");
+  // return postDao.selectByPostId(postId);
+  // }
+
+  public Post markWalkByCode(int postId, int code) {
+    postDao.markWalkByCode(postId, code);
     return postDao.selectByPostId(postId);
   }
 
