@@ -19,12 +19,6 @@ public interface PetDao {
   public int increasePetLikecount(Integer petId);
   public int decreasePetLikecount(Integer petId);
 
-  // 반려견 이미지
-  public int insertPetImage(Pet pet);
-  public int updatePetImage(Pet pet);
-  public int deletePetImage(Integer petId);
-  public Pet selectPetImageByPetId(Integer petId);
-
   // 특정 반려인의 반려견 수 
   public int countAllPetByUserId(Integer petUserId);
 }

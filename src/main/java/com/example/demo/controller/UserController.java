@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 import com.example.demo.service.UserService;
 import com.example.demo.service.UserService.RemoveResult;

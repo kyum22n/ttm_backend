@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dao.PetDao;
+import com.example.demo.dao.PetImageDao;
 import com.example.demo.dao.UserDao;
 import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
@@ -22,9 +23,13 @@ public class PetService {
 	private PetDao petDao;
 
 	@Autowired
+	private PetImageDao petImageDao;
+
+	@Autowired
 	private UserDao userDao;
 
 	// 반려견 등록
+	@Transactional
 	public Pet register(Pet pet) throws Exception {
 		petDao.insertPet(pet);
 
@@ -33,10 +38,10 @@ public class PetService {
 			pet.setPetAttachOname(mf.getOriginalFilename());
 			pet.setPetAttachType(mf.getContentType());
 			pet.setPetAttachData(mf.getBytes());
-			petDao.insertPetImage(pet);
+			petImageDao.insertPetImage(pet);
 		}
 		Pet dbPet = petDao.selectByPetId(pet.getPetId());
-		Pet image = petDao.selectPetImageByPetId(pet.getPetId());
+		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
 		
 		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
 		if(image != null) {
@@ -79,11 +84,11 @@ public class PetService {
 			pet.setPetAttachOname(mf.getOriginalFilename());
 			pet.setPetAttachType(mf.getContentType());
 			pet.setPetAttachData(mf.getBytes());
-			petDao.updatePetImage(pet);
+			petImageDao.updatePetImage(pet);
 		}
 
 		Pet dbPet = petDao.selectByPetId(pet.getPetId());
-		Pet image = petDao.selectPetImageByPetId(pet.getPetId());
+		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
 
 		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
 		if(image != null) {
@@ -103,7 +108,7 @@ public class PetService {
 			return 0;
 		}
 
-		petDao.deletePetImage(petId);
+		petImageDao.deletePetImage(petId);
 
 		int rows = petDao.deletePet(petId);
 

@@ -5,11 +5,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dao.PetDao;
 import com.example.demo.dao.UserDao;
-import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 
 import io.micrometer.common.util.StringUtils;
