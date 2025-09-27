@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,6 +30,7 @@ public class PostService {
   private ParticipateDao participateDao;
 
   // 게시물 작성
+  @Transactional
   public Post write(Post post) throws Exception {
     // 1) 글 저장 (postId 채워짐)
     postDao.insertPost(post);
@@ -110,6 +112,7 @@ public class PostService {
   }
 
   // 게시물 수정
+  @Transactional
   public int modifyPostWithImages(Post post, String imageMode, boolean clearImages) throws Exception {
     int rows = postDao.updatePost(post);
 
@@ -149,28 +152,36 @@ public class PostService {
     return rows;
   }
 
-  // 좋아요 수 증가
-  public void increasePostLikecount(Integer postId) {
-    postDao.increasePostLikecount(postId);
-  }
-
-  // 좋아요 취소
-  public void decreasePostLikecount(Integer postId) {
-    postDao.decreasePostLikecount(postId);
-  }
-
   // 게시물 삭제
   public int removePost(Integer postId) {
+
+    int rows = postDao.deletePost(postId);
+
     postImageDao.deleteByPostId(postId);
-    return postDao.deletePost(postId);
+
+    return rows;
   }
 
   // //////////////////////////////////////////////////////
 
-  // 그룹 산책 모집글만 조회
-
+  // 그룹 산책 모집글 목록만 조회
+  public List<Post> getAllGroupWalkPost(String isRequest) {
+    List<Post> groupWalkPost = postDao.selectAllGroupWalkPost(isRequest);
+    return groupWalkPost;
+  }
   
-  // 그룹 산책 완료된 글만 조회
+  // 그룹 산책 완료된 글 목록만 조회
+  public List<Post> getAllEndedGroupWalk() {
+    List<Post> endedGroupWalk = postDao.selectAllEndedGroupWalk();
+    return endedGroupWalk;
+  }
+
+  // 그룹 산책 완료된 글 하나 조회
+  // Controller 아직 구현 안 함
+  public Post getEndedGroupWalk(Integer postId) {
+    Post endedPost = postDao.selectEndedGroupWalk(postId);
+    return endedPost;
+  }
 
   // 산책 상태 변경 및 시간 입력
   public Post markWApplyEndedNow(int postId) {

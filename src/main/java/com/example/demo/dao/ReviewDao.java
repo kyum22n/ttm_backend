@@ -9,6 +9,7 @@ import com.example.demo.dto.Review;
 
 @Mapper
 public interface ReviewDao {
+  // 리뷰 아이디로 리뷰 불러오기
   public Review selectByReviewId(@Param("reviewId") Integer reviewId);
 
   // 작성받은 사람 id로 받은 리뷰 모두 불러오기
