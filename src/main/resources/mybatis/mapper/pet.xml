@@ -34,14 +34,14 @@
   <!--반려견 정보 수정하기-->
   <update id="updatePet"
       parameterType="Pet">
-    update ttm.pets
+    update pets
     set pet_weight = #{petWeight}, 
         pet_breed = #{petBreed}, 
         pet_BirthDay = #{petBirthDay},
         pet_Name = #{petName},
         pet_Desc = #{petDesc},
         pet_Gender = #{petGender}
-    where pet_Id = #{petId}
+    where pet_Id = #{petId} and user_id = #{petUserId}
   </update>
 
   <!--반려견 이미지 수정하기-->

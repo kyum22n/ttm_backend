@@ -14,7 +14,7 @@ public class User {
 	// 사용자 식별 번호
 	private Integer userId;
 
-	// 사용자 로그인 아이디
+	// 사용자 로그인 아이디 
 	// @NotBlank(message = "아이디는 필수 사항입니다.")
 	// @Size(min = 5, max = 10, message = "아이디는 5자 이상 10자 이하이어야 합니다.")
 	private String userLoginId;

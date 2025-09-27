@@ -26,7 +26,7 @@ public class UserService {
 
 	// 입력받은 회원 정보, 펫 정보 유효성 검증 후 각각의 테이블에 insert
 	@Transactional
-	public String join(User user, Pet pet) throws Exception {
+	public String join(User user) throws Exception {
 
 		// Bcrypt 방식으로 암호화
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -48,17 +48,8 @@ public class UserService {
 			return "existEmail"; // 이미 존재하는 이메일
 
 		} else {
-			// 회원 정보와 반려견 정보를 DB에 저장
+			// 회원 정보를 DB에 저장
 			userDao.insert(user);
-			petDao.insertPet(pet);
-			MultipartFile mf = pet.getPetAttach();
-			if (mf != null && !mf.isEmpty()) {
-				pet.setPetAttachOname(mf.getOriginalFilename());
-				pet.setPetAttachType(mf.getContentType());
-				pet.setPetAttachData(mf.getBytes());
-
-				petDao.insertPetImage(pet);
-			}
 
 			return "success";
 		}
@@ -74,25 +65,28 @@ public class UserService {
 		return user;
 	}
 
+	@Transactional
 	public User update(User user) {
 		User dbUser = userDao.selectByUserId(user.getUserId());
 
 		if (dbUser == null) {
 			return null;
-		} else {
-			if (StringUtils.isNotBlank(user.getUserName())) {
-				dbUser.setUserName(user.getUserName());
-			}
-			if (user.getUserName() == null) {
-				dbUser.setUserName(dbUser.getUserName());
-			}
-			if (StringUtils.isNotBlank(user.getUserPassword())) {
-				dbUser.setUserPassword(user.getUserPassword());
-			}
-			if (StringUtils.isNotBlank(user.getUserAddress())) {
-				dbUser.setUserAddress(user.getUserAddress());
-			}
 		}
+		if (StringUtils.isNotBlank(user.getUserName())) {
+			dbUser.setUserName(user.getUserName());
+		}
+		if (user.getUserName() == null) {
+			dbUser.setUserName(dbUser.getUserName());
+		}
+		if (StringUtils.isNotBlank(user.getUserPassword())) {
+			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			String encodedPassword = passwordEncoder.encode(user.getUserPassword());
+			dbUser.setUserPassword(encodedPassword);
+		}
+		if (StringUtils.isNotBlank(user.getUserAddress())) {
+			dbUser.setUserAddress(user.getUserAddress());
+		}
+
 		userDao.update(dbUser);
 		return dbUser;
 	}

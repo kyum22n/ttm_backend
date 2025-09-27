@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
-import com.example.demo.service.UserLoginService;
 import com.example.demo.service.UserService;
 import com.example.demo.service.UserService.RemoveResult;
 
@@ -35,33 +32,28 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private UserLoginService userLoginService;
 
 	@PostMapping("/join")
-	public Map<String, Object> userJoin(@ModelAttribute User user,
-                                      @ModelAttribute Pet pet) throws Exception {
+	public Map<String, Object> userJoin(@ModelAttribute User user) throws Exception {
 		// 입력 값 확인
 		log.info(user.toString());
 
 		Map<String, Object> map = new HashMap<>();
 
-		String result = userService.join(user, pet);
+		String result = userService.join(user);
 
-		if("success".equals(result)) {
+		if ("success".equals(result)) {
 			map.put("result", "success");
-		}else if("existBoth".equals(result)){
+		} else if ("existBoth".equals(result)) {
 			map.put("result", "fail");
 			map.put("message", "이미 존재하는 아이디와 이메일입니다.");
-		}else if("existID".equals(result)) {
+		} else if ("existID".equals(result)) {
 			map.put("result", "fail");
 			map.put("message", "이미 존재하는 아이디입니다.");
-		} 
-		else if("existEmail".equals(result)) {
+		} else if ("existEmail".equals(result)) {
 			map.put("result", "fail");
 			map.put("message", "이미 존재하는 이메일입니다.");
-		} 
-		else {
+		} else {
 			map.put("result", "fail");
 			map.put("message", "회원가입 실패");
 		}
@@ -77,8 +69,6 @@ public class UserController {
 			resultMap.put("result", "fail");
 			resultMap.put("message", "존재하지 않는 회원입니다.");
 			return resultMap;
-			// 테스트용 강제 500 에러
-			// throw new RuntimeErrorException(null, "forced500 for test");
 		} else {
 			resultMap.put("result", "success");
 			resultMap.put("data", user);
@@ -92,31 +82,17 @@ public class UserController {
 		Map<String, Object> map = new HashMap<>();
 
 		// userId로 회원 존재 여부 확인
-		User dbUser = userService.info(user.getUserId());
-		// 만약에 dbUser가 null이면 존재하지 않는 회원
-		if (dbUser == null) {
+		User dbUser1 = userService.info(user.getUserId());
+		// 만약에 dbUser1가 null이면 존재하지 않는 회원
+		if (dbUser1 == null) {
 			map.put("result", "fail");
 			map.put("message", "존재하지 않는 회원입니다.");
 			return map;
 		}
 
-		if (!userService.isEnglishOnly(user.getUserPassword())) {
-			map.put("result", "fail");
-			map.put("message", "비밀번호는 영어로만 입력해야 합니다.");
-			return map;
-		}
-
-		// 암호화
-		if (user.getUserPassword() == null)
-			user.setUserPassword(dbUser.getUserPassword());
-		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String encodedPassword = passwordEncoder.encode(user.getUserPassword());
-		// user 객체의 필드 값 수정
-		user.setUserPassword(encodedPassword);
-
-		dbUser = userService.update(user);
+		User dbUser2 = userService.update(user);
 		// update가 실패하면 null 반환
-		if (dbUser == null) {
+		if (dbUser2 == null) {
 			map.put("result", "fail");
 			map.put("message", "회원 정보 수정에 실패했습니다.");
 			return map;
@@ -124,7 +100,7 @@ public class UserController {
 		// 성공
 		else {
 			map.put("result", "success");
-			map.put("data", dbUser);
+			map.put("data", dbUser2);
 		}
 
 		return map;
