@@ -66,10 +66,10 @@ public class LikeController {
         
         String result = likeService.createPostLike(userId, postId);
         
-        if(result == "success") {
+        if("success".equals(result)) {
             map.put("result", "success");
 
-        } else if(result == "이미 누른 좋아요") {
+        } else if("이미 누른 좋아요".equals(result)) {
             map.put("result", "fail");
             map.put("message", "좋아요 등록 실패");
 

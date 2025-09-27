@@ -32,6 +32,7 @@
     )
   </insert>
   
+  
   <!-- 게시물 하나 가져오기 -->
   <select id="selectByPostId" parameterType="Integer" resultType="Post">
     select
