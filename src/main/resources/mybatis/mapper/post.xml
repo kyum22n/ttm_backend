@@ -53,9 +53,9 @@
             from  posts
             order by post_id desc
         )
-        where rownum <= #{endRowNo}
+        where rownum <= 10
     )
-    where rnum >= #{startRowNo} 
+    where rnum >= 1
     ]]>
   </select>
   
@@ -137,7 +137,7 @@
   <!-- 그룹 산책 -->
   <!--          -->
 
-  <!-- 그룹 산책 모집글만 조회 -->
+  <!-- 그룹 산책 모집글 목록 조회 -->
   <select id="selectAllGroupWalkPost" parameterType="String">
     <![CDATA[ 
     select rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
@@ -158,7 +158,7 @@
     ]]>
   </select>
   
-  <!-- 그룹 산책 완료된 글만 조회 -->
+  <!-- 그룹 산책 완료된 글 목록 조회 -->
   <select id="selectAllEndedGroupWalk" parameterType="Post">
     <![CDATA[ 
     select rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
@@ -179,6 +179,13 @@
     ]]>
   </select>
 
+  <!-- 그룹 산책 완료된 글 하나 조회 -->
+  <select id="selectEndedGroupWalk" parameterType="Integer" resultType="Post">
+    select post_id, post_title, post_content, post_like_count, created_at, is_request, 
+        user_id as postUserId, wapplyended_at, walkstarted_at, walkended_at
+    from posts
+    where post_id = #{postId} and walkended_at is not null
+  </select>
 
   <!-- 그룹산책 상태 변경과 그 시각 입력 -->
   <update id="markWalkStartedNow">

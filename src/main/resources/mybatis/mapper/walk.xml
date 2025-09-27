@@ -13,7 +13,7 @@
         values ( #{requestOneId}, #{requestUserId}, #{receiveUserId}, SYSTIMESTAMP, #{rstatus} ) 
     </insert>
 
-    <!-- 사용자 아이디로 1:1 산책 내역 불러오기 -->
+    <!-- 사용자 아이디로 완료된 1:1 산책 목록 불러오기 -->
     <select id="selectAllWalkByUserId" parameterType="Integer" resultType="Walk">
         <![CDATA[
         select rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus, walkstarted_at, walkended_at
@@ -30,6 +30,14 @@
         )
         where rnum >= 1
         ]]>
+    </select>
+
+    <!-- 1:1 산책 식별 번호로 완료된 산책 불러오기 -->
+    <select id="selectEndedWalkByRequestOneId" parameterType="Integer" resultType="Walk">
+        select request_one_id, request_user_id, receive_user_id, created_at, rstatus, walkstarted_at, walkended_at
+        from wone_requests
+        where request_one_id = #{requestOneId} 
+            and walkended_at is not null
     </select>
 
     <!-- 사용자 아이디로 1:1 산책 신청받은 내역 불러오기 -->

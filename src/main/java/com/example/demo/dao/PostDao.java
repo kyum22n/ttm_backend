@@ -29,10 +29,12 @@ public interface PostDao {
 
   //////////////////////////////////////////////////////////////
 
-  // 그룹 산책 모집글만 조회
+  // 그룹 산책 모집글 목록 조회
   public List<Post> selectAllGroupWalkPost(String isRequest);
-  // 그룹 산책 완료된 글만 조회
+  // 그룹 산책 완료된 글 목록 조회
   public List<Post> selectAllEndedGroupWalk();
+  // 그룹 산책 완료된 글 하나 조회
+  public Post selectEndedGroupWalk(Integer postId);
 
   
   int markWalkStartedNow(Integer postId);

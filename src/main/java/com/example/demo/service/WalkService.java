@@ -71,6 +71,13 @@ public class WalkService {
         return rows;
     }
 
+    // 완료된 1:1 산책 건 불러오기
+    // Controller에는 아직 구현 안 함
+    public Walk getEndedWalk(Integer requestOneId) {
+        Walk endedWalk = walkDao.selectEndedWalkByRequestOneId(requestOneId);
+        return endedWalk;
+    }
+
     // 1:1 산책 기록 삭제
     public int removeWalk(Integer requestOneId, Integer userId) {
         int rows = walkDao.deleteWalk(requestOneId, userId);

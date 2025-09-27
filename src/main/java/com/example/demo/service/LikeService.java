@@ -20,8 +20,8 @@ public class LikeService {
     @Autowired
     private PetDao petDao;
 
-    @Transactional
     // 좋아요 등록(Pet)
+    @Transactional
     public String createPetLike(Integer userId, Integer petId) throws Exception {
         int checkRows = likeDao.selectLikeFromPet(userId, petId);
         if(checkRows == 0) {
@@ -33,8 +33,8 @@ public class LikeService {
         }
     }
     
-    @Transactional
     // 좋아요 등록(Post)
+    @Transactional
     public String createPostLike(Integer userId, Integer postId) throws Exception {
         int checkRows = likeDao.selectLikeFromPost(userId, postId);
 
