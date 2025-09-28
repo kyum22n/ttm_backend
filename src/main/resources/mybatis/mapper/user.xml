@@ -18,8 +18,10 @@
 	<!--로그인
 	아이디 기준으로 비밀번호 변경(임시 비밀번호 발급)-->
 	<update id="updatePassword"
-		parameterType="User"> update users set user_password = #{userPassword} where user_login_id =
-		#{userLoginId} </update>
+		parameterType="User"> 
+		update users set user_password = #{userPassword} 
+		where user_login_id = #{userLoginId} 
+	</update>
 
 
 	<delete id="delete"
@@ -38,13 +40,15 @@
 		resultType="User"> 
 		select user_login_id, user_password, user_email 
 		from users 
-		where user_login_id = #{value} </select>
+		where user_login_id = #{value} 
+	</select>
 
 	<!--이메일로
 	사용자 조회(아이디 찾기용)-->
 	<select id="selectUserByEmail"
 		parameterType="String"
-		resultType="User"> select user_login_id, user_email from users where user_email = #{value} </select>
+		resultType="User"> select user_login_id, user_email from users where user_email = #{value} 
+	</select>
 
 	<!-- 모집자가 신청자 목록 볼 때-->
 	<select id="selectAllUser"

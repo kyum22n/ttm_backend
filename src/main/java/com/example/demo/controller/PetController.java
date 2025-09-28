@@ -27,19 +27,19 @@ public class PetController {
   @Autowired
   private PetService petService;
 
-  // @PostMapping("/register")
-  // public Map<String, Object> petRegister(@ModelAttribute Pet pet) {
-  //   Map<String, Object> map = new HashMap<>();
-  //   try {
-  //     Pet result = petService.register(pet);
-  //     map.put("result", "success");
-  //     map.put("pet", result);
-  //   } catch (Exception e) {
-  //     map.put("result", "fail");
-  //     map.put("message", e.getMessage());
-  //   }
-  //   return map;
-  // }
+  @PostMapping("/register")
+  public Map<String, Object> petRegister(@ModelAttribute Pet pet) {
+    Map<String, Object> map = new HashMap<>();
+    try {
+      Pet result = petService.register(pet);
+      map.put("result", "success");
+      map.put("pet", result);
+    } catch (Exception e) {
+      map.put("result", "fail");
+      map.put("message", e.getMessage());
+    }
+    return map;
+  }
 
   // 특정 반려견 정보 조회
   @GetMapping("/find")
