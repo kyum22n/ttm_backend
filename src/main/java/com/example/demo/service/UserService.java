@@ -5,9 +5,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dao.PetDao;
+import com.example.demo.dao.PetImageDao;
 import com.example.demo.dao.UserDao;
+import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 
 import io.micrometer.common.util.StringUtils;
@@ -22,9 +25,12 @@ public class UserService {
 	@Autowired
 	private PetDao petDao;
 
+	@Autowired
+	private PetImageDao petImageDao;
+
 	// 입력받은 회원 정보, 펫 정보 유효성 검증 후 각각의 테이블에 insert
 	@Transactional
-	public String join(User user) throws Exception {
+	public String join(User user, Pet pet) throws Exception {
 
 		// Bcrypt 방식으로 암호화
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -35,7 +41,7 @@ public class UserService {
 
 		// 로그인 아이디와 이메일 중복 체크
 		User dbUser = userDao.selectUserByLoginId(user.getUserLoginId()); // user.getUserLoginId()는 사용자가 입력한 아이디
-																																			// selectUserByLoginId는 DB값 있는지 검색
+																			// selectUserByLoginId는 DB값 있는지 검색 없으면 null 
 		User dbUser2 = userDao.selectUserByEmail(user.getUserEmail());
 		if (dbUser != null && dbUser2 != null) {
 			return "existBoth"; // 아이디 + 이메일 둘 다 중복;
@@ -46,8 +52,32 @@ public class UserService {
 			return "existEmail"; // 이미 존재하는 이메일
 
 		} else {
-			// 회원 정보를 DB에 저장
+			// 회원 정보와 반려견 정보를 DB에 저장
 			userDao.insert(user);
+
+			// Pet에 userId 세팅 후 insert
+			pet.setPetUserId(user.getUserId());
+			petDao.insertPet(pet);
+
+			MultipartFile mf = pet.getPetAttach();
+			if (mf != null && !mf.isEmpty()) {
+				pet.setPetAttachOname(mf.getOriginalFilename());
+				pet.setPetAttachType(mf.getContentType());
+				pet.setPetAttachData(mf.getBytes());
+
+				petImageDao.insertPetImage(pet);
+			}
+
+			Pet dbPet = petDao.selectByPetId(pet.getPetId());
+			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
+
+			// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
+			if (image != null) {
+				dbPet.setPetImageId(image.getPetImageId());
+				dbPet.setPetAttachOname(image.getPetAttachOname());
+				dbPet.setPetAttachType(image.getPetAttachType());
+				dbPet.setPetAttachData(image.getPetAttachData());
+			}
 
 			return "success";
 		}

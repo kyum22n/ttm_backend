@@ -18,19 +18,6 @@
       #{petName}, #{petDesc}, #{petGender}, 0, #{petUserId}, systimestamp)
   </insert>
 
-  <!--반려견 이미지 등록-->
-  <insert id="insertPetImage"
-    parameterType="Pet">
-    <selectKey keyProperty="petImageId" resultType="Integer" order="BEFORE">
-      select seq_pet_images_pet_image_id.nextval from dual
-    </selectKey>
-
-    insert into pet_images (
-      pet_image_id, pet_id, pet_attach_oname, pet_attach_type, pet_attach_data, created_at)
-    values (
-      #{petImageId}, #{petId}, #{petAttachOname}, #{petAttachType}, #{petAttachData}, systimestamp)
-  </insert>
-
   <!--반려견 정보 수정하기-->
   <update id="updatePet"
       parameterType="Pet">
@@ -44,29 +31,11 @@
     where pet_Id = #{petId} and user_id = #{petUserId}
   </update>
 
-  <!--반려견 이미지 수정하기-->
-  <update id="updatePetImage"
-    parameterType="Pet">
-    update pet_images
-    set pet_attach_oname = #{petAttachOname},
-        pet_attach_type = #{petAttachType},
-        pet_attach_data = #{petAttachData},
-        created_at = systimestamp
-    where pet_id = #{petId}
-  </update>
-
   <!--반려견 정보 삭제-->
   <delete id="deletePet"
           parameterType="Integer">
     delete from pets
     where pet_Id=#{value}
-  </delete>
-
-  <!--반려견 이미지 삭제-->
-  <delete id="deletePetImage"
-    parameterType="Integer">
-    delete from pet_images
-    where pet_id=#{value}
   </delete>
 
   <!--반려견 좋아요 증가-->
@@ -95,16 +64,6 @@
     from pets
     where pet_Id = #{value}
   </select>
-
-  <!--반려견 이미지 조회-->
-  <select id="selectPetImageByPetId" parameterType="Integer" resultType="Pet">
-  SELECT pet_image_id,
-         pet_attach_oname,
-         pet_attach_type,
-         pet_attach_data
-  FROM pet_images
-  WHERE pet_id = #{value}
-</select>
 
   <!--사용자가 등록한 모든 반려견의 조회-->
   <select id="selectAllPetByUserId"

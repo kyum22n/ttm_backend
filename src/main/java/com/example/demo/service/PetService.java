@@ -28,7 +28,7 @@ public class PetService {
 	@Autowired
 	private UserDao userDao;
 
-	// 반려견 등록
+	// 반려견 추가 등록
 	@Transactional
 	public Pet register(Pet pet) throws Exception {
 		petDao.insertPet(pet);
@@ -102,6 +102,7 @@ public class PetService {
 	}
 
 	// 반려견 정보 삭제
+	@Transactional
 	public int remove(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
 		if (pet == null) {

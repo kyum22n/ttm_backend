@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 import com.example.demo.service.UserService;
 import com.example.demo.service.UserService.RemoveResult;
@@ -33,13 +34,13 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping("/join")
-	public Map<String, Object> userJoin(@ModelAttribute User user) throws Exception {
+	public Map<String, Object> userJoin(@ModelAttribute User user, Pet pet) throws Exception {
 		// 입력 값 확인
 		log.info(user.toString());
 
 		Map<String, Object> map = new HashMap<>();
 
-		String result = userService.join(user);
+		String result = userService.join(user, pet);
 
 		if ("success".equals(result)) {
 			map.put("result", "success");
