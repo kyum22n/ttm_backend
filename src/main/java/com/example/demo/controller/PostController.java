@@ -57,7 +57,7 @@ public class PostController {
     Map<String, Object> map = new HashMap<>();
     Post newpPost = postService.write(post);
 
-    if(newpPost == null) {
+    if (newpPost == null) {
       map.put("result", "fail");
       map.put("message", "게시물 작성 실패");
     } else {
@@ -207,11 +207,11 @@ public class PostController {
 
   // 그룹 산책 모집글만 조회
   @GetMapping("/groupwalk/recruitment-list")
-  public Map<String, Object> groupWalkRecruitment(String isRequest) {
+  public Map<String, Object> groupWalkRecruitment() {
     Map<String, Object> map = new HashMap<>();
-    List<Post> groupWalkPost = postService.getAllGroupWalkPost(isRequest);
+    List<Post> groupWalkPost = postService.getAllGroupWalkPost();
 
-    if(groupWalkPost == null) {
+    if (groupWalkPost == null) {
       map.put("result", "fail");
       map.put("message", "산책 모집글이 없습니다.");
     } else {
@@ -238,7 +238,6 @@ public class PostController {
 
     return map;
   }
-
 
   // 이제 이 컨트롤러는 제껍니다
   // 산책 신청(자기 자신을 participates에 등록)
@@ -319,5 +318,4 @@ public class PostController {
   public Post markNow(@RequestParam("postId") int postId, @RequestParam("code") int code) {
     return postService.markWalkByCode(postId, code);
   }
-
 }

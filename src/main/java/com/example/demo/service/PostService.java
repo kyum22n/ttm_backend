@@ -165,12 +165,12 @@ public class PostService {
 
   // //////////////////////////////////////////////////////
 
-  // 그룹 산책 모집글 목록만 조회
-  public List<Post> getAllGroupWalkPost(String isRequest) {
-    List<Post> groupWalkPost = postDao.selectAllGroupWalkPost(isRequest);
-    return groupWalkPost;
+ // 그룹 산책 모집글 목록만 조회
+  public List<Post> getAllGroupWalkPost() {
+    
+    return postDao.selectAllGroupWalkPost();
   }
-  
+   
   // 그룹 산책 완료된 글 목록만 조회
   public List<Post> getAllEndedGroupWalk() {
     List<Post> endedGroupWalk = postDao.selectAllEndedGroupWalk();

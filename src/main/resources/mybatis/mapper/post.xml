@@ -139,7 +139,7 @@
   <!--          -->
 
   <!-- 그룹 산책 모집글 목록 조회 -->
-  <select id="selectAllGroupWalkPost" parameterType="String">
+  <!-- <select id="selectAllGroupWalkPost" resultType="Post">
     <![CDATA[ 
     select rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
           wapplyended_at, walkstarted_at, walkended_at
@@ -157,10 +157,44 @@
     )
     where rnum > 1
     ]]>
-  </select>
+  </select> -->
+
+  <!-- 그룹 산책 모집글 목록 조회 pager 이슈 때문에 형식 바꿈 -->
+  <select id="selectAllGroupWalkPost" resultType="Post">
+  <![CDATA[
+  SELECT rnum,
+         post_id          AS postId,
+         post_title       AS postTitle,
+         post_content     AS postContent,
+         post_like_count  AS postLikeCount,
+         created_at       AS createdAt,
+         is_request       AS isRequest,
+         user_id          AS postUserId,
+         wapplyended_at   AS wApplyEndedAt,
+         walkstarted_at   AS walkStartedAt,
+         walkended_at     AS walkEndedAt
+  FROM (
+    SELECT rownum AS rnum,
+           post_id, post_title, post_content, post_like_count, created_at, is_request,
+           user_id,
+           wapplyended_at, walkstarted_at, walkended_at
+    FROM (
+      SELECT post_id, post_title, post_content, post_like_count, created_at, is_request,
+             user_id,
+             wapplyended_at, walkstarted_at, walkended_at
+      FROM TTM.POSTS
+      WHERE is_request = 'Y'
+      ORDER BY post_id DESC
+    )
+    WHERE rownum < 10
+  )
+  WHERE rnum > 1
+  ]]>
+</select>
+
   
   <!-- 그룹 산책 완료된 글 목록 조회 -->
-  <select id="selectAllEndedGroupWalk" parameterType="Post">
+  <!-- <select id="selectAllEndedGroupWalk" parameterType="Post">
     <![CDATA[ 
     select rnum, post_id, post_title, post_content, post_like_count, created_at, is_request, user_id as postUserId,
           wapplyended_at, walkstarted_at, walkended_at
@@ -178,7 +212,40 @@
     )
     where rnum > 1
     ]]>
-  </select>
+  </select> -->
+
+  <!-- 그룹 산책 완료된 글 목록 조회 -->
+<select id="selectAllEndedGroupWalk" resultType="Post">
+  <![CDATA[
+  SELECT rnum,
+         post_id         AS postId,
+         post_title      AS postTitle,
+         post_content    AS postContent,
+         post_like_count AS postLikeCount,
+         created_at      AS createdAt,
+         is_request      AS isRequest,
+         user_id         AS postUserId,
+         wapplyended_at  AS wApplyEndedAt,
+         walkstarted_at  AS walkStartedAt,
+         walkended_at    AS walkEndedAt
+  FROM (
+    SELECT rownum AS rnum,
+           post_id, post_title, post_content, post_like_count, created_at, is_request,
+           user_id,
+           wapplyended_at, walkstarted_at, walkended_at
+    FROM (
+      SELECT post_id, post_title, post_content, post_like_count, created_at, is_request,
+             user_id,
+             wapplyended_at, walkstarted_at, walkended_at
+      FROM TTM.POSTS
+      WHERE walkended_at IS NOT NULL
+      ORDER BY walkended_at DESC
+    )
+    WHERE rownum < 10
+  )
+  WHERE rnum > 1
+  ]]>
+</select>
 
   <!-- 그룹 산책 완료된 글 하나 조회 -->
   <select id="selectEndedGroupWalk" parameterType="Integer" resultType="Post">
