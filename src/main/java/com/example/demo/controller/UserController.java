@@ -25,23 +25,34 @@ import lombok.extern.slf4j.Slf4j;
 
 // /join /remove /info /update
 // 회원가입 탈퇴 정보조회 정보수정
+// 로그 확인 위해 어노테이션
 @Slf4j
+// REST 컨트롤러
 @RestController
+// /user가 기본 경로
 @RequestMapping("/user")
 public class UserController {
-
+	// userService 주입
 	@Autowired
 	private UserService userService;
 
+	// 회원가입
+	// Post 요청
+	// 데이터가 body에 담김
 	@PostMapping("/join")
+	// 폼 데이터와 멀티파트 파일을 자동으로 바인딩함
+	// 멀티파트, 그리고 여러객체 떄문에 사용하게 됨
+	// multipartfioele 처리 할때 예외 처리 될 수 있음
 	public Map<String, Object> userJoin(@ModelAttribute User user, Pet pet) throws Exception {
 		// 입력 값 확인
 		log.info(user.toString());
 
+		// 결과를 map으로 돌려줌
 		Map<String, Object> map = new HashMap<>();
 
 		String result = userService.join(user, pet);
 
+		// 결과에 따라 메세지 출력
 		if ("success".equals(result)) {
 			map.put("result", "success");
 		} else if ("existBoth".equals(result)) {
@@ -61,7 +72,11 @@ public class UserController {
 		return map;
 	}
 
+	// Get 요청
+	// url에 데이터 담김
 	@GetMapping("/info")
+	// url에 쿼리 파라미터 작성
+	// 파라미터로 보냄
 	public Map<String, Object> userInfo(@RequestParam("userId") Integer userId) {
 		Map<String, Object> resultMap = new HashMap<>();
 		User user = userService.info(userId);
@@ -78,6 +93,7 @@ public class UserController {
 
 	@PutMapping("/update")
 	// 이거 modify로 바꾸면 안될까요?
+	// 요청 바디로 보냄
 	public Map<String, Object> userUpdate(@RequestBody User user) {
 		Map<String, Object> map = new HashMap<>();
 
@@ -106,12 +122,17 @@ public class UserController {
 		return map;
 	}
 
+	// userId로 회원 탈퇴
+	// pathvariable로 보냄
+	// url 경로의 값을 메서드 변수에 바인딩
 	@DeleteMapping("/remove/{userId}")
 	public String userRemove(@PathVariable("userId") Integer userId) {
 		RemoveResult removeResult = userService.remove(userId);
 
+		// 결과 값 json으로 반환
 		JSONObject jsonObject = new JSONObject();
 
+		// enum 값 비교
 		if (removeResult == RemoveResult.SUCCESS) {
 			jsonObject.put("result", "success");
 		} else {

@@ -16,20 +16,34 @@ import com.example.demo.dto.User;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
+// 로깅 사용위한 어노테이션
 @Slf4j
+// 비즈니스 로직을 담당하는 서비스 계층임을 알림
 @Service
 public class UserService {
+	// 의존성 주입 위해 사용
 	@Autowired
+	// DAO 객체 주입
 	private UserDao userDao;
 
 	@Autowired
+	// 회원가입을 할때에 반려동물을 먼저 등록하기로 하였으나
+	// 반려동물 테이블의 외래키로 userId 존재하여서
+	// 결국 pet 테이블 insert 할때 userId를 세팅해줘야함
+	// 따라서 petDao도 주입
 	private PetDao petDao;
 
 	@Autowired
+	// 회원 가입을 할때에 펫 이미지가 프로필 사진으로 등록됨
+	// 따라서 petImageDao도 주입
 	private PetImageDao petImageDao;
 
 	// 입력받은 회원 정보, 펫 정보 유효성 검증 후 각각의 테이블에 insert
+	// 여러 쿼리가 들어가기 때문에 하나라도 실패하게 되면 돌아오게 하기 위해
+	// 모든 쿼리가 정상 실행되면 그제서야 적용
 	@Transactional
+	// 위와 같은 이유로 pet이 userId를 외래키로 가지고 있기 때문에
+	// user와 pet을 같이 받아서 처리
 	public String join(User user, Pet pet) throws Exception {
 
 		// Bcrypt 방식으로 암호화
@@ -40,9 +54,12 @@ public class UserService {
 		user.setUserPassword(encodedPassword);
 
 		// 로그인 아이디와 이메일 중복 체크
+		// 유저가 입력한 아이디가 DB에 존재하는지 확인하기 위해 select
+		// selectUserByLoginId는 DB값 있는지 검색 없으면 null 
 		User dbUser = userDao.selectUserByLoginId(user.getUserLoginId()); // user.getUserLoginId()는 사용자가 입력한 아이디
-																			// selectUserByLoginId는 DB값 있는지 검색 없으면 null 
+		// 이메일도 동일하게 체크
 		User dbUser2 = userDao.selectUserByEmail(user.getUserEmail());
+		// 경우에 따라서 null이라면 중복이기에 함수 종료
 		if (dbUser != null && dbUser2 != null) {
 			return "existBoth"; // 아이디 + 이메일 둘 다 중복;
 		} else if (dbUser != null) {
@@ -56,19 +73,26 @@ public class UserService {
 			userDao.insert(user);
 
 			// Pet에 userId 세팅 후 insert
+			// Pet에 userId는 외래키이기 때문
 			pet.setPetUserId(user.getUserId());
 			petDao.insertPet(pet);
 
+			// pet 이미지 파일을 첨부 받기 위해 사용
 			MultipartFile mf = pet.getPetAttach();
 			if (mf != null && !mf.isEmpty()) {
+				// 파일 이름 저장
 				pet.setPetAttachOname(mf.getOriginalFilename());
+				// 파일 타입 저장(png, jpeg)
 				pet.setPetAttachType(mf.getContentType());
+				// 파일 데이터 저장
 				pet.setPetAttachData(mf.getBytes());
 
 				petImageDao.insertPetImage(pet);
 			}
 
+			// db에 저장된 pet 정보 조회
 			Pet dbPet = petDao.selectByPetId(pet.getPetId());
+			// petImage 테이블에서 petId로 이미지 정보 조회
 			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
 
 			// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
@@ -84,22 +108,23 @@ public class UserService {
 
 	}
 
-	// !!! 회원가입 할때 지역, 생일은 어떤식으로 넣어야할까
-	// 지역은 외부 주소 찾기 api를 사용해서 넣어야 함
-	// 생일도 캘린더 띄워서 넣어야 함
-
+	// userId로 회원 정보 조회
 	public User info(Integer userId) {
 		User user = userDao.selectByUserId(userId);
 		return user;
 	}
 
+	// 수정 사항 중에 예외 발생 방지 위해  transactional 적용
 	@Transactional
 	public User update(User user) {
+		// db에 존재하는 회원인지 확인
 		User dbUser = userDao.selectByUserId(user.getUserId());
 
+		// 존재하지 않으면 null 반환
 		if (dbUser == null) {
 			return null;
 		}
+		// 전달된 내용이 비어있지 않으면 갱신
 		if (StringUtils.isNotBlank(user.getUserName())) {
 			dbUser.setUserName(user.getUserName());
 		}
@@ -115,28 +140,25 @@ public class UserService {
 			dbUser.setUserAddress(user.getUserAddress());
 		}
 
+		// 데이터베이스에 업데이트
 		userDao.update(dbUser);
 		return dbUser;
 	}
 
+	// 가독성, 유지보수 위해 enum 사용
+	// 교수님이 하신 방식 사용
 	public enum RemoveResult {
 		SUCCESS, FAIL
 	}
 
 	public RemoveResult remove(Integer userId) {
+		// 삭제된 행 수 반환
 		int rows = userDao.delete(userId);
+		// 0이면 실패, 1이상이면 성공
 		if (rows == 0) {
 			return RemoveResult.FAIL;
 		} else {
 			return RemoveResult.SUCCESS;
 		}
 	}
-
-	public boolean isEnglishOnly(String input) {
-		if (input == null)
-			return false;
-		return input.matches("^[a-zA-Z0-9]+$");
-	}
 }
-
-// 반려동물 등록할때 uid 널허용
