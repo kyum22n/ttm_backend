@@ -76,7 +76,7 @@ public class PetService {
 	// 반려견 수정하기
 	@Transactional
 	public Pet update(Pet pet) throws Exception {
-		// userId 검사 보류(예외 처리)
+		// userId 검사 보류(예외 처리 배우고 추가)
 		petDao.updatePet(pet);
 
 		MultipartFile mf = pet.getPetAttach();

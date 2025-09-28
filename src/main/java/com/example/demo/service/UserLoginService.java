@@ -27,12 +27,14 @@ public class UserLoginService {
     // 로그인 서비스
     @Transactional
     public String userLogin(String userLoginId ,String userPassword) {
+        //사용자가 입력한 로그인 아이디를 DB에서 검색
         User user = userDao.selectUserByLoginId(userLoginId);
+
         if(user == null){
-            throw new IllegalArgumentException("아이디가 없음");
+            throw new IllegalArgumentException("아이디가 없음"); // 잘못된 인자가 전달 되었을때 발생시키는 예외
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if(!passwordEncoder.matches(userPassword, user.getUserPassword())){
+        if(!passwordEncoder.matches(userPassword, user.getUserPassword())){ // 사용자가 입력한 비밀번호, DB에 저장된 암호화된 비밀번호 비교
             throw new IllegalArgumentException("비밀번호가 틀림");
         }
 
@@ -42,9 +44,7 @@ public class UserLoginService {
     // 비밀번호 찾기
     public User getUserByLoginId(String userLoginId) {
         User user = userDao.selectUserByLoginId(userLoginId);
-        if(user == null){
-            throw new IllegalArgumentException("아이디가 없음");
-        }
+        
         return user;
     }
 
