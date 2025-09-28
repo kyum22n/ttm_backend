@@ -4,17 +4,22 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.example.demo.dto.PostImage;
+import com.example.demo.dto.Post;
 
 @Mapper
 public interface PostImageDao {
-  int insert(PostImage image);
+  // 이미지 등록
+  int insert(Post image);
 
-  // 단건/리스트 조회
-  PostImage selectById(Integer postImageId);
-  List<PostImage> selectByPostId(Integer postId);
+  // 이미지 하나 선택
+  Post selectById(Integer postImageId);
+  
+  // 특정 게시물의 이미지 리스트 조회
+  List<Post> selectByPostId(Integer postId);
 
-  // 삭제
+  // 이미지 하나 삭제
   int deleteById(Integer postImageId);
+  
+  // 특정 게시물의 이미지 삭제
   int deleteByPostId(Integer postId);
 }

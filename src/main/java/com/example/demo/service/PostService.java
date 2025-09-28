@@ -15,7 +15,6 @@ import com.example.demo.dao.PostDao;
 import com.example.demo.dao.PostImageDao;
 import com.example.demo.dto.Pager;
 import com.example.demo.dto.Post;
-import com.example.demo.dto.PostImage;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +36,7 @@ public class PostService {
 
     // 이미지 저장 (단일)
     if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
-      PostImage img = new PostImage();
+      Post img = new Post();
       img.setPostId(post.getPostId());
       img.setPostAttachOname(post.getPostAttach().getOriginalFilename());
       img.setPostAttachType(post.getPostAttach().getContentType());
@@ -49,7 +48,7 @@ public class PostService {
     if (files != null) {
       for (MultipartFile mf : files) {
         if (mf != null && !mf.isEmpty()) {
-          PostImage img = new PostImage();
+          Post img = new Post();
           img.setPostId(post.getPostId());
           img.setPostAttachOname(mf.getOriginalFilename());
           img.setPostAttachType(mf.getContentType());
@@ -107,8 +106,8 @@ public class PostService {
   }
 
   // 이미지 조회 보조 메서드
-  public List<PostImage> getImagesByPostId(Integer postId) {
-    List<PostImage> images = postImageDao.selectByPostId(postId);
+  public List<Post> getImagesByPostId(Integer postId) {
+    List<Post> images = postImageDao.selectByPostId(postId);
     return images != null ? images : new ArrayList<>();
   }
 
@@ -141,7 +140,7 @@ public class PostService {
     // 3) 새 파일 저장 (append면 기존 유지 + 추가, replace면 위에서 삭제 후 재삽입)
     if (hasNewFiles) {
       for (var mf : files) {
-        PostImage img = new PostImage();
+        Post img = new Post();
         img.setPostId(post.getPostId());
         img.setPostAttachOname(mf.getOriginalFilename());
         img.setPostAttachType(mf.getContentType());

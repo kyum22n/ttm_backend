@@ -19,18 +19,6 @@
       #{wApplyEndedAt}, #{walkStartedAt}, #{walkEndedAt}
     )
   </insert>
-
-  <!-- 게시물 작성 시 이미지 처리 -->
-  <insert id="insertPostImage" parameterType="com.example.demo.dto.PostImage">
-    <selectKey keyProperty="postImageId" resultType="Integer" order="BEFORE">
-      select seq_post_images_post_image_id.nextval from dual
-    </selectKey>
-    insert into post_images (
-      post_image_id, post_attach_oname, post_attach_type, post_attach_data, created_at, post_id
-    ) values (
-      #{postImageId}, #{postAttachOname}, #{postAttachType}, #{postAttachData}, SYSTIMESTAMP, #{postId}
-    )
-  </insert>
   
   
   <!-- 게시물 하나 가져오기 -->
@@ -41,6 +29,7 @@
     from posts
     where post_id = #{postId}
   </select>
+
 
   <!-- 게시물 전체 목록 가져오기 -->
   <select id="selectByPage" parameterType="Pager" resultType="Post"> 
@@ -60,6 +49,7 @@
     ]]>
   </select>
   
+
   <!-- 특정 사용자 게시물 목록 가져오기 -->
   <select id="selectAllPostByUserId" parameterType="Integer" resultType="Post">
     select 
@@ -68,6 +58,7 @@
     from posts
     where user_id = #{postUserId}
   </select>
+
 
   <!-- 게시물 수정하기 -->
   <update id="updatePost" parameterType="Post">
@@ -83,13 +74,6 @@
         </if>
     where post_id = #{postId}
   </update>
-
-  <!-- 전체 이미지 삭제(해당 게시물) -->
-  <delete id="deletePostImagesByPostId" parameterType="int">
-    delete from post_images where post_id = #{value}
-  </delete>
-
-  <!-- 게시물 수정 시 이미지 처리 -->
   
 
   <!-- 게시물 좋아요 수 증가 -->
@@ -98,6 +82,7 @@
     set post_like_count = post_like_count + 1
     where post_id = #{value}
   </update>
+
 
   <!-- 게시물 좋아요 수 감소 -->
   <update id="decreasePostLikecount" parameterType="int">
@@ -114,17 +99,13 @@
     where post_id = #{value}
   </delete>
 
-  <!-- 게시물 삭제 시 이미지 처리 -->
-  <delete id="deletePostImage" parameterType="Integer">
-    delete from post_images
-    where post_id = #{postId}
-  </delete>
 
   <!-- 페이지 모든 행 수 -->
   <select id="countAll" resultType="int">
     select count(*)
     from posts
   </select>
+  
 
   <!-- 특정 사용자 페이지 모든 행 수 -->
   <select id="countAllByUserId" parameterType="Integer" resultType="int">

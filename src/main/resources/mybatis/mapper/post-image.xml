@@ -3,7 +3,7 @@
 
 <mapper namespace="com.example.demo.dao.PostImageDao">
 
-  <insert id="insert" parameterType="com.example.demo.dto.PostImage">
+  <insert id="insert" parameterType="Post">
     <selectKey keyProperty="postImageId" resultType="int" order="BEFORE">
       select seq_post_images_post_image_id.nextval from dual
     </selectKey>
@@ -19,7 +19,7 @@
     )
   </insert>
 
-  <select id="selectById" parameterType="int" resultType="com.example.demo.dto.PostImage">
+  <select id="selectById" parameterType="int" resultType="Post">
     select
       post_image_id     as postImageId,
       post_id           as postId,
@@ -30,7 +30,7 @@
     where post_image_id = #{value}
   </select>
 
-  <select id="selectByPostId" parameterType="int" resultType="com.example.demo.dto.PostImage">
+  <select id="selectByPostId" parameterType="int" resultType="Post">
     select
       post_image_id     as postImageId,
       post_id           as postId,
