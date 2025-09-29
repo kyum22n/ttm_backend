@@ -113,7 +113,8 @@ public class PostService {
 
   // 게시물 수정
   @Transactional
-  public int modifyPostWithImages(Post post, String imageMode, boolean clearImages) throws Exception {
+  public int modifyPostWithImages(Post post, String imageMode) throws Exception {
+    //
     int rows = postDao.updatePost(post);
 
     // 새 파일 수집
@@ -125,19 +126,15 @@ public class PostService {
         if (mf != null && !mf.isEmpty())
           files.add(mf);
     }
+
+    // 새 이미지 파일이 존재하는지 체크
     boolean hasNewFiles = !files.isEmpty();
-
-    // 1) 명시 전체삭제
-    if (clearImages) {
+    // 교체 모드면(그리고 새 파일이 있으면) 기존 이미지 삭제 후 교체
+    if ("replace".equals(imageMode) && hasNewFiles) {
       postImageDao.deleteByPostId(post.getPostId());
     }
 
-    // 2) 교체 모드면(그리고 새 파일이 있으면) 기존 이미지 삭제 후 교체
-    if (!clearImages && "replace".equalsIgnoreCase(imageMode) && hasNewFiles) {
-      postImageDao.deleteByPostId(post.getPostId());
-    }
-
-    // 3) 새 파일 저장 (append면 기존 유지 + 추가, replace면 위에서 삭제 후 재삽입)
+    // 새 파일 저장 (replace가 아니면(디폴트 append) 기존 유지 + 추가, replace면 삭제 후 재삽입)
     if (hasNewFiles) {
       for (var mf : files) {
         Post img = new Post();

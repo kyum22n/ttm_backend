@@ -118,28 +118,38 @@ public class PostController {
   }
 
   // 게시물 수정
+  // @PutMapping(value = "/update", consumes = "multipart/form-data")
+  // public Post postUpdate(
+  //     @ModelAttribute Post post,
+  //     @RequestParam(name = "imageMode", defaultValue = "replace") String imageMode,
+  //     @RequestParam(name = "clearImages", defaultValue = "N") String clearImages) throws Exception {
+
+  //   // 단일 파일 로깅 (서비스에서 저장 처리함)
+  //   if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
+  //     log.info("단일 이미지(수정): {}", post.getPostAttach().getOriginalFilename());
+  //   }
+
+  //   // 다중 파일 로깅
+  //   if (post.getPostAttaches() != null) {
+  //     log.info("다중 이미지 개수(수정): {}", post.getPostAttaches().size());
+  //     for (var mf : post.getPostAttaches()) {
+  //       if (mf != null && !mf.isEmpty()) {
+  //         log.info("다중 이미지(수정): {} ({} bytes)", mf.getOriginalFilename(), mf.getSize());
+  //       }
+  //     }
+  //   }
+
+  //   postService.modifyPostWithImages(post, imageMode, "Y".equalsIgnoreCase(clearImages));
+  //   return postService.postDetail(post.getPostId());
+  // }
+
+  // 게시물 수정
   @PutMapping(value = "/update", consumes = "multipart/form-data")
   public Post postUpdate(
-      @ModelAttribute Post post,
-      @RequestParam(name = "imageMode", defaultValue = "replace") String imageMode,
-      @RequestParam(name = "clearImages", defaultValue = "N") String clearImages) throws Exception {
-
-    // 단일 파일 로깅 (서비스에서 저장 처리함)
-    if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
-      log.info("단일 이미지(수정): {}", post.getPostAttach().getOriginalFilename());
-    }
-
-    // 다중 파일 로깅
-    if (post.getPostAttaches() != null) {
-      log.info("다중 이미지 개수(수정): {}", post.getPostAttaches().size());
-      for (var mf : post.getPostAttaches()) {
-        if (mf != null && !mf.isEmpty()) {
-          log.info("다중 이미지(수정): {} ({} bytes)", mf.getOriginalFilename(), mf.getSize());
-        }
-      }
-    }
-
-    postService.modifyPostWithImages(post, imageMode, "Y".equalsIgnoreCase(clearImages));
+    @ModelAttribute Post post,
+    @RequestParam(name = "imageMode", defaultValue = "append") String imageMode
+  ) throws Exception {
+    postService.modifyPostWithImages(post, imageMode);
     return postService.postDetail(post.getPostId());
   }
 
