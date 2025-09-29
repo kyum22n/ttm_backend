@@ -56,7 +56,7 @@ public class JwtService {
     jwtBuilder.signWith(secretKey);
 
     // JWT 얻기
-    String jwt = jwtBuilder.compact(); // compac() 압축
+    String jwt = jwtBuilder.compact(); // compact() 압축
 
     return jwt; 
   }
