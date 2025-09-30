@@ -64,32 +64,20 @@ public class PetController {
 
   // 사용자의 반려견 정보 모두 조회
   @GetMapping("/find-allpetbyuser")
-  public Map<String, Object> findAllpetbyuser(@RequestParam("petUserId") Integer petUserId) {
-    Map<String, Object> map = new HashMap<>();
-    List<Pet> dbpets = petService.getAllPetByUserId(petUserId);
-    map.put("result", "success");
-    map.put("pet", dbpets);
-    return map;
+  public List<Pet> findAllpetbyuser(@RequestParam("petUserId") Integer petUserId) {
+    return petService.getAllPetByUserId(petUserId);
   }
 
   // 반려견 정보 수정하기
   @PutMapping("/update")
-  public ResponseEntity<Map<String, Object>> petUpdate(@ModelAttribute Pet pet) throws IOException {
-    Map<String, Object> map = new HashMap<>();
-
-    Pet dbPet = petService.update(pet);
-    map.put("result", "success");
-    map.put("pet", dbPet);
-    return ResponseEntity.ok(map);
+  public Pet petUpdate(@ModelAttribute Pet pet) throws IOException {
+    return petService.update(pet);
   }
 
   // 반려견 정보 삭제하기
   @DeleteMapping("/remove")
-  public ResponseEntity<Map<String, String>> petRemove(@RequestParam("petId") Integer petId) {
-    Map<String, String> map = new HashMap<>();
-    int pet = petService.remove(petId);
-    map.put("result", "success");
-    return ResponseEntity.ok(map);
+  public int petRemove(@RequestParam("petId") Integer petId) {
+    return petService.remove(petId);
   }
 
 }

@@ -138,11 +138,8 @@ public class PetService {
 		if (pet == null) {
 			throw new NoSuchElementException();
 		}
-
 		petImageDao.deletePetImage(petId);
-
 		int rows = petDao.deletePet(petId);
-
 		return rows;
 	}
 }

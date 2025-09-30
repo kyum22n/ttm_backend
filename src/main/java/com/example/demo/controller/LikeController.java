@@ -24,51 +24,32 @@ public class LikeController {
 
     // 좋아요 등록(Pet)
     @PostMapping("/pet-like")
-    public ResponseEntity<Map<String, Object>> petLike(@RequestParam("userId") Integer userId,
-            @RequestParam("petId") Integer petId) throws Exception {
-        Map<String, Object> map = new HashMap<>();
-
-        likeService.createPetLike(userId, petId);
-        map.put("result", "success");
-
-        return ResponseEntity.ok(map);
+    public int petLike(@RequestParam("userId") Integer userId,
+            @RequestParam("petId") Integer petId) {
+        return likeService.createPetLike(userId, petId);
     }
 
     // 좋아요 등록(Post)
     @PostMapping("/post-like")
-    public ResponseEntity<Map<String, Object>> postLike(@RequestParam("userId") Integer userId,
-            @RequestParam("postId") Integer postId) throws Exception {
-        Map<String, Object> map = new HashMap<>();
-
-        likeService.createPostLike(userId, postId);
-        map.put("result", "success");
-
-        return ResponseEntity.ok(map);
+    public int postLike(@RequestParam("userId") Integer userId,
+            @RequestParam("postId") Integer postId) {
+        return likeService.createPostLike(userId, postId);
 
     }
 
     // // 좋아요 취소(Pet)
     @DeleteMapping("/pet-like/cancel")
-    public ResponseEntity<Map<String, Object>> petLikeCancel(@RequestParam("userId") Integer userId,
-            @RequestParam("petId") Integer petId) throws Exception {
-        Map<String, Object> map = new HashMap<>();
-
-        likeService.removePetLike(userId, petId);
-        map.put("result", "success");
-
-        return ResponseEntity.ok(map);
+    public int petLikeCancel(@RequestParam("userId") Integer userId,
+            @RequestParam("petId") Integer petId) {
+        return likeService.removePetLike(userId, petId);
 
     }
 
     // // 좋아요 취소(Post)
     @DeleteMapping("/post-like/cancel")
-    public ResponseEntity<Map<String, Object>> postLikeCancel(@RequestParam("userId") Integer userId,
-            @RequestParam("postId") Integer postId) throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        likeService.removePostLike(userId, postId);
-        map.put("result", "success");
-
-        return ResponseEntity.ok(map);
+    public int postLikeCancel(@RequestParam("userId") Integer userId,
+            @RequestParam("postId") Integer postId) {
+        return likeService.removePostLike(userId, postId);
     }
 
 }

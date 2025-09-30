@@ -23,7 +23,7 @@ public class LikeService {
 
     // 좋아요 등록(Pet)
     @Transactional
-    public int createPetLike(Integer userId, Integer petId) throws Exception {
+    public int createPetLike(Integer userId, Integer petId) {
         int checkRows = likeDao.selectLikeFromPet(userId, petId);
         if (checkRows == 0) {
             likeDao.insertLikeToPet(userId, petId);
@@ -36,7 +36,7 @@ public class LikeService {
 
     // 좋아요 등록(Post)
     @Transactional
-    public int createPostLike(Integer userId, Integer postId) throws Exception {
+    public int createPostLike(Integer userId, Integer postId) {
         int checkRows = likeDao.selectLikeFromPost(userId, postId);
 
         if (checkRows == 0) {
@@ -51,7 +51,7 @@ public class LikeService {
 
     @Transactional
     // 좋아요 취소(Pet)
-    public int removePetLike(Integer userId, Integer petId) throws Exception {
+    public int removePetLike(Integer userId, Integer petId) {
         int rows = likeDao.deleteLikeFromPet(userId, petId);
         if (rows > 0) {
             petDao.decreasePetLikecount(petId);
@@ -64,14 +64,13 @@ public class LikeService {
 
     @Transactional
     // 좋아요 취소(Post)
-    public int removePostLike(Integer userId, Integer postId) throws Exception {
+    public int removePostLike(Integer userId, Integer postId) {
         int rows = likeDao.deleteLikeFromPost(userId, postId);
         if (rows > 0) {
             postDao.decreasePostLikecount(postId);
         } else {
             throw new NoSuchElementException();
         }
-
         return rows;
     }
 }
