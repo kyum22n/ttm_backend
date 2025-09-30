@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,11 @@ public class WalkService {
     // 1:1 산책 기록 삭제
     public int removeWalk(Integer requestOneId, Integer userId) {
         int rows = walkDao.deleteWalk(requestOneId, userId);
+        
+        if(rows == 0) {
+            throw new NoSuchElementException();
+        }
+        
         return rows;
     }
 

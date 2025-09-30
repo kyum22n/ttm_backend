@@ -184,10 +184,10 @@ public class PostService {
   // //////////////////////////////////////////////////////
 
  // 그룹 산책 모집글 목록만 조회
-  public List<Post> getAllGroupWalkPost() {
-    
-    return postDao.selectAllGroupWalkPost();
-  }
+public List<Post> getAllGroupWalkPost() {
+  List<Post> list = postDao.selectAllGroupWalkPost();
+  return list;
+}
    
   // 그룹 산책 완료된 글 목록만 조회
   public List<Post> getAllEndedGroupWalk() {
@@ -227,9 +227,33 @@ public class PostService {
   // return postDao.selectByPostId(postId);
   // }
 
-  public Post markWalkByCode(int postId, int code) {
-    postDao.markWalkByCode(postId, code);
-    return postDao.selectByPostId(postId);
+  // 예외처리 이전 코드
+  // public Post markWalkByCode(int postId, int code) {
+  //   postDao.markWalkByCode(postId, code);
+  //   return postDao.selectByPostId(postId);
+  // }
+
+  // 산책 상태 코드
+@Transactional
+public Post markWalkByCode(int postId, int code) {
+  // 값 검증 → 400
+  if (postId <= 0) throw new IllegalArgumentException("postId가 올바르지 않습니다");
+  if (code < 1 || code > 3) throw new IllegalArgumentException("code는 1,2,3 중 하나여야 합니다");
+
+  // 상태 전이 시도
+  int rows = postDao.markWalkByCode(postId, code);
+
+  // 전이 실패 → 409 (요청글이 아니거나, 순서 위반, 이미 설정된 상태 등)
+  if (rows == 0) {
+    throw new IllegalStateException("현재 상태에서 해당 변경을 수행할 수 없습니다");
   }
+
+  // 갱신된 게시물 재조회 (널이면 404)
+  Post post = postDao.selectByPostId(postId);
+  if (post == null) {
+    throw new NoSuchElementException("게시물을 찾을 수 없습니다: postId=" + postId);
+  }
+  return post;
+}
 
 }

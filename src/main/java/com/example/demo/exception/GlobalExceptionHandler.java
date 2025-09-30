@@ -49,14 +49,16 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(map); // 409
 	}
 
-	// 제약조건에 맞지 않아 처리가 실패할 경우(산책모집, 채팅, 리뷰 등록시 등)
-	@ExceptionHandler(DataIntegrityViolationException.class)
-	public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(
-			DataIntegrityViolationException e) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("message", e.getMessage() != null ? e.getMessage() : "DB제약 조건에 위배되어 처리할 수 없습니다");
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(map); // 409
-	}
+    // 제약조건에 맞지 않아 상태가 달라 처리가 실패할 경우(산책모집, 채팅, 리뷰 등록시 등)
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalStateException(
+            IllegalStateException e) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", "현재 처리 상태가 맞지 않아 처리 할 수 없습니다.");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(map); // 409
+
+    }
 
 	// 제약조건 위반, SQL 문법 오류, 커넥션 문제 등 발생할 경우(DB 관련)
 	@ExceptionHandler(DataAccessException.class)

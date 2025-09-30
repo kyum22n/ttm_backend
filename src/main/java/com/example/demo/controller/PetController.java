@@ -51,15 +51,9 @@ public class PetController {
   public ResponseEntity<Map<String, Object>> petFind(@RequestParam("petId") Integer petId) {
     Map<String, Object> map = new HashMap<>();
     Pet dbPet = petService.getPet(petId);
-    if (dbPet == null) {
-      map.put("result", "fail");
-      map.put("message", "반려견이 없습니다.");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
-    } else {
-      map.put("result", "success");
-      map.put("pet", dbPet);
-      return ResponseEntity.ok(map);
-    }
+    map.put("result", "success");
+    map.put("pet", dbPet);
+    return ResponseEntity.ok(map);
   }
 
   // 사용자의 반려견 정보 모두 조회
@@ -76,8 +70,12 @@ public class PetController {
 
   // 반려견 정보 삭제하기
   @DeleteMapping("/remove")
-  public int petRemove(@RequestParam("petId") Integer petId) {
-    return petService.remove(petId);
+  public ResponseEntity<Map<String, Object>> petRemove(@RequestParam("petId") Integer petId) {
+    Map<String, Object> map = new HashMap<>();
+    int rows = petService.remove(petId);
+    map.put("result", "success");
+    map.put("rows", rows);
+    return ResponseEntity.ok(map);
   }
 
 }

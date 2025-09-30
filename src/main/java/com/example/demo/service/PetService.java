@@ -63,6 +63,9 @@ public class PetService {
 	// 반려견 1마리 정보 보기
 	public Pet getPet(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId); // 없으면 null 반환
+		if(pet == null){
+			throw new NoSuchElementException();
+		}
 		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
 
 		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
@@ -134,12 +137,11 @@ public class PetService {
 	// 반려견 정보 삭제
 	@Transactional
 	public int remove(Integer petId) {
-		Pet pet = petDao.selectByPetId(petId);
-		if (pet == null) {
-			throw new NoSuchElementException();
-		}
 		petImageDao.deletePetImage(petId);
 		int rows = petDao.deletePet(petId);
+		if(rows == 0 ){
+			throw new NoSuchElementException();
+		}
 		return rows;
 	}
 }
