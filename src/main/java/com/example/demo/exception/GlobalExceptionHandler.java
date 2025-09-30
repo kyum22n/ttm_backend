@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import io.jsonwebtoken.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -58,15 +59,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map);    // 500
         
     }
-
+    
     // 유효성 검사 예외 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         Map<String, Object> map = new HashMap<>();
-
+        
         // 발생하는 에러들을 리스트로 처리해줌
         List<FieldError> list = e.getBindingResult().getFieldErrors();
-
+        
         // 에러가 여러 개면 메시지도 여러 개를 처리해주어야 함
         JSONArray jsonArray = new JSONArray();  // 대괄호 만듦
         for(FieldError fe : list) {
@@ -76,7 +77,16 @@ public class GlobalExceptionHandler {
             jsonArray.put(jsonObject);
         }
         map.put("messages", jsonArray.toString());  
-
+        
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map); // 400
+    }
+    
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Map<String, Object>> handleIOException(IOException e) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", "데이터를 입력 받지 못했습니다");
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);    // 500
+
     }
 }

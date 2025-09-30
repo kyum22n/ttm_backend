@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +32,7 @@ public class PostService {
 
   // 게시물 작성
   @Transactional
-  public Post write(Post post) throws Exception {
+  public Post write(Post post) throws IOException {
     // 1) 글 저장 (postId 채워짐)
     postDao.insertPost(post);
 
@@ -43,6 +45,7 @@ public class PostService {
       img.setPostAttachData(post.getPostAttach().getBytes());
       postImageDao.insert(img);
     }
+    
     // 이미지 저장 (다중)
     List<MultipartFile> files = post.getPostAttaches();
     if (files != null) {
@@ -57,13 +60,13 @@ public class PostService {
         }
       }
     }
-
+          
     // 3) 요청글이면 작성자 자동 신청(P) 후 승인(A)
     if ("Y".equalsIgnoreCase(String.valueOf(post.getIsRequest()))) {
       Integer pid = post.getPostId();
       Integer uid = post.getPostUserId();
       if (pid == null || uid == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "postId/postUserId 누락");
+        throw new IllegalArgumentException();
       }
       if (participateDao.exists(pid, uid) == 0) {
         participateDao.insert(pid, uid, "P");
@@ -72,12 +75,20 @@ public class PostService {
     }
 
     // 4) 최신 글 반환
-    return postDao.selectByPostId(post.getPostId());
+    Post latestPost = postDao.selectByPostId(post.getPostId());
+    if(latestPost == null) {
+      throw new NoSuchElementException();
+    }
+
+    return latestPost;
   }
 
   // 전체 게시물 목록 불러오기(페이지)
   public List<Post> getPostListByPage(Pager pager) {
     List<Post> list = postDao.selectByPage(pager);
+    if(list == null && list.isEmpty()) {
+      throw new IllegalArgumentException();
+    }
     return list;
   }
 
