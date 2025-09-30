@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,127 +30,115 @@ public class WalkController {
 
     // 사용자 아이디로 1:1 산책 내역 불러오기
     @GetMapping("/list")
-    public Map<String, Object> walkList(@RequestParam("userId") Integer userId) {
-        List<Walk> walkList = walkService.getWalkListByUserId(userId);
+    public ResponseEntity<Map<String, Object>> walkList(@RequestParam("userId") Integer userId) {
         Map<String, Object> map = new HashMap<>();
+        List<Walk> walkList = walkService.getWalkListByUserId(userId);
 
-        map.put("result", walkList.isEmpty() ? "fail" : "success");
-        map.put("walkList", walkList);        
-
-        return map;
+        if(walkList.isEmpty()){
+            map.put("message", "1:1 산책 내역이 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+        } else {
+            map.put("walkList", walkList);        
+            return ResponseEntity.ok(map);
+        }
     }
-
+    
     // 사용자 아이디로 1:1 산책 신청받은 내역 불러오기
     @GetMapping("/apply/receive-list")
-    public Map<String, Object> walkApplyReceiveList(@RequestParam("receiveUserId") Integer receiveUserId) {
-        List<Walk> walkReceiveList = walkService.getWalkApplyListByReceiveUserId(receiveUserId);
-
+    public ResponseEntity<Map<String, Object>> walkApplyReceiveList(@RequestParam("receiveUserId") Integer receiveUserId) {
         Map<String, Object> map = new HashMap<>();
+        List<Walk> walkReceiveList = walkService.getWalkApplyListByReceiveUserId(receiveUserId);
         
-        map.put("result", walkReceiveList.isEmpty() ? "fail" : "success");
-        map.put("walkReceiveList", walkReceiveList);
-
-        return map;
+        if(walkReceiveList.isEmpty()) {
+            map.put("message", "1:1 산책 신청받은 내역이 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+        } else {
+            map.put("walkReceiveList", walkReceiveList);
+            return ResponseEntity.ok(map);
+        }
     }
     
     // 사용자 아이디로 1:1 산책 신청한 내역 불러오기
     @GetMapping("/apply/request-list")
-    public Map<String, Object> walkApplyRequestList(@RequestParam("requestUserId") Integer requestUserId) {
-        List<Walk> walkRequestList = walkService.getWalkApplyListByRequestUserId(requestUserId);
-
+    public ResponseEntity<Map<String, Object>> walkApplyRequestList(@RequestParam("requestUserId") Integer requestUserId) {
         Map<String, Object> map = new HashMap<>();
+        List<Walk> walkRequestList = walkService.getWalkApplyListByRequestUserId(requestUserId);
         
-        map.put("result", walkRequestList.isEmpty() ? "fail" : "success");
-        map.put("walkRequestList", walkRequestList);
-
-        return map;
+        if(walkRequestList.isEmpty()) {
+            map.put("message", "1:1 산책 신청한 내역이 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);            
+        } else {
+            map.put("walkRequestList", walkRequestList);
+            return ResponseEntity.ok(map);
+        }
+        
     }
     
     // 1:1 산책 신청
     @PostMapping("/apply")
-    public Map<String, String> applyWalk(@RequestBody Walk walk) {
+    public ResponseEntity<Map<String, String>> applyWalk(@RequestBody Walk walk) {
         Map<String, String> map = new HashMap<>();
         
         // 산책 신청자와 수락자가 같을 경우 실패
         if( walk.getRequestUserId().equals(walk.getReceiveUserId()) ) {
-            map.put("result", "fail");
+            map.put("message", "산책 신청자가 수락자와 같을 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
         } else {
             walkService.createWalkApply(walk);
-            map.put("result", "success");
+            return ResponseEntity.ok(map);
         }
-
-        return map;
     }
 
     // 1:1 산책 신청 상태 변경
     @PutMapping("/apply/status")
-    public Map<String, Object> walkApplyStatus(@RequestParam("requestOneId") Integer requestOneId,
+    public ResponseEntity<Map<String, Object>> walkApplyStatus(@RequestParam("requestOneId") Integer requestOneId,
                                 @RequestParam("rstatus") String rstatus,
                                 @RequestParam("receiveUserId") Integer receiveUserId) {
         Map<String, Object> map = new HashMap<>();
         
-        int rows = walkService.modifyWalkApplyStatus(requestOneId, rstatus, receiveUserId);
+        walkService.modifyWalkApplyStatus(requestOneId, rstatus, receiveUserId);
         
-        if( rows <= 0 ) {
-            map.put("result", "fail");
-        } else {
-            map.put("result", "success");
-        }
+        map.put("message", "1:1 산책 신청 상태가 변경되었습니다.");
 
-        return map;
+        return ResponseEntity.ok(map);
     }
 
     // 1:1 산책 시작
     @PutMapping("/start")
-    public Map<String, String> walkStart(@RequestParam("requestOneId") Integer requestOneId,
+    public ResponseEntity<Map<String, String>> walkStart(@RequestParam("requestOneId") Integer requestOneId,
                           @RequestParam("userId") Integer userId) {
         Map<String, String> map = new HashMap<>();
         
-        int rows = walkService.modifyWalkStartedAt(requestOneId, userId);
+        walkService.modifyWalkStartedAt(requestOneId, userId);
         
-        if( rows <= 0 ) {
-            map.put("result", "fail");
-        } else {
-            map.put("result", "success");
-        }
+        map.put("message", "1:1 산책이 시작되었습니다.");
         
-        return map;
-        
+        return ResponseEntity.ok(map);
     }
     
     // 1:1 산책 종료
     @PutMapping("/end")
-    public Map<String, String> walkEnd(@RequestParam("requestOneId") Integer requestOneId,
+    public ResponseEntity<Map<String, String>> walkEnd(@RequestParam("requestOneId") Integer requestOneId,
                                        @RequestParam("userId") Integer userId) {
         Map<String, String> map = new HashMap<>();
         
-        int rows = walkService.modifyWalkEndedAt(requestOneId, userId);
+        walkService.modifyWalkEndedAt(requestOneId, userId);
         
-        if( rows <= 0 ) {
-            map.put("result", "fail");
-        } else {
-            map.put("result", "success");
-        }
+        map.put("message", "1:1 산책이 종료되었습니다.");
         
-        return map;
-        
+        return ResponseEntity.ok(map);
     }
     
     // 1:1 산책 기록 삭제
     @DeleteMapping("/delete")
-    public Map<String, String> walkDelete(@RequestParam("requestOneId") Integer requestOneId,
+    public ResponseEntity<Map<String, String>> walkDelete(@RequestParam("requestOneId") Integer requestOneId,
                                           @RequestParam("userId") Integer userId) {
         Map<String, String> map = new HashMap<>();
         
-        int rows = walkService.removeWalk(requestOneId, userId);
+        walkService.removeWalk(requestOneId, userId);
+        map.put("message", "1:1 산책 기록이 삭제되었습니다.");
         
-        if( rows <= 0 ) {
-            map.put("result", "fail");
-        } else {
-            map.put("result", "success");
-        }
-        
-        return map;
+        return ResponseEntity.ok(map);
     }
 
 }
