@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(map);    // 409
         
     }
+
+    // 제약조건에 맞지 않아 처리가 실패할 경우(산책모집, 채팅, 리뷰 등록시 등)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", "DB제약 조건에 위배되어 처리할 수 없습니다");
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(map);    // 409
+
+    }
     
     // 제약조건 위반, SQL 문법 오류, 커넥션 문제 등 발생할 경우(DB 관련)
     @ExceptionHandler(DataAccessException.class)
@@ -81,7 +92,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map); // 400
     }
     
-
+    // 입출력 예외 처리
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, Object>> handleIOException(IOException e) {
         Map<String, Object> map = new HashMap<>();
