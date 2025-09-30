@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,12 +63,13 @@ public class ReviewService {
     return reviewDao.selectByReviewId(review.getReviewId());
   }
 
-  // 자신이 받은 리뷰 모두 불러오기 (예외 X, 빈 리스트 반환)
+  // 자신이 받은 리뷰 모두 불러오기 (예외 X, DAO 반환 그대로)
   public List<Review> findAllByTargetId(int userId) {
-    if (userId <= 0)
+    if (userId <= 0) {
       throw new IllegalArgumentException("userId가 올바르지 않습니다");
+    }
     List<Review> list = reviewDao.selectAllByTargetId(userId);
-    return (list != null) ? list : java.util.Collections.emptyList();
+    return list; // 빈 리스트/NULL 여부는 DAO 구현에 따름
   }
 
   // // 단건 조회 혹시 몰라서

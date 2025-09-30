@@ -31,11 +31,11 @@ public class ReviewController {
   public Map<String, Object> reviewWrite(@RequestBody Review review) {
     log.info(review.toString());
 
-    Review result = reviewService.create(review);
+    Review reviewSaved = reviewService.create(review);
 
     Map<String, Object> map = new HashMap<>();
     map.put("result", "success");
-    map.put("review", review);
+    map.put("review", reviewSaved);
 
     return map;
   }
@@ -64,10 +64,7 @@ public class ReviewController {
     Map<String, String> body = new HashMap<>();
     body.put("result", "success");
     body.put("message", "리뷰를 조회했습니다.");
-    body.put("reviewId", String.valueOf(review.getReviewId())); // 핵심 키만 문자열로 전달
-    // 필요하면 추가로 writerId/targetId 등도 문자열로 넣을 수 있음:
-    // body.put("writerId", String.valueOf(review.getWriterId()));
-    // body.put("targetId", String.valueOf(review.getTargetId()));
+    body.put("reviewId", String.valueOf(review.getReviewId()));
 
     return ResponseEntity.ok(body);
   }

@@ -69,7 +69,7 @@ public class PostController {
     Map<String, Object> map = new HashMap<>();
     List<Post> list = postService.getPostListByPage(pager);
 
-    if(list.isEmpty()) {
+    if (list.isEmpty()) {
       map.put("message", "불러올 게시물이 없습니다.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     } else {
@@ -92,7 +92,7 @@ public class PostController {
     Map<String, Object> map = new HashMap<>();
     List<Post> list = postService.getPostListByUserId(userId);
 
-    if(list == null) {
+    if (list == null) {
       map.put("message", "불러올 게시물이 없습니다.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     } else {
@@ -118,15 +118,14 @@ public class PostController {
     return ResponseEntity.ok(map);
   }
 
-
   // 게시물 수정
   @PutMapping(value = "/update", consumes = "multipart/form-data")
   public ResponseEntity<Map<String, Object>> postUpdate(@ModelAttribute Post post,
-                         @RequestParam(name = "imageMode", defaultValue = "append") String imageMode) throws IOException {
+      @RequestParam(name = "imageMode", defaultValue = "append") String imageMode) throws IOException {
     Map<String, Object> map = new HashMap<>();
     postService.modifyPostWithImages(post, imageMode);
-    Post updatePost =  postService.postDetail(post.getPostId());
-    
+    Post updatePost = postService.postDetail(post.getPostId());
+
     map.put("message", "게시물이 수정되었습니다.");
     map.put("post", updatePost);
 
@@ -137,68 +136,68 @@ public class PostController {
   @DeleteMapping("/delete")
   public ResponseEntity<Map<String, Object>> postDelete(@RequestParam("postId") Integer postId) {
     Map<String, Object> map = new HashMap<>();
-    
+
     postService.removePost(postId);
     map.put("message", "게시물이 삭제되었습니다.");
-    
+
     return ResponseEntity.ok(map);
   }
-  
+
   // 댓글 작성
   @PostMapping("/comment-write")
   public ResponseEntity<Map<String, Object>> commentWrite(Comment comment) {
     Map<String, Object> map = new HashMap<>();
-    
+
     commentService.writeComment(comment);
     map.put("message", "댓글이 작성되었습니다.");
-    
+
     return ResponseEntity.ok(map);
   }
-  
+
   // 댓글 수정
   @PutMapping("/comment-update")
   public ResponseEntity<Map<String, Object>> commentUpdate(Comment comment) {
     Map<String, Object> map = new HashMap<>();
-    
+
     commentService.modifyComment(comment);
     map.put("message", "댓글이 수정되었습니다.");
-      
+
     return ResponseEntity.ok(map);
   }
-  
+
   // 댓글 삭제
   @DeleteMapping("/comment-delete")
   public ResponseEntity<Map<String, Object>> commentDelete(@RequestParam("commentId") Integer commentId) {
     Map<String, Object> map = new HashMap<>();
-    
+
     commentService.deleteComment(commentId);
     map.put("message", "댓글이 삭제되었습니다.");
-    
+
     return ResponseEntity.ok(map);
   }
-  
+
   // 전체 태그 목록 조회
   @GetMapping("/tags")
   public ResponseEntity<Map<String, Object>> tagList() {
     Map<String, Object> map = new HashMap<>();
     List<Tag> tags = tagService.getAllTags();
-    
+
     map.put("tags", tags);
 
     return ResponseEntity.ok(map);
   }
-  
+
   // 게시물에 태그 달기
   @PostMapping("/add-tag")
   public ResponseEntity<Map<String, Object>> addTag(@RequestBody PostTag postTag) {
     Map<String, Object> map = new HashMap<>();
-    
+
     postTagService.taging(postTag);
     map.put("message", "태그가 등록되었습니다.");
 
     return ResponseEntity.ok(map);
   }
-  
+
   // 게시물 수정 시 태그 삭제
   @DeleteMapping("/delete-tag")
   public ResponseEntity<Map<String, Object>> deleteTag(@RequestBody PostTag postTag) {
@@ -212,36 +211,46 @@ public class PostController {
 
   // 그룹 산책 모집글만 조회
   @GetMapping("/groupwalk/recruitment-list")
-  public Map<String, Object> groupWalkRecruitment() {
-    Map<String, Object> map = new HashMap<>();
-    List<Post> groupWalkPost = postService.getAllGroupWalkPost();
+  public ResponseEntity<Map<String, String>> groupWalkRecruitment() {
+    List<Post> groupWalkPost = postService.getAllGroupWalkPost(); // 실패는 전역 예외처리
 
-    if (groupWalkPost == null) {
-      map.put("result", "fail");
-      map.put("message", "산책 모집글이 없습니다.");
-    } else {
-      map.put("result", "success");
-      map.put("groupWalkPost", groupWalkPost);
+    int count = 0;
+    if (groupWalkPost != null) {
+      count = groupWalkPost.size();
     }
 
-    return map;
+    Map<String, String> map = new HashMap<>();
+    map.put("result", "success");
+    if (count == 0) {
+      map.put("message", "그룹 산책 모집글이 없습니다.");
+    } else {
+      map.put("message", "그룹 산책 모집글 목록을 조회했습니다.");
+    }
+    map.put("count", String.valueOf(count));
+
+    return ResponseEntity.ok(map);
   }
 
   // 그룹 산책 완료된 글만 조회
   @GetMapping("/groupwalk/ended-list")
-  public Map<String, Object> endedGroupWalk() {
-    Map<String, Object> map = new HashMap<>();
-    List<Post> endedGroupWalk = postService.getAllEndedGroupWalk();
+  public ResponseEntity<Map<String, String>> endedGroupWalk() {
+    List<Post> endedGroupWalk = postService.getAllEndedGroupWalk(); // 실패는 전역 예외처리
 
-    if (endedGroupWalk == null) {
-      map.put("result", "fail");
-      map.put("message", "완료된 그룹 산책이 없습니다.");
-    } else {
-      map.put("result", "success");
-      map.put("message", endedGroupWalk);
+    int count = 0;
+    if (endedGroupWalk != null) {
+      count = endedGroupWalk.size();
     }
 
-    return map;
+    Map<String, String> map = new HashMap<>();
+    map.put("result", "success");
+    if (count == 0) {
+      map.put("message", "완료된 그룹 산책이 없습니다.");
+    } else {
+      map.put("message", "완료된 그룹 산책 목록을 조회했습니다.");
+    }
+    map.put("count", String.valueOf(count));
+
+    return ResponseEntity.ok(map);
   }
 
   // 이제 이 컨트롤러는 제껍니다
@@ -319,8 +328,40 @@ public class PostController {
   // return postService.markWalkEndedNow(postId);
   // }
 
+  // @PutMapping("/groupwalk/now")
+  // public Post markNow(@RequestParam("postId") int postId, @RequestParam("code") int code) {
+  //   return postService.markWalkByCode(postId, code);
+  // }
+
   @PutMapping("/groupwalk/now")
-  public Post markNow(@RequestParam("postId") int postId, @RequestParam("code") int code) {
-    return postService.markWalkByCode(postId, code);
+  public ResponseEntity<Map<String, String>> markNow(
+      @RequestParam("postId") int postId,
+      @RequestParam("code") int code) {
+
+    // 실패 케이스는 서비스에서 예외를 던지고 전역 예외처리가 응답
+    Post postUpdated = postService.markWalkByCode(postId, code);
+
+    Map<String, String> map = new HashMap<>();
+    map.put("result", "success");
+
+    String message;
+    switch (code) {
+      case 1:
+        message = "신청 마감 시간이 기록되었습니다.";
+        break;
+      case 2:
+        message = "산책 시작 시간이 기록되었습니다.";
+        break;
+      case 3:
+        message = "산책 종료 시간이 기록되었습니다.";
+        break;
+      default:
+        message = "산책 상태가 업데이트되었습니다.";
+    }
+    map.put("message", message);
+    map.put("postId", String.valueOf(postUpdated.getPostId()));
+    map.put("code", String.valueOf(code));
+
+    return ResponseEntity.ok(map);
   }
 }
