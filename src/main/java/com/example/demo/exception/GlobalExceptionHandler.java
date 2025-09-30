@@ -81,6 +81,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map); // 400
     }
     
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, Object>> handleIOException(IOException e) {
         Map<String, Object> map = new HashMap<>();
