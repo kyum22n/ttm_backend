@@ -25,80 +25,82 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
     // 잘못된 파라미터일 경우
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalArgumentException() {
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException e) {
         Map<String, String> map = new HashMap<>();
-        map.put("message", "잘못된 요청입니다");
-        
+        map.put("message", e.getMessage() != null ? e.getMessage() : "잘못된 요청입니다.");
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map); // 400
     }
 
     // 데이터 값을 찾을 수 없을 경우
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Map<String, Object>> handleNoSuchElementException() {
+    public ResponseEntity<Map<String, Object>> handleNoSuchElementException(NoSuchElementException e) {
         Map<String, Object> map = new HashMap<>();
-        map.put("message", "데이터를 찾을 수 없습니다");
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);   // 404
+        map.put("message", e.getMessage() != null ? e.getMessage() : "데이터를 찾을 수 없습니다");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map); // 404
     }
-    
+
     // 중복된 값일 경우
     @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<Map<String, Object>> handleDuplicateKeyException() {
+    public ResponseEntity<Map<String, Object>> handleDuplicateKeyException(DuplicateKeyException e) {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "이미 존재하는 값입니다");
-        
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(map);    // 409
-        
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(map); // 409
+
     }
 
     // 제약조건에 맞지 않아 처리가 실패할 경우(산책모집, 채팅, 리뷰 등록시 등)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException() {
+    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(
+            DataIntegrityViolationException e) {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "DB제약 조건에 위배되어 처리할 수 없습니다");
-        
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(map);    // 409
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(map); // 409
 
     }
-    
+
     // 제약조건 위반, SQL 문법 오류, 커넥션 문제 등 발생할 경우(DB 관련)
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<Map<String, Object>> handleDataAccessException() {
+    public ResponseEntity<Map<String, Object>> handleDataAccessException(DataAccessException e) {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "데이터베이스 처리 중 오류가 발생했습니다");
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map);    // 500
-        
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map); // 500
+
     }
-    
+
     // 유효성 검사 예외 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e) {
         Map<String, Object> map = new HashMap<>();
-        
+
         // 발생하는 에러들을 리스트로 처리해줌
         List<FieldError> list = e.getBindingResult().getFieldErrors();
-        
+
         // 에러가 여러 개면 메시지도 여러 개를 처리해주어야 함
-        JSONArray jsonArray = new JSONArray();  // 대괄호 만듦
-        for(FieldError fe : list) {
-            JSONObject jsonObject = new JSONObject();   // 중괄호 만듦
-            jsonObject.put( "field", fe.getField());
-            jsonObject.put( "message", fe.getDefaultMessage());
+        JSONArray jsonArray = new JSONArray(); // 대괄호 만듦
+        for (FieldError fe : list) {
+            JSONObject jsonObject = new JSONObject(); // 중괄호 만듦
+            jsonObject.put("field", fe.getField());
+            jsonObject.put("message", fe.getDefaultMessage());
             jsonArray.put(jsonObject);
         }
-        map.put("messages", jsonArray.toString());  
-        
+        map.put("messages", jsonArray.toString());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map); // 400
     }
-    
+
     // 입출력 예외 처리
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, Object>> handleIOException(IOException e) {
         Map<String, Object> map = new HashMap<>();
-        map.put("message", "데이터를 입력 받지 못했습니다");
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);    // 500
+        map.put("message", e.getMessage() != null ? e.getMessage() : "데이터를 입력 받지 못했습니다");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map); // 500
 
     }
 }

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +45,7 @@ public class UserLoginController {
   }
 
   @PostMapping("/find-id")
-  public Map<String, Object> findId(@Valid @RequestBody FindIdForm findIdForm) {
+  public ResponseEntity<Map<String, Object>> findId(@Valid @RequestBody FindIdForm findIdForm) {
     // @Valid 사용: 공백/잘못된 이메일 형식 자동 검증
     Map<String, Object> map = new HashMap<>();
 
@@ -52,30 +54,31 @@ public class UserLoginController {
 
     if (user == null) { // 이메일로 가입된 유저가 없음
       map.put("message", "해당 이메일로 가입된 계정이 없습니다.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     } else { // 이메일 인증 성공시 id제공
       map.put("loginId", user.getUserLoginId());
       map.put("message", "회원님의 아이디는 " + user.getUserLoginId() + " 입니다.");
+      return ResponseEntity.ok(map);
     }
 
-    return map;
   }
 
   @PostMapping("/find-password")
-  public Map<String, Object> findPassword(@RequestBody FindPasswordForm findPasswordForm) {
+  public ResponseEntity<Map<String, Object>> findPassword(@RequestBody FindPasswordForm findPasswordForm) {
     Map<String, Object> map = new HashMap<>();
 
     User user = userLoginService.getUserByLoginId(findPasswordForm.getLoginId());
     // 1. 아이디로 사용자 조회
     if (user == null) {
       map.put("message", "존재하지 않는 아이디입니다.");
-      return map;
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
     } else {
       // 2. 임시 비밀번호 발급 & 메일 전송
       userLoginService.sendTempPassword(user);
 
       // 3. 사용자 응답 메시지
       map.put("message", "임시 비밀번호가 이메일로 전송되었습니다.");
-      return map;
+      return ResponseEntity.ok(map);
     }
   }
 
