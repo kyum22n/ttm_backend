@@ -28,20 +28,16 @@ public class UserLoginController {
   private UserLoginService userLoginService;
 
   @PostMapping("/login")
-  public Map<String, Object> login(@RequestBody Loginform loginForm) {
+  public ResponseEntity<Map<String, Object>> login(@RequestBody Loginform loginForm) {
     Map<String, Object> map = new HashMap<>();
-    try {
-      // 1.로그인 성공 시 jwt 토큰 발급
-      String jwt = userLoginService.userLogin(loginForm.getLoginId(), loginForm.getPassword());
-      // 2. 로그인 성공
-      map.put("result", "success");
-      map.put("loginId", loginForm.getLoginId());
-      map.put("jwt", jwt);
-    } catch (IllegalArgumentException e) { // 3. 로그인 실패
-      map.put("result", "fail");
-      map.put("message", e.getMessage());
-    }
-    return map;
+    // 1.로그인 성공 시 jwt 토큰 발급
+    String jwt = userLoginService.userLogin(loginForm.getLoginId(), loginForm.getPassword());
+    // 2. 로그인 성공
+    map.put("result", "success");
+    map.put("loginId", loginForm.getLoginId());
+    map.put("jwt", jwt);
+    return ResponseEntity.ok(map);
+
   }
 
   @PostMapping("/find-id")
@@ -60,7 +56,6 @@ public class UserLoginController {
       map.put("message", "회원님의 아이디는 " + user.getUserLoginId() + " 입니다.");
       return ResponseEntity.ok(map);
     }
-
   }
 
   @PostMapping("/find-password")

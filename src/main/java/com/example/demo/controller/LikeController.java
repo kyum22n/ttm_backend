@@ -24,32 +24,52 @@ public class LikeController {
 
     // 좋아요 등록(Pet)
     @PostMapping("/pet-like")
-    public int petLike(@RequestParam("userId") Integer userId,
+    public ResponseEntity<Map<String, Object>> petLike(@RequestParam("userId") Integer userId,
             @RequestParam("petId") Integer petId) {
-        return likeService.createPetLike(userId, petId);
+        Map<String, Object> map = new HashMap<>();
+
+        int rows = likeService.createPetLike(userId, petId);
+        map.put("result", "success");
+        map.put("rows", rows);
+        return ResponseEntity.ok(map);
     }
 
     // 좋아요 등록(Post)
     @PostMapping("/post-like")
-    public int postLike(@RequestParam("userId") Integer userId,
+    public ResponseEntity<Map<String, Object>> postLike(@RequestParam("userId") Integer userId,
             @RequestParam("postId") Integer postId) {
-        return likeService.createPostLike(userId, postId);
+        Map<String, Object> map = new HashMap<>();
+
+        int rows = likeService.createPostLike(userId, postId);
+        map.put("result", "success");
+        map.put("rows", rows);
+        return ResponseEntity.ok(map);
 
     }
 
     // // 좋아요 취소(Pet)
     @DeleteMapping("/pet-like/cancel")
-    public int petLikeCancel(@RequestParam("userId") Integer userId,
+    public ResponseEntity<Map<String, Object>> petLikeCancel(@RequestParam("userId") Integer userId,
             @RequestParam("petId") Integer petId) {
-        return likeService.removePetLike(userId, petId);
+        Map<String, Object> map = new HashMap<>();
+
+        int rows = likeService.removePetLike(userId, petId);
+        map.put("result", "success");
+        map.put("rows", rows);
+        return ResponseEntity.ok(map);
 
     }
 
     // // 좋아요 취소(Post)
     @DeleteMapping("/post-like/cancel")
-    public int postLikeCancel(@RequestParam("userId") Integer userId,
+    public ResponseEntity<Map<String, Object>> postLikeCancel(@RequestParam("userId") Integer userId,
             @RequestParam("postId") Integer postId) {
-        return likeService.removePostLike(userId, postId);
+        Map<String, Object> map = new HashMap<>();
+
+        int rows = likeService.removePostLike(userId, postId);
+        map.put("result", "success");
+        map.put("rows", rows);
+        return ResponseEntity.ok(map);
     }
 
 }
