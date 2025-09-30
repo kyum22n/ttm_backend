@@ -1,10 +1,13 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,20 +55,8 @@ public class PostController {
 
   // 게시물 작성
   @PostMapping(value = "/write", consumes = "multipart/form-data")
-  public Map<String, Object> postWrite(@ModelAttribute Post post) throws Exception {
-
-    Map<String, Object> map = new HashMap<>();
-    Post newpPost = postService.write(post);
-
-    if (newpPost == null) {
-      map.put("result", "fail");
-      map.put("message", "게시물 작성 실패");
-    } else {
-      map.put("result", "success");
-      map.put("newPost", newpPost);
-    }
-
-    return map;
+  public Post postWrite(@ModelAttribute Post post) throws IOException {
+    return postService.write(post);
   }
 
   // 전체 게시물 목록 불러오기(페이징)
