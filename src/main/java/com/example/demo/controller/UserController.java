@@ -1,10 +1,13 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 import com.example.demo.service.UserService;
-import com.example.demo.service.UserService.RemoveResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,33 +46,28 @@ public class UserController {
 	// 폼 데이터와 멀티파트 파일을 자동으로 바인딩함
 	// 멀티파트, 그리고 여러객체 떄문에 사용하게 됨
 	// multipartfioele 처리 할때 예외 처리 될 수 있음
-	public Map<String, Object> userJoin(@ModelAttribute User user, Pet pet) throws Exception {
+	// HTTP 응답 상태 코드, 헤더, 바디를 직접 제어하기 위해
+	// ResponseEntity
+	public ResponseEntity<Object> userJoin(@ModelAttribute User user, Pet pet) throws IOException {
 		// 입력 값 확인
 		log.info(user.toString());
 
 		// 결과를 map으로 돌려줌
 		Map<String, Object> map = new HashMap<>();
-
-		String result = userService.join(user, pet);
-
-		// 결과에 따라 메세지 출력
+		String result;
+		MultipartFile mf = pet.getPetAttach();
+		if (mf == null || mf.isEmpty()) {
+			map.put("result", "fail");
+			map.put("message", "반려견 이미지는 필수 업로드입니다.");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+		}
+		result = userService.join(user, pet);
+		// 로그인 성공
 		if ("success".equals(result)) {
 			map.put("result", "success");
-		} else if ("existBoth".equals(result)) {
-			map.put("result", "fail");
-			map.put("message", "이미 존재하는 아이디와 이메일입니다.");
-		} else if ("existID".equals(result)) {
-			map.put("result", "fail");
-			map.put("message", "이미 존재하는 아이디입니다.");
-		} else if ("existEmail".equals(result)) {
-			map.put("result", "fail");
-			map.put("message", "이미 존재하는 이메일입니다.");
-		} else {
-			map.put("result", "fail");
-			map.put("message", "회원가입 실패");
 		}
+		return ResponseEntity.ok(map);
 
-		return map;
 	}
 
 	// Get 요청
@@ -77,68 +75,47 @@ public class UserController {
 	@GetMapping("/info")
 	// url에 쿼리 파라미터 작성
 	// 파라미터로 보냄
-	public Map<String, Object> userInfo(@RequestParam("userId") Integer userId) {
-		Map<String, Object> resultMap = new HashMap<>();
+	public ResponseEntity<Object> userInfo(@RequestParam("userId") Integer userId) {
+		Map<String, Object> map = new HashMap<>();
 		User user = userService.info(userId);
-		if (user == null) {
-			resultMap.put("result", "fail");
-			resultMap.put("message", "존재하지 않는 회원입니다.");
-			return resultMap;
-		} else {
-			resultMap.put("result", "success");
-			resultMap.put("data", user);
-		}
-		return resultMap;
+
+		map.put("result", "success");
+		map.put("data", user);
+
+		return ResponseEntity.ok(map);
 	}
 
 	@PutMapping("/update")
-	// 이거 modify로 바꾸면 안될까요?
 	// 요청 바디로 보냄
-	public Map<String, Object> userUpdate(@RequestBody User user) {
+	public ResponseEntity<Object> userUpdate(@RequestBody User user) {
 		Map<String, Object> map = new HashMap<>();
 
 		// userId로 회원 존재 여부 확인
-		User dbUser1 = userService.info(user.getUserId());
 		// 만약에 dbUser1가 null이면 존재하지 않는 회원
-		if (dbUser1 == null) {
-			map.put("result", "fail");
-			map.put("message", "존재하지 않는 회원입니다.");
-			return map;
-		}
-
-		User dbUser2 = userService.update(user);
+		User dbUser = userService.update(user);
 		// update가 실패하면 null 반환
-		if (dbUser2 == null) {
-			map.put("result", "fail");
-			map.put("message", "회원 정보 수정에 실패했습니다.");
-			return map;
-		}
 		// 성공
-		else {
-			map.put("result", "success");
-			map.put("data", dbUser2);
-		}
-
-		return map;
+		map.put("result", "success");
+		map.put("data", dbUser);
+		return ResponseEntity.ok(map);
 	}
 
 	// userId로 회원 탈퇴
 	// pathvariable로 보냄
 	// url 경로의 값을 메서드 변수에 바인딩
+	// 일단은 pet, post 정보 삭제하지 말고 user정보만 삭제하기
 	@DeleteMapping("/remove/{userId}")
-	public String userRemove(@PathVariable("userId") Integer userId) {
-		RemoveResult removeResult = userService.remove(userId);
+	public ResponseEntity<Object> userRemove(@PathVariable("userId") Integer userId) {
+		Map<String, Object> map = new HashMap<>();
 
-		// 결과 값 json으로 반환
-		JSONObject jsonObject = new JSONObject();
+		// userId로 회원 존재 여부 확인
+		User dbUser = userService.remove(userId);
+		// 성공
+		map.put("result", "success");
+		map.put("data", dbUser);
 
-		// enum 값 비교
-		if (removeResult == RemoveResult.SUCCESS) {
-			jsonObject.put("result", "success");
-		} else {
-			jsonObject.put("result", "fail");
-		}
-		return jsonObject.toString();
+
+		return ResponseEntity.ok(map);
 	}
 
 }
