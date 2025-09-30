@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -30,7 +31,12 @@ public class PetService {
 
 	// 반려견 추가 등록
 	@Transactional
-	public Pet register(Pet pet) throws Exception {
+	public Pet register(Pet pet) throws IOException {
+		User user = userDao.selectByUserId(pet.getPetUserId());
+		if (user == null) {
+			throw new IllegalArgumentException();
+		}
+
 		petDao.insertPet(pet);
 
 		MultipartFile mf = pet.getPetAttach();
@@ -53,30 +59,36 @@ public class PetService {
 		
 		return dbPet;
 	}
-
+	
 	// 반려견 1마리 정보 보기
 	public Pet getPet(Integer petId) {
-		Pet pet = petDao.selectByPetId(petId);
+		Pet pet = petDao.selectByPetId(petId); // 없으면 null 반환
 		return pet;
 	}
-
+	
 	// 특정 반려인의 모든 반려견 정보 보기
 	public List<Pet> getAllPetByUserId(Integer petUserId) {
-		List<Pet> pet = petDao.selectAllPetByUserId(petUserId);
 		User user = userDao.selectByUserId(petUserId);
 		if (user == null) {
 			throw new IllegalArgumentException("사용자 없음.");
 		}
-		if (pet == null || pet.isEmpty()) {
+		List<Pet> pets = petDao.selectAllPetByUserId(petUserId);
+		if (pets == null || pets.isEmpty()) {
 			throw new NoSuchElementException("등록된 반려견이 없습니다.");
 		}
-		return pet;
+		return pets;
 	}
-
+	
 	// 반려견 수정하기
 	@Transactional
-	public Pet update(Pet pet) throws Exception {
-		// userId 검사 보류(예외 처리 배우고 추가)
+	public Pet update(Pet pet) throws IOException {
+		Pet existing = petDao.selectByPetId(pet.getPetId());
+		if(existing == null){
+			throw new NoSuchElementException("해당 반려견이 존재하지 않습니다.");
+		}
+		if(!existing.getPetUserId().equals(pet.getPetUserId())){
+			throw new IllegalArgumentException("본인 반려견만 수정할 수 있습니다");
+		}
 		petDao.updatePet(pet);
 
 		MultipartFile mf = pet.getPetAttach();
@@ -89,6 +101,7 @@ public class PetService {
 
 		Pet dbPet = petDao.selectByPetId(pet.getPetId());
 		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
+		
 
 		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
 		if(image != null) {
@@ -106,7 +119,7 @@ public class PetService {
 	public int remove(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId);
 		if (pet == null) {
-			return 0;
+			throw new NoSuchElementException();
 		}
 
 		petImageDao.deletePetImage(petId);
