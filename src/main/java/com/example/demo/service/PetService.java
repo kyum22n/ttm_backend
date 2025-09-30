@@ -48,24 +48,33 @@ public class PetService {
 		}
 		Pet dbPet = petDao.selectByPetId(pet.getPetId());
 		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
-		
+
 		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
-		if(image != null) {
+		if (image != null) {
 			dbPet.setPetImageId(image.getPetImageId());
 			dbPet.setPetAttachOname(image.getPetAttachOname());
 			dbPet.setPetAttachType(image.getPetAttachType());
 			dbPet.setPetAttachData(image.getPetAttachData());
 		}
-		
+
 		return dbPet;
 	}
-	
+
 	// 반려견 1마리 정보 보기
 	public Pet getPet(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId); // 없으면 null 반환
+		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
+
+		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
+		if (image != null) {
+			pet.setPetImageId(image.getPetImageId());
+			pet.setPetAttachOname(image.getPetAttachOname());
+			pet.setPetAttachType(image.getPetAttachType());
+			pet.setPetAttachData(image.getPetAttachData());
+		}
 		return pet;
 	}
-	
+
 	// 특정 반려인의 모든 반려견 정보 보기
 	public List<Pet> getAllPetByUserId(Integer petUserId) {
 		User user = userDao.selectByUserId(petUserId);
@@ -76,17 +85,26 @@ public class PetService {
 		if (pets == null || pets.isEmpty()) {
 			throw new NoSuchElementException("등록된 반려견이 없습니다.");
 		}
+		for (Pet pet : pets) {
+			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
+			if (image != null) {
+				pet.setPetImageId(image.getPetImageId());
+				pet.setPetAttachOname(image.getPetAttachOname());
+				pet.setPetAttachType(image.getPetAttachType());
+				pet.setPetAttachData(image.getPetAttachData());
+			}
+		}
 		return pets;
 	}
-	
+
 	// 반려견 수정하기
 	@Transactional
 	public Pet update(Pet pet) throws IOException {
 		Pet existing = petDao.selectByPetId(pet.getPetId());
-		if(existing == null){
+		if (existing == null) {
 			throw new NoSuchElementException("해당 반려견이 존재하지 않습니다.");
 		}
-		if(!existing.getPetUserId().equals(pet.getPetUserId())){
+		if (!existing.getPetUserId().equals(pet.getPetUserId())) {
 			throw new IllegalArgumentException("본인 반려견만 수정할 수 있습니다");
 		}
 		petDao.updatePet(pet);
@@ -101,16 +119,15 @@ public class PetService {
 
 		Pet dbPet = petDao.selectByPetId(pet.getPetId());
 		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
-		
 
 		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
-		if(image != null) {
+		if (image != null) {
 			dbPet.setPetImageId(image.getPetImageId());
 			dbPet.setPetAttachOname(image.getPetAttachOname());
 			dbPet.setPetAttachType(image.getPetAttachType());
 			dbPet.setPetAttachData(image.getPetAttachData());
 		}
-		
+
 		return dbPet;
 	}
 
