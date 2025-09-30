@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,24 +23,37 @@ public class CommentService {
   // 특정 댓글 불러오기
   public Comment getCommentByCommentId(Integer commentId) {
     Comment comment = commentDao.selectCommentByCommentId(commentId);
+    if(comment == null) {
+      throw new NoSuchElementException();
+    }
     return comment;
   }
 
   // 댓글 작성
-  public void writeComment(Comment comment) {
-    commentDao.insert(comment);
+  public int writeComment(Comment comment) {
+    int rows = commentDao.insert(comment);
+    if(rows == 0) {
+      throw new IllegalArgumentException();
+    }
+
+    return rows;
   }
 
   // 댓글 수정
-  public Comment modifyComment(Comment comment) {
-    commentDao.update(comment);
-    Comment dbComment = commentDao.selectCommentByCommentId(comment.getCommentId());
-    return dbComment;
+  public int modifyComment(Comment comment) {
+    int rows = commentDao.update(comment);
+    if(rows == 0) {
+      throw new NoSuchElementException();
+    }
+    return rows;
   }
 
   // 댓글 삭제
   public int deleteComment(Integer commentId) {
     int rows = commentDao.delete(commentId);
+    if(rows == 0) {
+      throw new NoSuchElementException();
+    }
     return rows;
   }
 }
