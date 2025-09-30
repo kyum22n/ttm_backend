@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,40 +62,49 @@ public class PostController {
 
   // 전체 게시물 목록 불러오기(페이징)
   @GetMapping("/list")
-  public Map<String, Object> postList(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
+  public ResponseEntity<Map<String, Object>> postList(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
     int totalRows = postService.getTotalRows();
     Pager pager = new Pager(10, 5, totalRows, pageNo);
 
+    Map<String, Object> map = new HashMap<>();
     List<Post> list = postService.getPostListByPage(pager);
 
-    Map<String, Object> map = new HashMap<>();
-    map.put("pager", pager);
-    map.put("posts", list);
+    if(list.isEmpty()) {
+      map.put("message", "불러올 게시물이 없습니다.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    } else {
+      map.put("pager", pager);
+      map.put("posts", list);
+      return ResponseEntity.ok(map);
+    }
 
-    return map;
   }
 
   // 특정 사용자 게시물 목록 불러오기(페이징)
   @GetMapping("/{userId}/posts")
-  public Map<String, Object> userPostList(
+  public ResponseEntity<Map<String, Object>> userPostList(
       @PathVariable("userId") Integer userId,
       @RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
 
     int totalRows = postService.getTotalRowsByUserId(userId);
     Pager pager = new Pager(10, 5, totalRows, pageNo);
 
+    Map<String, Object> map = new HashMap<>();
     List<Post> list = postService.getPostListByUserId(userId);
 
-    Map<String, Object> map = new HashMap<>();
-    map.put("pager", pager);
-    map.put("posts", list);
-
-    return map;
+    if(list == null) {
+      map.put("message", "불러올 게시물이 없습니다.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    } else {
+      map.put("pager", pager);
+      map.put("posts", list);
+      return ResponseEntity.ok(map);
+    }
   }
 
   // 게시물 상세보기
   @GetMapping("/detail")
-  public Map<String, Object> postDetail(@RequestParam("postId") Integer postId) {
+  public ResponseEntity<Map<String, Object>> postDetail(@RequestParam("postId") Integer postId) {
 
     Post post = postService.postDetail(postId);
     List<Comment> comments = commentService.getCommentListByPostId(postId);
@@ -105,105 +115,99 @@ public class PostController {
     map.put("comments", comments);
     map.put("tags", tags);
 
-    return map;
+    return ResponseEntity.ok(map);
   }
 
-  // 게시물 수정
-  // @PutMapping(value = "/update", consumes = "multipart/form-data")
-  // public Post postUpdate(
-  //     @ModelAttribute Post post,
-  //     @RequestParam(name = "imageMode", defaultValue = "replace") String imageMode,
-  //     @RequestParam(name = "clearImages", defaultValue = "N") String clearImages) throws Exception {
-
-  //   // 단일 파일 로깅 (서비스에서 저장 처리함)
-  //   if (post.getPostAttach() != null && !post.getPostAttach().isEmpty()) {
-  //     log.info("단일 이미지(수정): {}", post.getPostAttach().getOriginalFilename());
-  //   }
-
-  //   // 다중 파일 로깅
-  //   if (post.getPostAttaches() != null) {
-  //     log.info("다중 이미지 개수(수정): {}", post.getPostAttaches().size());
-  //     for (var mf : post.getPostAttaches()) {
-  //       if (mf != null && !mf.isEmpty()) {
-  //         log.info("다중 이미지(수정): {} ({} bytes)", mf.getOriginalFilename(), mf.getSize());
-  //       }
-  //     }
-  //   }
-
-  //   postService.modifyPostWithImages(post, imageMode, "Y".equalsIgnoreCase(clearImages));
-  //   return postService.postDetail(post.getPostId());
-  // }
 
   // 게시물 수정
   @PutMapping(value = "/update", consumes = "multipart/form-data")
-  public Post postUpdate(
-    @ModelAttribute Post post,
-    @RequestParam(name = "imageMode", defaultValue = "append") String imageMode
-  ) throws Exception {
+  public ResponseEntity<Map<String, Object>> postUpdate(@ModelAttribute Post post,
+                         @RequestParam(name = "imageMode", defaultValue = "append") String imageMode) throws IOException {
+    Map<String, Object> map = new HashMap<>();
     postService.modifyPostWithImages(post, imageMode);
-    return postService.postDetail(post.getPostId());
+    Post updatePost =  postService.postDetail(post.getPostId());
+    
+    map.put("message", "게시물이 수정되었습니다.");
+    map.put("post", updatePost);
+
+    return ResponseEntity.ok(map);
   }
 
   // 게시물 삭제
   @DeleteMapping("/delete")
-  public Map<String, String> postDelete(@RequestParam("postId") Integer postId) {
-    int rows = postService.removePost(postId);
-
-    Map<String, String> map = new HashMap<>();
-
-    map.put("result", rows > 0 ? "success" : "fail");
-
-    return map;
+  public ResponseEntity<Map<String, Object>> postDelete(@RequestParam("postId") Integer postId) {
+    Map<String, Object> map = new HashMap<>();
+    
+    postService.removePost(postId);
+    map.put("message", "게시물이 삭제되었습니다.");
+    
+    return ResponseEntity.ok(map);
   }
-
+  
   // 댓글 작성
   @PostMapping("/comment-write")
-  public void commentWrite(Comment comment) {
+  public ResponseEntity<Map<String, Object>> commentWrite(Comment comment) {
+    Map<String, Object> map = new HashMap<>();
+    
     commentService.writeComment(comment);
+    map.put("message", "댓글이 작성되었습니다.");
+    
+    return ResponseEntity.ok(map);
   }
-
+  
   // 댓글 수정
   @PutMapping("/comment-update")
-  public Comment commentUpdate(Comment comment) {
+  public ResponseEntity<Map<String, Object>> commentUpdate(Comment comment) {
+    Map<String, Object> map = new HashMap<>();
+    
     commentService.modifyComment(comment);
-
-    Comment dbComment = commentService.getCommentByCommentId(comment.getCommentId());
-
-    return dbComment;
+    map.put("message", "댓글이 수정되었습니다.");
+      
+    return ResponseEntity.ok(map);
   }
-
+  
   // 댓글 삭제
   @DeleteMapping("/comment-delete")
-  public Map<String, String> commentDelete(@RequestParam("commentId") Integer commentId) {
-    int rows = commentService.deleteComment(commentId);
-
-    Map<String, String> map = new HashMap<>();
-    if (commentId == null && rows < 0) {
-      map.put("result", "fail");
-    } else {
-      map.put("result", "success");
-    }
-
-    return map;
+  public ResponseEntity<Map<String, Object>> commentDelete(@RequestParam("commentId") Integer commentId) {
+    Map<String, Object> map = new HashMap<>();
+    
+    commentService.deleteComment(commentId);
+    map.put("message", "댓글이 삭제되었습니다.");
+    
+    return ResponseEntity.ok(map);
   }
-
+  
   // 전체 태그 목록 조회
   @GetMapping("/tags")
-  public List<Tag> tagList() {
+  public ResponseEntity<Map<String, Object>> tagList() {
+    Map<String, Object> map = new HashMap<>();
     List<Tag> tags = tagService.getAllTags();
-    return tags;
-  }
+    
+    map.put("tags", tags);
 
+    return ResponseEntity.ok(map);
+  }
+  
   // 게시물에 태그 달기
   @PostMapping("/add-tag")
-  public void addTag(@RequestBody PostTag postTag) {
+  public ResponseEntity<Map<String, Object>> addTag(@RequestBody PostTag postTag) {
+    Map<String, Object> map = new HashMap<>();
+    
     postTagService.taging(postTag);
-  }
+    map.put("message", "태그가 등록되었습니다.");
 
+    return ResponseEntity.ok(map);
+  }
+  
   // 게시물 수정 시 태그 삭제
   @DeleteMapping("/delete-tag")
-  public void deleteTag(@RequestBody PostTag postTag) {
+  public ResponseEntity<Map<String, Object>> deleteTag(@RequestBody PostTag postTag) {
+    Map<String, Object> map = new HashMap<>();
+
     postTagService.removeTag(postTag);
+    map.put("message", "태그가 삭제되었습니다.");
+
+    return ResponseEntity.ok(map);
   }
 
   // 그룹 산책 모집글만 조회

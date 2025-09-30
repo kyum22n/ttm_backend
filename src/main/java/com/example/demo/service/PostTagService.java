@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,8 @@ public class PostTagService {
     private PostTagDao postTagDao;
 
     // 게시물에 태그 달기
-    public void taging(PostTag postTag) {
-        postTagDao.insert(postTag);
+    public int taging(PostTag postTag) {
+        return postTagDao.insert(postTag);
     }
 
     // 게시물 조회 시 태그도 같이 조회
@@ -26,7 +27,12 @@ public class PostTagService {
     }
 
     // 태그 삭제
-    public void removeTag(PostTag postTag) {
-        postTagDao.deleteTagByPostId(postTag);
+    public int removeTag(PostTag postTag) {
+        int rows = postTagDao.deleteTagByPostId(postTag);
+        if(rows == 0) {
+            throw new NoSuchElementException();
+        }
+
+        return rows;
     }
 }

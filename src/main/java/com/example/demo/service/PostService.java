@@ -86,9 +86,7 @@ public class PostService {
   // 전체 게시물 목록 불러오기(페이지)
   public List<Post> getPostListByPage(Pager pager) {
     List<Post> list = postDao.selectByPage(pager);
-    if(list == null && list.isEmpty()) {
-      throw new IllegalArgumentException();
-    }
+
     return list;
   }
 
@@ -101,6 +99,7 @@ public class PostService {
   // 특정 사용자 게시물 목록 불러오기(페이지)
   public List<Post> getPostListByUserId(Integer userId) {
     List<Post> list = postDao.selectAllPostByUserId(userId);
+
     return list;
   }
 
@@ -113,6 +112,9 @@ public class PostService {
   // 게시물 상세보기
   public Post postDetail(Integer postId) {
     Post post = postDao.selectByPostId(postId);
+    if(post == null) {
+      throw new NoSuchElementException();
+    }
     return post;
   }
 
@@ -124,9 +126,13 @@ public class PostService {
 
   // 게시물 수정
   @Transactional
-  public int modifyPostWithImages(Post post, String imageMode) throws Exception {
-    //
+  public int modifyPostWithImages(Post post, String imageMode) throws IOException {
+    // 업데이트된 행 수
     int rows = postDao.updatePost(post);
+
+    if(rows == 0) {
+      throw new NoSuchElementException();
+    }
 
     // 새 파일 수집
     List<MultipartFile> files = new ArrayList<>();
@@ -161,11 +167,16 @@ public class PostService {
   }
 
   // 게시물 삭제
+  @Transactional
   public int removePost(Integer postId) {
 
+    postImageDao.deleteByPostId(postId);
+    
     int rows = postDao.deletePost(postId);
 
-    postImageDao.deleteByPostId(postId);
+    if(rows == 0) {
+      throw new NoSuchElementException();
+    }
 
     return rows;
   }
