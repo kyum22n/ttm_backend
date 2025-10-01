@@ -63,7 +63,7 @@ public class ReviewService {
     return reviewDao.selectByReviewId(review.getReviewId());
   }
 
-  // 자신이 받은 리뷰 모두 불러오기 (예외 X, DAO 반환 그대로)
+  // 해당 유저가 받은 리뷰 모두 불러오기 (예외 X, DAO 반환 그대로)
   public List<Review> findAllByTargetId(int userId) {
     if (userId <= 0) {
       throw new IllegalArgumentException("userId가 올바르지 않습니다");
