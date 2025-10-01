@@ -144,4 +144,13 @@ public class PetService {
 		}
 		return rows;
 	}
+
+	// 펫 이미지 단건 조회
+	public Pet getPetImage(Integer petId){
+		Pet image = petImageDao.selectPetImageByPetId(petId);
+		if(image == null || image.getPetAttachData() == null){
+			throw new NoSuchElementException("이미지가 존재하지 않습니다");
+		}
+		return image;
+	}
 }

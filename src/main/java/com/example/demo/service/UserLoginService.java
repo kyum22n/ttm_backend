@@ -41,10 +41,14 @@ public class UserLoginService {
         return jwtService.createJwt(user.getUserId(), user.getUserLoginId(), user.getUserEmail());
     }
 
+    // 로그인한 사용자 조회
+    public User getUserProfile(String loginId){
+        return userDao.selectUserProfileByLoginId(loginId);
+    }
+
     // 비밀번호 찾기
     public User getUserByLoginId(String userLoginId) {
         User user = userDao.selectUserByLoginId(userLoginId);
-        
         return user;
     }
 
