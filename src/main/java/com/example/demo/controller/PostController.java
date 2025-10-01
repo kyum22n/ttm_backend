@@ -83,8 +83,7 @@ public class PostController {
 
   // 특정 사용자 게시물 목록 불러오기(페이징)
   @GetMapping("/{userId}/posts")
-  public ResponseEntity<Map<String, Object>> userPostList(
-      @PathVariable("userId") Integer userId,
+  public ResponseEntity<Map<String, Object>> userPostList(@PathVariable("userId") Integer userId,
       @RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
 
     int totalRows = postService.getTotalRowsByUserId(userId);
@@ -257,29 +256,20 @@ public class PostController {
   // 이제 이 컨트롤러는 제껍니다
   // 산책 신청(자기 자신을 participates에 등록)
 
-  @RestController
-  @RequestMapping("/post")
-  @RequiredArgsConstructor
-  public class ParticipateController {
-    @Autowired
-    private ParticipateService participateService;
+  // 예: PUT /post/groupwalk/APPLY (APPROVE/REJECT/COMPLETE/CANCEL 도 동일)
+  @PostMapping("/groupwalk/{status}")
+  public ResponseEntity<Map<String, Object>> handle(@PathVariable("status") String status,
+      @RequestBody Participate participate) {
 
-    // 예: PUT /post/groupwalk/APPLY (APPROVE/REJECT/COMPLETE/CANCEL 도 동일)
-    @PostMapping("/groupwalk/{status}")
-    public ResponseEntity<Map<String, Object>> handle(
-        @PathVariable("status") String status,
-        @RequestBody Participate participate) {
+    ParticipateStatus st = ParticipateStatus.parse(status);
+    participateService.handleByStatus(participate, st);
 
-      ParticipateStatus st = ParticipateStatus.parse(status);
-      participateService.handleByStatus(participate, st);
-
-      Map<String, Object> map = new HashMap<>();
-      map.put("result", "success");
-      map.put("status", st.name()); // P/A/R/C/CANCEL
-      map.put("postId", participate.getPostId());
-      map.put("userId", participate.getUserId());
-      return ResponseEntity.ok(map);
-    }
+    Map<String, Object> map = new HashMap<>();
+    map.put("result", "success");
+    map.put("status", st.name()); // P/A/R/C/CANCEL
+    map.put("postId", participate.getPostId());
+    map.put("userId", participate.getUserId());
+    return ResponseEntity.ok(map);
   }
 
   // 특정 글의 대기(P) 참가자 목록
@@ -341,8 +331,7 @@ public class PostController {
   // }
 
   @PutMapping("/groupwalk/now")
-  public ResponseEntity<Map<String, String>> markNow(
-      @RequestParam("postId") int postId,
+  public ResponseEntity<Map<String, String>> markNow(@RequestParam("postId") int postId,
       @RequestParam("code") int code) {
 
     // 실패 케이스는 서비스에서 예외를 던지고 전역 예외처리가 응답
@@ -353,17 +342,17 @@ public class PostController {
 
     String message;
     switch (code) {
-      case 1:
-        message = "신청 마감 시간이 기록되었습니다.";
-        break;
-      case 2:
-        message = "산책 시작 시간이 기록되었습니다.";
-        break;
-      case 3:
-        message = "산책 종료 시간이 기록되었습니다.";
-        break;
-      default:
-        message = "산책 상태가 업데이트되었습니다.";
+    case 1:
+      message = "신청 마감 시간이 기록되었습니다.";
+      break;
+    case 2:
+      message = "산책 시작 시간이 기록되었습니다.";
+      break;
+    case 3:
+      message = "산책 종료 시간이 기록되었습니다.";
+      break;
+    default:
+      message = "산책 상태가 업데이트되었습니다.";
     }
     map.put("message", message);
     map.put("postId", String.valueOf(postUpdated.getPostId()));
