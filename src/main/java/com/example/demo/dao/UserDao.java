@@ -17,4 +17,5 @@ public interface UserDao {
   public User selectUserByLoginId(String userLoginId); //로그인 정보를 받기 위한 메서드 추가
   public User selectUserByEmail(String userEmail); // 아이디 찾기를 하기 위한 메서드 추가
   public int updatePassword(User user); //임시 비밀번호 발급을 위한 메서드 추가
+  User selectUserProfileByLoginId(String userLoginId); // 로그인한 사용자 조회(비밀번호 x)
 }

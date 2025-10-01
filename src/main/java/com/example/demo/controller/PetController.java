@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,7 @@ public class PetController {
   @Autowired
   private PetService petService;
 
+  // 반려견 추가 등록
   @PostMapping("/register")
   public ResponseEntity<Map<String, Object>> petRegister(@ModelAttribute Pet pet) throws IOException {
     Map<String, Object> map = new HashMap<>();
@@ -77,5 +79,16 @@ public class PetController {
     map.put("rows", rows);
     return ResponseEntity.ok(map);
   }
+
+  // 펫 이미지 조회 API
+  @GetMapping("/image/{petId}")
+  public ResponseEntity<byte[]> getMethodName(@PathVariable("petId") Integer petId) {
+    Pet image = petService.getPetImage(petId);
+
+    return ResponseEntity.ok()
+            .header("Content-Type", image.getPetAttachType())
+            .body(image.getPetAttachData());
+  }
+  
 
 }

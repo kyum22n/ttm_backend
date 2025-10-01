@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.FindIdForm;
 import com.example.demo.dto.FindPasswordForm;
 import com.example.demo.dto.Loginform;
+import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
+import com.example.demo.service.PetService;
 import com.example.demo.service.UserLoginService;
+import com.example.demo.service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -26,16 +30,34 @@ import lombok.extern.slf4j.Slf4j;
 public class UserLoginController {
   @Autowired
   private UserLoginService userLoginService;
+  @Autowired
+  private PetService petService;
 
   @PostMapping("/login")
   public ResponseEntity<Map<String, Object>> login(@RequestBody Loginform loginForm) {
     Map<String, Object> map = new HashMap<>();
+    User user = userLoginService.getUserProfile(loginForm.getLoginId());
     // 1.로그인 성공 시 jwt 토큰 발급
     String jwt = userLoginService.userLogin(loginForm.getLoginId(), loginForm.getPassword());
+
+    // 유저의 모든 펫 중 첫 번째 펫
+    List<Pet> pets = petService.getAllPetByUserId(user.getUserId());
+    String profileImageUrl = null;
+    if (pets != null && !pets.isEmpty()) {
+        profileImageUrl = "/pet/image/" + pets.get(0).getPetId();
+    }
     // 2. 로그인 성공
     map.put("result", "success");
-    map.put("loginId", loginForm.getLoginId());
     map.put("jwt", jwt);
+
+    map.put("userId", user.getUserId()); 
+    map.put("loginId", user.getUserLoginId());
+    map.put("userName", user.getUserName());
+    map.put("userEmail", user.getUserEmail());
+    map.put("userAddress", user.getUserAddress());
+    map.put("userBirthDate", user.getUserBirthDate());
+    map.put("profileImage", profileImageUrl);
+
     return ResponseEntity.ok(map);
 
   }

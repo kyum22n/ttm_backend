@@ -54,4 +54,11 @@
 	<select id="selectAllUser"
 		resultType="User"> select user_login_id, user_password, user_name, user_email, user_address,
 		user_birthDate, created_at from users where user_Id = #{value} </select>
+
+	<select id="selectUserProfileByLoginId" parameterType="String" resultType="User">
+    SELECT user_id, user_login_id, user_name, user_email,
+           user_address, user_birthDate, created_at
+    FROM users
+    WHERE user_login_id = #{value}
+</select>
 </mapper>
