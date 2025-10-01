@@ -265,21 +265,21 @@ public class PostController {
     private ParticipateService participateService;
 
     // 예: PUT /post/groupwalk/APPLY (APPROVE/REJECT/COMPLETE/CANCEL 도 동일)
-    @PutMapping("/groupwalk/{status}")
-  public ResponseEntity<Map<String,Object>> handle(
-      @PathVariable String status,
-      @RequestBody Participate participate) {
+    @PostMapping("/groupwalk/{status}")
+    public ResponseEntity<Map<String, Object>> handle(
+        @PathVariable("status") String status,
+        @RequestBody Participate participate) {
 
-    ParticipateStatus st = ParticipateStatus.parse(status);
-    participateService.handleByStatus(participate, st);
+      ParticipateStatus st = ParticipateStatus.parse(status);
+      participateService.handleByStatus(participate, st);
 
-    Map<String,Object> map = new HashMap<>();
-    map.put("result", "success");
-    map.put("status", st.name()); // P/A/R/C/CANCEL
-    map.put("postId", participate.getPostId());
-    map.put("userId", participate.getUserId());
-    return ResponseEntity.ok(map);
-  }
+      Map<String, Object> map = new HashMap<>();
+      map.put("result", "success");
+      map.put("status", st.name()); // P/A/R/C/CANCEL
+      map.put("postId", participate.getPostId());
+      map.put("userId", participate.getUserId());
+      return ResponseEntity.ok(map);
+    }
   }
 
   // 특정 글의 대기(P) 참가자 목록
