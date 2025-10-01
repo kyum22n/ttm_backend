@@ -284,14 +284,38 @@ public class PostController {
 
   // 특정 글의 대기(P) 참가자 목록
   @GetMapping("/groupwalk/{postId}/participants/pending")
-  public List<Participate> listPendingParticipants(@PathVariable("postId") int postId) {
-    return participateService.listPendingByPost(postId);
+  public ResponseEntity<Map<String, Object>> listPendingParticipants(@PathVariable("postId") int postId) {
+    List<Participate> list = participateService.listPendingByPost(postId);
+
+    if (list == null || list.isEmpty()) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("message", "대기(P) 참가자가 없습니다.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    }
+
+    Map<String, Object> map = new HashMap<>();
+    map.put("result", "success");
+    map.put("count", list.size());
+    map.put("participants", list);
+    return ResponseEntity.ok(map);
   }
 
   // 특정 글의 승인(A) 참가자 목록
   @GetMapping("/groupwalk/{postId}/participants/approved")
-  public List<Participate> listApprovedParticipants(@PathVariable("postId") int postId) {
-    return participateService.listApprovedByPost(postId);
+  public ResponseEntity<Map<String, Object>> listApprovedParticipants(@PathVariable("postId") int postId) {
+    List<Participate> list = participateService.listApprovedByPost(postId);
+
+    if (list == null || list.isEmpty()) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("message", "승인(A) 참가자가 없습니다.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    }
+
+    Map<String, Object> map = new HashMap<>();
+    map.put("result", "success");
+    map.put("count", list.size());
+    map.put("participants", list);
+    return ResponseEntity.ok(map);
   }
 
   //
