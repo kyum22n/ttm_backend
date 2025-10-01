@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +25,14 @@ import com.example.demo.dto.Participate;
 import com.example.demo.dto.Post;
 import com.example.demo.dto.PostTag;
 import com.example.demo.dto.Tag;
+import com.example.demo.enums.ParticipateStatus;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.ParticipateService;
 import com.example.demo.service.PostService;
 import com.example.demo.service.PostTagService;
 import com.example.demo.service.TagService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -255,49 +256,30 @@ public class PostController {
 
   // 이제 이 컨트롤러는 제껍니다
   // 산책 신청(자기 자신을 participates에 등록)
-  @PostMapping("/groupwalk/apply")
-  public void groupWalkApply(@RequestBody Participate participate) {
-    participateService.groupWalkApply(participate);
-  }
 
-  static class ApproveReq {
-    public int postId;
-    public int userId;
-  }
+  @RestController
+  @RequestMapping("/post")
+  @RequiredArgsConstructor
+  public class ParticipateController {
+    @Autowired
+    private ParticipateService participateService;
 
-  @PutMapping(value = "/groupwalk/approve", consumes = "application/json")
-  public void groupWalkApprove(@RequestBody ApproveReq req) {
-    participateService.groupWalkApprove(req.postId, req.userId);
-  }
+    // 예: PUT /post/groupwalk/APPLY (APPROVE/REJECT/COMPLETE/CANCEL 도 동일)
+    @PutMapping("/groupwalk/{status}")
+  public ResponseEntity<Map<String,Object>> handle(
+      @PathVariable String status,
+      @RequestBody Participate participate) {
 
-  static class RejectReq {
-    public int postId;
-    public int userId;
-  }
+    ParticipateStatus st = ParticipateStatus.parse(status);
+    participateService.handleByStatus(participate, st);
 
-  @PutMapping(value = "/groupwalk/reject", consumes = "application/json")
-  public void groupWalkReject(@RequestBody RejectReq req) {
-    participateService.groupWalkReject(req.postId, req.userId);
+    Map<String,Object> map = new HashMap<>();
+    map.put("result", "success");
+    map.put("status", st.name()); // P/A/R/C/CANCEL
+    map.put("postId", participate.getPostId());
+    map.put("userId", participate.getUserId());
+    return ResponseEntity.ok(map);
   }
-
-  static class CompleteReq {
-    public int postId;
-    public int userId;
-  }
-
-  @PutMapping(value = "/groupwalk/complete", consumes = "application/json")
-  public void groupWalkComplete(@RequestBody CompleteReq req) {
-    participateService.groupWalkComplete(req.postId, req.userId);
-  }
-
-  static class CancelReq {
-    public int postId;
-    public int userId;
-  }
-
-  @DeleteMapping(value = "/groupwalk/cancel", consumes = "application/json")
-  public void groupWalkCancel(@RequestBody CancelReq req) {
-    participateService.groupWalkApplyCancel(req.postId, req.userId);
   }
 
   // 특정 글의 대기(P) 참가자 목록
@@ -329,8 +311,9 @@ public class PostController {
   // }
 
   // @PutMapping("/groupwalk/now")
-  // public Post markNow(@RequestParam("postId") int postId, @RequestParam("code") int code) {
-  //   return postService.markWalkByCode(postId, code);
+  // public Post markNow(@RequestParam("postId") int postId, @RequestParam("code")
+  // int code) {
+  // return postService.markWalkByCode(postId, code);
   // }
 
   @PutMapping("/groupwalk/now")
