@@ -42,17 +42,16 @@ public class ReviewController {
 
   // 해당 유저가 받은 리뷰 모두 가져오기 (성공 시 200)
   @GetMapping("/users/{userId}/reviews")
-  public ResponseEntity<Map<String, String>> getReceivedReviews(@PathVariable("userId") int userId) {
-    log.info("userId: {}", userId);
+  public ResponseEntity<Map<String, Object>> getReceivedReviews(@PathVariable("userId") int userId) {
+    List<Review> reviews = reviewService.findAllByTargetId(userId);
 
-    var reviews = reviewService.findAllByTargetId(userId); // 실패는 전역 예외처리로 감
+    Map<String, Object> map = new HashMap<>();
+    map.put("result", "success");
+    map.put("message", reviews.isEmpty() ? "받은 리뷰가 없습니다." : "받은 리뷰 목록을 조회했습니다.");
+    map.put("count", reviews.size()); // 숫자 그대로
+    map.put("data", reviews); // ★ 실제 목록 포함
 
-    Map<String, String> body = new HashMap<>();
-    body.put("result", "success");
-    body.put("message", reviews.isEmpty() ? "받은 리뷰가 없습니다." : "받은 리뷰 목록을 조회했습니다.");
-    body.put("count", String.valueOf(reviews.size())); // 데이터 자체는 안 담고 개수만 전달
-
-    return ResponseEntity.ok(body);
+    return ResponseEntity.ok(map);
   }
 
   // 특정 리뷰 하나만 가져오기 (성공 시 200)
