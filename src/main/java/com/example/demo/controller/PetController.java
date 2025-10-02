@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.dto.Pet;
 import com.example.demo.service.PetService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -82,13 +85,33 @@ public class PetController {
 
   // 펫 이미지 조회 API
   @GetMapping("/image/{petId}")
-  public ResponseEntity<byte[]> getMethodName(@PathVariable("petId") Integer petId) {
+  public void getMethodName(
+    @PathVariable("petId") Integer petId,
+    HttpServletResponse response) throws Exception{
+
     Pet image = petService.getPetImage(petId);
 
-    return ResponseEntity.ok()
-            .header("Content-Type", image.getPetAttachType())
-            .body(image.getPetAttachData());
-  }
-  
+    // 이미지가 없으면 404에러
+    if(image == null || image.getPetAttachData() == null){
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
 
+    // 파일 이름 한글깨짐 방지
+    String fileName = image.getPetAttachOname();
+    String encodedFileName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+
+    // 응답 헤더 설정
+    response.setContentType(image.getPetAttachType());
+    response.setHeader("Content-Disposition", "inline; filename= \"" + encodedFileName + "\"");
+
+    // 응답 본문으로 데이터를 출력하는 스트림
+    OutputStream os = response.getOutputStream();
+    BufferedOutputStream bos = new BufferedOutputStream(os);
+
+    // 응답 본문의 파일 데이터 출력
+    bos.write(image.getPetAttachData());
+    bos.flush();
+    bos.close();
+  }
 }
