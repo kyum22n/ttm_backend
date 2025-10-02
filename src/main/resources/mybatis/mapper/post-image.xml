@@ -4,7 +4,7 @@
 <mapper namespace="com.example.demo.dao.PostImageDao">
 
   <insert id="insert" parameterType="Post">
-    <selectKey keyProperty="postImageId" resultType="int" order="BEFORE">
+    <selectKey keyProperty="postImageId" resultType="Integer" order="BEFORE">
       select seq_post_images_post_image_id.nextval from dual
     </selectKey>
     insert into post_images (

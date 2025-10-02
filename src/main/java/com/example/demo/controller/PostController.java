@@ -145,7 +145,7 @@ public class PostController {
 
   // 댓글 작성
   @PostMapping("/comment-write")
-  public ResponseEntity<Map<String, Object>> commentWrite(Comment comment) {
+  public ResponseEntity<Map<String, Object>> commentWrite(@RequestBody Comment comment) {
     Map<String, Object> map = new HashMap<>();
 
     commentService.writeComment(comment);
@@ -156,7 +156,7 @@ public class PostController {
 
   // 댓글 수정
   @PutMapping("/comment-update")
-  public ResponseEntity<Map<String, Object>> commentUpdate(Comment comment) {
+  public ResponseEntity<Map<String, Object>> commentUpdate(@RequestBody Comment comment) {
     Map<String, Object> map = new HashMap<>();
 
     commentService.modifyComment(comment);

@@ -35,11 +35,11 @@
   <select id="selectByPage" parameterType="Pager" resultType="Post"> 
   <!--resultType은 하나의 행을 리턴하기 때문에 List<>가아닌 Post를 씀-->
     <![CDATA[
-    select rnum, post_id, post_title, post_content, post_like_count, user_id as postUserId, created_at
+    select rnum, post_id, post_title, post_content, post_like_count, user_id as postUserId, created_at, is_request
     from (
-        select rownum as rnum, post_id, post_title, post_content, post_like_count, user_id, created_at
+        select rownum as rnum, post_id, post_title, post_content, post_like_count, user_id, created_at, is_request
         from (
-            select post_id, post_title, post_content, post_like_count, user_id, created_at
+            select post_id, post_title, post_content, post_like_count, user_id, created_at, is_request
             from  posts
             order by post_id desc
         )

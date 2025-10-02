@@ -4,7 +4,7 @@
 <mapper namespace="com.example.demo.dao.LikeDao">
   
     <!-- 좋아요 등록(Pet) -->
-    <insert id="insertLikeToPet" parameterType="Like">
+    <insert id="insertLikeToPet">
         <selectKey keyProperty="likeId" resultType="Integer" order="BEFORE"> 
             select seq_likes_like_id.nextval from dual 
         </selectKey> 
@@ -14,7 +14,7 @@
     </insert>
     
     <!-- 좋아요 등록(Post) -->
-    <insert id="insertLikeToPost" parameterType="Like">
+    <insert id="insertLikeToPost">
         <selectKey keyProperty="likeId" resultType="Integer" order="BEFORE"> 
             select seq_likes_like_id.nextval from dual 
         </selectKey> 
@@ -28,7 +28,6 @@
         select COUNT(*)
         from likes
         where pet_id = #{petId} and user_id = #{userId}
-        order by like_id
     </select>
     
     <!-- 좋아요 중복 체크(Post) -->
@@ -36,7 +35,6 @@
         select COUNT(*)
         from likes
         where post_id = #{postId} and user_id = #{userId}
-        order by like_id
     </select>
 
     <!-- 좋아요 취소(Pet) -->
