@@ -96,7 +96,7 @@ public class PostService {
     return totalRows;
   }
 
-  // 특정 사용자 게시물 목록 불러오기(페이지)
+  // 특정 사용자 게시물 목록 불러오기
   public List<Post> getPostListByUserId(Integer userId) {
     List<Post> list = postDao.selectAllPostByUserId(userId);
 

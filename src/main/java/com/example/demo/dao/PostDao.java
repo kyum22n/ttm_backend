@@ -15,6 +15,7 @@ public interface PostDao {
   public Post selectByPostId(Integer postId);
   // 특정 사용자의 모든 게시물 조회
   public List<Post> selectAllPostByUserId(Integer userId);
+  public int countAllByUserId(Integer userId);
 
   // 게시물 작성
   public int insertPost(Post post);
@@ -48,5 +49,5 @@ public interface PostDao {
   // Pager
   public List<Post> selectByPage(Pager pager);
   public int countAll();
-  public int countAllByUserId(Integer userId);
+  
 }

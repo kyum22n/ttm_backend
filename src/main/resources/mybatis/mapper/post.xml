@@ -42,10 +42,10 @@
             select post_id, post_title, post_content, post_like_count, user_id, created_at, is_request
             from  posts
             order by post_id desc
-        )
-        where rownum <= 10
+        ) inner_query
+        where rownum <= #{endRowNo}
     )
-    where rnum >= 1
+    where rnum >= #{startRowNo}
     ]]>
   </select>
   

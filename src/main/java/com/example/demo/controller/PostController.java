@@ -32,7 +32,6 @@ import com.example.demo.service.PostService;
 import com.example.demo.service.PostTagService;
 import com.example.demo.service.TagService;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -81,13 +80,11 @@ public class PostController {
 
   }
 
-  // 특정 사용자 게시물 목록 불러오기(페이징)
+  // 특정 사용자 게시물 목록 불러오기
   @GetMapping("/{userId}/posts")
-  public ResponseEntity<Map<String, Object>> userPostList(@PathVariable("userId") Integer userId,
-      @RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
+  public ResponseEntity<Map<String, Object>> userPostList(@PathVariable("userId") Integer userId) {
 
-    int totalRows = postService.getTotalRowsByUserId(userId);
-    Pager pager = new Pager(10, 5, totalRows, pageNo);
+    // int totalRows = postService.getTotalRowsByUserId(userId);  // 특정 사용자 게시물 수
 
     Map<String, Object> map = new HashMap<>();
     List<Post> list = postService.getPostListByUserId(userId);
@@ -96,7 +93,6 @@ public class PostController {
       map.put("message", "불러올 게시물이 없습니다.");
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     } else {
-      map.put("pager", pager);
       map.put("posts", list);
       return ResponseEntity.ok(map);
     }
