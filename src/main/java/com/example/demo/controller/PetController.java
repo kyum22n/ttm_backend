@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.Pet;
+import com.example.demo.interceptor.Login;
 import com.example.demo.service.PetService;
 
 import jakarta.servlet.http.HttpServletResponse;
