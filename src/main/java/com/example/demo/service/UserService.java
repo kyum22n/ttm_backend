@@ -49,7 +49,7 @@ public class UserService {
 	@Transactional
 	// 위와 같은 이유로 pet이 userId를 외래키로 가지고 있기 때문에
 	// user와 pet을 같이 받아서 처리
-	public String join(User user, Pet pet) throws IOException {
+	public void join(User user, Pet pet) throws IOException {
 
 		// Bcrypt 방식으로 암호화
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -87,19 +87,16 @@ public class UserService {
 
 			// pet 이미지 파일을 첨부 받기 위해 사용
 			MultipartFile mf = pet.getPetAttach();
-			if (mf == null) {
-				throw new IOException("파일이 제대로 첨부되지 않았습니다");
+			if (mf == null || mf.isEmpty()) {
+				throw new IOException("반려견 이미지는 필수 업로드입니다.");
 			}
-			if (mf != null && !mf.isEmpty()) {
-				// 파일 이름 저장
-				pet.setPetAttachOname(mf.getOriginalFilename());
-				// 파일 타입 저장(png, jpeg)
-				pet.setPetAttachType(mf.getContentType());
-				// 파일 데이터 저장
-				pet.setPetAttachData(mf.getBytes());
 
-				petImageDao.insertPetImage(pet);
-			}
+			pet.setPetAttachOname(mf.getOriginalFilename());
+			// 파일 타입 저장(png, jpeg)
+			pet.setPetAttachType(mf.getContentType());
+			// 파일 데이터 저장
+			pet.setPetAttachData(mf.getBytes());
+			petImageDao.insertPetImage(pet);
 
 			// db에 저장된 pet 정보 조회
 			Pet dbPet = petDao.selectByPetId(pet.getPetId());
@@ -107,13 +104,23 @@ public class UserService {
 			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
 
 			// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
-			if (image != null) {
-				dbPet.setPetImageId(image.getPetImageId());
-				dbPet.setPetAttachOname(image.getPetAttachOname());
-				dbPet.setPetAttachType(image.getPetAttachType());
-				dbPet.setPetAttachData(image.getPetAttachData());
-			}
-			return "success";
+			dbPet.setPetImageId(image.getPetImageId());
+			dbPet.setPetAttachOname(image.getPetAttachOname());
+			dbPet.setPetAttachType(image.getPetAttachType());
+			dbPet.setPetAttachData(image.getPetAttachData());
+		}
+	}
+
+	public void checkDuplicate(String loginId, String email) {
+		User dbUser = userDao.selectUserByLoginId(loginId);
+		User dbUser2 = userDao.selectUserByEmail(email);
+
+		if (dbUser != null && dbUser2 != null) {
+			throw new DuplicateKeyException("이미 존재하는 아이디와 이메일입니다.");
+		} else if (dbUser != null) {
+			throw new DuplicateKeyException("이미 존재하는 아이디입니다.");
+		} else if (dbUser2 != null) {
+			throw new DuplicateKeyException("이미 존재하는 이메일입니다.");
 		}
 	}
 

@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
@@ -50,24 +47,25 @@ public class UserController {
 	// ResponseEntity
 	public ResponseEntity<Object> userJoin(@ModelAttribute User user, Pet pet) throws IOException {
 		// 입력 값 확인
-		log.info(user.toString());
+		// log.info(user.toString());
 
 		// 결과를 map으로 돌려줌
 		Map<String, Object> map = new HashMap<>();
-		String result;
-		MultipartFile mf = pet.getPetAttach();
-		if (mf == null || mf.isEmpty()) {
-			map.put("result", "fail");
-			map.put("message", "반려견 이미지는 필수 업로드입니다.");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
-		}
-		result = userService.join(user, pet);
-		// 로그인 성공
-		if ("success".equals(result)) {
-			map.put("result", "success");
-		}
+
+		userService.join(user, pet);
+		map.put("result", "success");
 		return ResponseEntity.ok(map);
 
+	}
+
+	@GetMapping("/check-duplicate")
+	public ResponseEntity<Map<String, Object>> checkDuplicate(
+			@RequestParam(name = "loginId", required = false) String loginId,
+			@RequestParam(name = "email", required = false) String email) {
+		Map<String, Object> map = new HashMap<>();
+		userService.checkDuplicate(loginId, email);
+		map.put("result", "success");
+		return ResponseEntity.ok(map);
 	}
 
 	// Get 요청
@@ -113,7 +111,6 @@ public class UserController {
 		// 성공
 		map.put("result", "success");
 		map.put("data", dbUser);
-
 
 		return ResponseEntity.ok(map);
 	}
