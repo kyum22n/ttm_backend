@@ -20,7 +20,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
   // 전처리
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    // log.info("전처리 실행");
+     log.info("전처리 실행");
 
     // Preflight request로 요청한 것은 통과
     if ("OPTIONS".equalsIgnoreCase(request.getMethod())){
@@ -69,12 +69,4 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
     }
 
   }
-
-  // 후처리
-  // @Override
-  // public void postHandle(HttpServletRequest request, HttpServletResponse
-  // response, Object handler,
-  // ModelAndView modelAndView) throws Exception {
-  // log.info("후처리 실행");
-  // }
 }

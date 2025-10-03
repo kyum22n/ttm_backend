@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
+import com.example.demo.interceptor.Login;
 import com.example.demo.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,7 @@ public class UserController {
 
 	}
 
+	// 회원가입시 아이디, 이메일 중복 체크
 	@GetMapping("/check-duplicate")
 	public ResponseEntity<Map<String, Object>> checkDuplicate(
 			@RequestParam(name = "loginId", required = false) String loginId,
