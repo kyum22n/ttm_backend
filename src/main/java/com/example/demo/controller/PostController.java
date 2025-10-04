@@ -26,6 +26,7 @@ import com.example.demo.dto.Post;
 import com.example.demo.dto.PostTag;
 import com.example.demo.dto.Tag;
 import com.example.demo.enums.ParticipateStatus;
+import com.example.demo.interceptor.Login;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.ParticipateService;
 import com.example.demo.service.PostService;
@@ -55,6 +56,7 @@ public class PostController {
   private ParticipateService participateService;
 
   // 게시물 작성
+  // @Login
   @PostMapping(value = "/write", consumes = "multipart/form-data")
   public Post postWrite(@ModelAttribute Post post) throws IOException {
     return postService.write(post);

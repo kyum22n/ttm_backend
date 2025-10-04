@@ -52,14 +52,14 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
       }
 
       if(jwt == null){
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "JWT가 없습니다.");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT가 없습니다.");
         return false;
 
       } else {
         if (jwtService.validateJwt(jwt)) { // 유효할 경우
           return true;
         } else { // 유효하지 않을 경우
-          response.sendError(HttpServletResponse.SC_FORBIDDEN, "JWT가 유효하지 않습니다.");
+          response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT가 유효하지 않습니다.");
           return false;
         }
       }

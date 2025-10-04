@@ -87,24 +87,24 @@ public class JwtService {
   }
   
   // Claims값을 가져오는 메소드
-  public Map<String,String> getClaims(String jwt){
-    // JWT를 해석하는 JwtParser 얻기
-    JwtParserBuilder jwtParserBuilder = Jwts.parser();
-    jwtParserBuilder.verifyWith(secretKey);
-    JwtParser jwtParser = jwtParserBuilder.build();
+  // public Map<String,String> getClaims(String jwt){
+  //   // JWT를 해석하는 JwtParser 얻기
+  //   JwtParserBuilder jwtParserBuilder = Jwts.parser();
+  //   jwtParserBuilder.verifyWith(secretKey);
+  //   JwtParser jwtParser = jwtParserBuilder.build();
 
     // Jwt를 해석
-    Jws<Claims> jws = jwtParser.parseSignedClaims(jwt);
-    Claims claims = jws.getPayload();
+    // Jws<Claims> jws = jwtParser.parseSignedClaims(jwt);
+    // Claims claims = jws.getPayload();
 
     // claims값 받아오기
-    Map<String, String> map = new HashMap<>();
-    map.put("userLoginId", claims.getSubject());
-    map.put("userId", claims.get("userId").toString());
-    map.put("userEmail", claims.get("userEmail").toString());
+    // Map<String, String> map = new HashMap<>();
+    // map.put("userLoginId", claims.getSubject());
+    // map.put("userId", claims.get("userId").toString());
+    // map.put("userEmail", claims.get("userEmail").toString());
 
-    return map;
+    // return map;
 
-  }
+  // }
 
 }
