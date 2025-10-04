@@ -29,17 +29,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	
-		
+
+
+
 	// 리턴 객체 -> XML로 변환
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.19.2'
-	
+
 	// MyBatis
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
@@ -49,7 +51,7 @@ dependencies {
 	implementation 'org.json:json:20250517'
 
 	// 암호화
-	implementation 'org.springframework.security:spring-security-crypto:6.3.8'	
+	implementation 'org.springframework.security:spring-security-crypto:6.3.8'
 
 	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
