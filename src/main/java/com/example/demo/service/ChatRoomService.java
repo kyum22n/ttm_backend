@@ -2,40 +2,48 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dao.ChatRoomDao;
 import com.example.demo.dto.ChatRoom;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ChatRoomService {
-    private final ChatRoomDao chatRoomDao;
+    
+    @Autowired
+    private ChatRoomDao chatRoomDao;
 
-    // 특정 유저의 모든 채팅방 조회
-    public List<ChatRoom> getRoomsByUserId(Integer userId) {
-        return chatRoomDao.selectAllByUserId(userId);
-    }
+    public ChatRoom getById(int roomId) {
+    return chatRoomDao.selectById(roomId);
+  }
 
-    // 특정 채팅방 조회
-    public ChatRoom getRoomById(Integer chatroomId) {
-        return chatRoomDao.selectByChatRoomId(chatroomId);
-    }
+  @Transactional
+  public ChatRoom ensurePairRoom(int userA, int userB, int requestedBy) {
+    ChatRoom found = chatRoomDao.selectPairRoom(userA, userB);
+    if (found != null) return found;
 
-    // 채팅방 생성
-    public int createRoom(ChatRoom chatRoom) {
-        return chatRoomDao.insert(chatRoom);
-    }
+    ChatRoom room = new ChatRoom();
+    room.setChatuser1Id(userA);
+    room.setChatuser2Id(userB);
+    room.setRequestedBy(requestedBy);
+    room.setChatroomStatus("P"); // 최초 요청 상태
+    chatRoomDao.insert(room);
+    // 필요 시 승인 전환 로직(자동 승인 원하면 아래 사용)
+    chatRoomDao.updateStatus(room.getChatroomId(), "A");
+    room.setChatroomStatus("A");
+    return chatRoomDao.selectPairRoom(userA, userB); // 재조회
+  }
 
-    // 채팅방 수정
-    public int updateRoom(ChatRoom chatRoom) {
-        return chatRoomDao.update(chatRoom);
-    }
+  public boolean isMember(int roomId, int userId) {
+    ChatRoom r = chatRoomDao.selectById(roomId);
+    if (r == null) return false;
+    return userId == r.getChatuser1Id() || userId == r.getChatuser2Id();
+  }
 
-    // 채팅방 삭제
-    public int deleteRoom(Integer chatroomId) {
-        return chatRoomDao.delete(chatroomId);
-    }
 }

@@ -13,7 +13,7 @@ public class ChatMessage {
 	// 
 	private Integer messageId;	// 채팅 메시지 식별 번호
 	private String message;	// 채팅 메시지 내용
-	private String isRead;	// 채팅 메시지 읽음 상태
+	private String isRead;	// 채팅 메시지 읽음 상태 Y N
 	private LocalDateTime readAt;	// 메시지 읽은 시간
 	private LocalDateTime createdAt;	// 메시지 보낸 시간
 }

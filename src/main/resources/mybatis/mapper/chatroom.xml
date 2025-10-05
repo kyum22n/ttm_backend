@@ -5,60 +5,50 @@
 
 <mapper namespace="com.example.demo.dao.ChatRoomDao">
 
-  <!-- 채팅방 생성 -->
+  <resultMap id="ChatRoomMap" type="com.example.demo.dto.ChatRoom">
+    <id property="chatroomId" column="CHATROOM_ID"/>
+    <result property="chatuser1Id" column="CHATUSER1_ID"/>
+    <result property="chatuser2Id" column="CHATUSER2_ID"/>
+    <result property="requestedBy" column="REQUESTED_BY"/>
+    <result property="chatroomStatus" column="CHATROOM_STATUS"/>
+    <result property="updatedAt" column="UPDATED_AT"/>
+    <result property="createdAt" column="CREATED_AT"/>
+  </resultMap>
+
+  <select id="selectById" parameterType="int" resultMap="ChatRoomMap">
+  SELECT * FROM CHATROOMS WHERE CHATROOM_ID = #{roomId}
+</select>
+
+  <!-- 사용자 두 명 조합으로 방 찾기: (min, max) 정규화 -->
+ <select id="selectPairRoom" resultMap="ChatRoomMap">
+  SELECT *
+  FROM CHATROOMS
+  WHERE (CHATUSER1_ID = LEAST(#{u1}, #{u2})
+     AND CHATUSER2_ID = GREATEST(#{u1}, #{u2}))
+    AND CHATROOM_STATUS IN ('P','A')
+  ORDER BY (CASE CHATROOM_STATUS WHEN 'A' THEN 0 ELSE 1 END), CREATED_AT DESC
+  FETCH FIRST 1 ROWS ONLY
+</select>
+
   <insert id="insert" parameterType="com.example.demo.dto.ChatRoom">
-    <selectKey keyProperty="chatroomId" resultType="int" order="BEFORE">
-      SELECT seq_chatrooms_chatroom_id.NEXTVAL FROM dual
+    <selectKey keyProperty="chatroomId" resultType="java.lang.Integer" order="BEFORE">
+      SELECT SEQ_CHATROOMS_CHATROOM_ID.NEXTVAL FROM dual
     </selectKey>
-    INSERT INTO ttm.chatrooms (
-      chatroom_id, chatuser1_id, chatuser2_id, requested_by, chatroom_status, updated_at, created_at
-    ) VALUES (
-      #{chatroomId}, #{chatuser1Id}, #{chatuser2Id}, #{requestedBy}, #{chatroomStatus}, SYSDATE, SYSDATE
-    )
-  </insert>
 
-  <!-- 특정 유저가 속한 모든 채팅방 조회 -->
-  <select id="selectAllByUserId" parameterType="int" resultType="com.example.demo.dto.ChatRoom">
-    SELECT 
-      chatroom_id    AS chatroomId,
-      chatuser1_id   AS chatuser1Id,
-      chatuser2_id   AS chatuser2Id,
-      requested_by   AS requestedBy,
-      chatroom_status AS chatroomStatus,
-      updated_at     AS updatedAt,
-      created_at     AS roomCreatedAt
-    FROM ttm.chatrooms
-    WHERE chatuser1_id = #{userId}
-       OR chatuser2_id = #{userId}
-    ORDER BY updated_at DESC
-  </select>
+    INSERT INTO CHATROOMS
+      (CHATROOM_ID, CHATUSER1_ID, CHATUSER2_ID, REQUESTED_BY, CHATROOM_STATUS)
+    VALUES
+      (#{chatroomId},
+        LEAST(#{chatuser1Id}, #{chatuser2Id}),
+        GREATEST(#{chatuser1Id}, #{chatuser2Id}),
+        #{requestedBy},
+        #{chatroomStatus})
+</insert>
 
-  <!-- 채팅방 단건 조회 -->
-  <select id="selectByChatRoomId" parameterType="int" resultType="com.example.demo.dto.ChatRoom">
-    SELECT 
-      chatroom_id    AS chatroomId,
-      chatuser1_id   AS chatuser1Id,
-      chatuser2_id   AS chatuser2Id,
-      requested_by   AS requestedBy,
-      chatroom_status AS chatroomStatus,
-      updated_at     AS updatedAt,
-      created_at     AS roomCreatedAt
-    FROM ttm.chatrooms
-    WHERE chatroom_id = #{chatroomId}
-  </select>
-
-  <!-- 채팅방 수정 -->
-  <update id="update" parameterType="com.example.demo.dto.ChatRoom">
-    UPDATE ttm.chatrooms
-    SET chatroom_status = #{chatroomStatus},
-        updated_at = SYSDATE
-    WHERE chatroom_id = #{chatroomId}
-  </update>
-
-  <!-- 채팅방 삭제 -->
-  <delete id="delete" parameterType="int">
-    DELETE FROM ttm.chatrooms
-    WHERE chatroom_id = #{chatroomId}
-  </delete>
+  <update id="updateStatus">
+  UPDATE CHATROOMS
+  SET CHATROOM_STATUS = #{status}, UPDATED_AT = SYSTIMESTAMP
+  WHERE CHATROOM_ID = #{roomId}
+</update>
 
 </mapper>
