@@ -115,6 +115,18 @@ public class PostService {
     if(post == null) {
       throw new NoSuchElementException();
     }
+
+    // 여러 이미지 불러오기
+    List<Post> images = postImageDao.selectByPostId(postId);
+    // 대표 이미지는 첫 번째 이미지로 설정
+    if (images != null && images.isEmpty()) {
+      Post firstImage = images.get(0);
+      post.setPostImageId(firstImage.getPostImageId());
+      post.setPostAttachOname(firstImage.getPostAttachOname());
+      post.setPostAttachType(firstImage.getPostAttachType());
+      post.setPostAttachData(firstImage.getPostAttachData());
+    }
+
     return post;
   }
 

@@ -1,6 +1,9 @@
 package com.example.demo.controller;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,7 @@ import com.example.demo.service.PostService;
 import com.example.demo.service.PostTagService;
 import com.example.demo.service.TagService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -108,12 +112,67 @@ public class PostController {
     List<Comment> comments = commentService.getCommentListByPostId(postId);
     List<Tag> tags = postTagService.getTagNames(postId);
 
+    List<Post> images = postService.getImagesByPostId(postId);
+
+    List<String> imageUrls = new ArrayList<>();
+    for (Post img : images) {
+      imageUrls.add("/post/image/" + postId + "?postImageId=" + img.getPostImageId());
+    }
+
     Map<String, Object> map = new HashMap<>();
     map.put("post", post);
     map.put("comments", comments);
     map.put("tags", tags);
+    map.put("images", imageUrls != null ? imageUrls : new ArrayList<>());
 
     return ResponseEntity.ok(map);
+  }
+
+  // 게시물 이미지 조회
+  @GetMapping("/image/{postId}")
+  public void getPostImage(@PathVariable("postId") Integer postId,
+                           @RequestParam(value="postImageId", required = false) Integer postImageId,
+                           HttpServletResponse response
+                          ) throws Exception {
+    
+    List<Post> images = postService.getImagesByPostId(postId);
+
+    // 이미지가 없으면 404 리턴
+    if(images == null || images.isEmpty() || images.get(0).getPostAttachData() == null) {
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+      return;
+    }
+
+    // 여러 장 중 첫번째 이미지를 대표 이미지로 설정 
+    // (요청된 이미지가 있을 경우에는 해당 이미지를 대표 이미지로 설정)
+    Post image = null;
+    if (postImageId != null) {
+      for (Post p : images) {
+        if(p.getPostImageId() != null && p.getPostImageId().equals(postImageId)) {
+          image = p;
+          break;
+        } 
+      }
+    }
+    if (image == null) {
+      image = images.get(0);
+    }
+
+    // 파일명 인코딩
+    String fileName = image.getPostAttachOname();
+    String encodedFileName = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+
+    // 응답 헤더 설정
+    response.setContentType(image.getPostAttachType());
+    response.setHeader("Content-Disposition", "inline; filename= \"" + encodedFileName + "\"");
+
+    // 응답 본문에 이미지 데이터 출력
+    OutputStream os = response.getOutputStream();
+    BufferedOutputStream bos = new BufferedOutputStream(os);
+
+    bos.write(image.getPostAttachData());
+    bos.flush();
+    bos.close();
   }
 
   // 게시물 수정
