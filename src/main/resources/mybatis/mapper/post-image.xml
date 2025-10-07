@@ -38,7 +38,7 @@
       post_attach_type  as postAttachType,
       post_attach_data  as postAttachData
     from post_images
-    where post_id = #{value}
+    where post_id = #{postId}
     order by post_image_id
   </select>
 
