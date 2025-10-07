@@ -268,7 +268,7 @@ public class PostController {
 
   // 그룹 산책 모집글만 조회
   @GetMapping("/groupwalk/recruitment-list")
-  public ResponseEntity<Map<String, String>> groupWalkRecruitment() {
+  public ResponseEntity<Map<String, Object>> groupWalkRecruitment() {
     List<Post> groupWalkPost = postService.getAllGroupWalkPost(); // 실패는 전역 예외처리
 
     int count = 0;
@@ -276,12 +276,13 @@ public class PostController {
       count = groupWalkPost.size();
     }
 
-    Map<String, String> map = new HashMap<>();
-    map.put("result", "success");
+    Map<String, Object> map = new HashMap<>();
     if (count == 0) {
       map.put("message", "그룹 산책 모집글이 없습니다.");
     } else {
+      map.put("result", "success");
       map.put("message", "그룹 산책 모집글 목록을 조회했습니다.");
+      map.put("posts", groupWalkPost);
     }
     map.put("count", String.valueOf(count));
 

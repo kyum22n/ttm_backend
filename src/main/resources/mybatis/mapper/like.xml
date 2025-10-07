@@ -19,8 +19,8 @@
             select seq_likes_like_id.nextval from dual 
         </selectKey> 
 
-        insert into likes ( like_id, user_id, post_id, created_at ) 
-        values ( #{likeId}, #{userId}, #{postId}, SYSTIMESTAMP ) 
+        insert into likes ( like_id, user_id, pet_id, post_id, created_at ) 
+        values ( #{likeId}, #{userId}, NULL, #{postId}, SYSTIMESTAMP ) 
     </insert>
 
     <!-- 좋아요 중복 체크(Pet) -->

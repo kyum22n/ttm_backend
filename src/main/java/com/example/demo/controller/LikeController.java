@@ -37,13 +37,26 @@ public class LikeController {
     // 좋아요 등록(Post)
     @PostMapping("/post-like")
     public ResponseEntity<Map<String, Object>> postLike(@RequestParam("userId") Integer userId,
-            @RequestParam("postId") Integer postId) {
+                                                        @RequestParam(value="postId", required = false) Integer postId) {
+        log.info("[DEBUG] POST LIKE 요청 userId={}, postId={}", userId, postId);
         Map<String, Object> map = new HashMap<>();
 
-        int rows = likeService.createPostLike(userId, postId);
-        map.put("result", "success");
-        map.put("rows", rows);
-        return ResponseEntity.ok(map);
+        if (postId == null) {
+            map.put("result", "fail");
+            map.put("message", "postId가 없습니다.");
+            return ResponseEntity.badRequest().body(map);
+        }
+
+        try {
+            int rows = likeService.createPostLike(userId, postId);
+            map.put("result", "success");
+            map.put("rows", rows);
+            return ResponseEntity.ok(map);
+        } catch (Exception e) {
+            map.put("result", "fail");
+            map.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(map);
+        }
 
     }
 
