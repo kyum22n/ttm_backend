@@ -196,10 +196,10 @@ public class PostService {
   // //////////////////////////////////////////////////////
 
  // 그룹 산책 모집글 목록만 조회
-public List<Post> getAllGroupWalkPost() {
-  List<Post> list = postDao.selectAllGroupWalkPost();
-  return list;
-}
+  public List<Post> getAllGroupWalkPost() {
+    List<Post> list = postDao.selectAllGroupWalkPost();
+    return list;
+  }
    
   // 그룹 산책 완료된 글 목록만 조회
   public List<Post> getAllEndedGroupWalk() {

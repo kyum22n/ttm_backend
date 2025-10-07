@@ -86,14 +86,12 @@ public class PetController {
 
   // 펫 이미지 조회 API
   @GetMapping("/image/{petId}")
-  public void getMethodName(
-    @PathVariable("petId") Integer petId,
-    HttpServletResponse response) throws Exception{
+  public void getMethodName(@PathVariable("petId") Integer petId, HttpServletResponse response) throws Exception {
 
     Pet image = petService.getPetImage(petId);
 
     // 이미지가 없으면 404에러
-    if(image == null || image.getPetAttachData() == null){
+    if (image == null || image.getPetAttachData() == null) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
@@ -115,4 +113,16 @@ public class PetController {
     bos.flush();
     bos.close();
   }
+
+  // 메인피드에서 펫 프로필 랜덤하게 불러오기
+  @GetMapping("/random-list")
+  public ResponseEntity<Map<String, Object>> getRandomPets(@RequestParam(defaultValue = "7") int limit) {
+    Map<String, Object> map = new HashMap<>();
+    List<Pet> randomPets = petService.getRandomPets(limit);
+
+    map.put("result", "success");
+    map.put("pets", randomPets);
+    return ResponseEntity.ok(map);
+  }
+
 }

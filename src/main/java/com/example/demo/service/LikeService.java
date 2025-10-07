@@ -10,7 +10,10 @@ import com.example.demo.dao.LikeDao;
 import com.example.demo.dao.PetDao;
 import com.example.demo.dao.PostDao;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class LikeService {
     @Autowired
     private LikeDao likeDao;
@@ -38,10 +41,12 @@ public class LikeService {
     @Transactional
     public int createPostLike(Integer userId, Integer postId) {
         int checkRows = likeDao.selectLikeFromPost(userId, postId);
-
+        log.info("[DEBUG] 중복 체크 결과: {}", checkRows);
         if (checkRows == 0) {
             likeDao.insertLikeToPost(userId, postId);
+            log.info("[DEBUG] likes insert 완료");
             postDao.increasePostLikecount(postId);
+            log.info("[DEBUG] post like count 증가 완료");
             return checkRows;
         } else {
             throw new IllegalArgumentException("이미 누른 좋아요");

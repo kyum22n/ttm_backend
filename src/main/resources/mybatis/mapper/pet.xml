@@ -80,4 +80,16 @@
     from pets
     where user_id = #{petUserId}
   </select>
+
+  <!-- 랜덤한 반려견 n마리 조회 -->
+  <select id="selectRandomPets" parameterType="int" resultType="Pet">
+    <![CDATA[ 
+    SELECT pet_id, pet_weight, pet_breed, pet_birthDay, pet_name, pet_desc, pet_gender, pet_like_count, user_id as petUserId, created_at
+    FROM (
+      SELECT pet_id, pet_weight, pet_breed, pet_birthDay, pet_name, pet_desc, pet_gender, pet_like_count, user_id as petUserId, created_at 
+      FROM PETS ORDER BY DBMS_RANDOM.VALUE
+    )
+    WHERE ROWNUM <= #{limit}
+    ]]>
+  </select>
 </mapper>

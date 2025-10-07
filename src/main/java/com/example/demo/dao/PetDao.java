@@ -21,5 +21,8 @@ public interface PetDao {
 
   // 특정 반려인의 반려견 수 
   public int countAllPetByUserId(Integer petUserId);
+
+  // 메인 페이지에서 펫 프로필 랜덤으로 불러오기
+	public List<Pet> selectRandomPets(int limit);
 }
 
