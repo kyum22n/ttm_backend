@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,9 @@ public class ChatMessageService {
     return m;
   }
 
-    public List<ChatMessage> recent(int roomId, int beforeMessageId, int limit) {
+    public List<ChatMessage> recent(int roomId, Integer beforeMessageId, int limit) {
     List<ChatMessage> list = chatMessageDao.selectRecent(roomId, beforeMessageId, limit);
-    // selectRecent는 DESC로 가져오므로, 프론트 편의를 위해 시간순 정렬로 반환
-    Collections.reverse(list);
+    
     return list;
   }
 

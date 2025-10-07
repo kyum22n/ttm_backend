@@ -15,34 +15,35 @@
     <result property="createdAt" column="CREATED_AT"/>
   </resultMap>
 
-  <insert id="insert" parameterType="com.example.demo.dto.ChatMessage">
-    INSERT INTO CHAT_MESSAGE
-      (MESSAGE_ID, CHATROOM_ID, SENDER_ID, MESSAGE, IS_READ)
-    VALUES (NULL, #{chatroomId}, #{senderId}, #{message}, 'N')
-  </insert>
+  
 
   <!-- Oracle keyset pagination: beforeMessageId 미만 -->
   <select id="selectRecent" resultMap="ChatMessageMap">
+  SELECT *
+  FROM (
     SELECT *
     FROM (
-      SELECT * FROM CHAT_MESSAGE
-      WHERE CHATROOM_ID = #{roomId}
-      <if test="beforeMessageId != null">
-        AND MESSAGE_ID &lt; #{beforeMessageId}
-      </if>
-      ORDER BY MESSAGE_ID DESC
+      SELECT *
+        FROM CHAT_MESSAGE
+       WHERE CHATROOM_ID = #{roomId}
+       <if test="beforeMessageId != null">
+         AND MESSAGE_ID &lt; #{beforeMessageId}
+       </if>
+       ORDER BY MESSAGE_ID DESC
     )
     WHERE ROWNUM &lt;= #{limit}
-  </select>
+  )
+  ORDER BY MESSAGE_ID ASC
+</select>
 
-  <update id="markReadUpTo">
-    UPDATE CHAT_MESSAGE
-    SET IS_READ = 'Y', READ_AT = CASE WHEN IS_READ='N' THEN SYSTIMESTAMP ELSE READ_AT END
-    WHERE CHATROOM_ID = #{roomId}
-      AND SENDER_ID &lt;&gt; #{readerId}
-      AND MESSAGE_ID &lt;= #{upToMessageId}
-      AND IS_READ = 'N'
-  </update>
+  <!-- 이후 새 메시지: MESSAGE_ID > afterMessageId -->
+  <select id="selectAfter" resultMap="ChatMessageMap">
+    SELECT *
+    FROM CHAT_MESSAGE
+      WHERE CHATROOM_ID = #{roomId}
+        AND MESSAGE_ID &gt; #{afterMessageId}
+      ORDER BY MESSAGE_ID ASC
+  </select>
 
   <select id="countUnread" resultType="int">
     SELECT COUNT(*)
@@ -51,5 +52,39 @@
       AND SENDER_ID &lt;&gt; #{readerId}
       AND IS_READ = 'N'
   </select>
+
+  <!-- 방별 마지막 메시지 1건 -->
+  <select id="selectLastByRoom" resultMap="ChatMessageMap">
+    SELECT c.*
+    FROM CHAT_MESSAGE c
+    JOIN (
+      SELECT CHATROOM_ID, MAX(MESSAGE_ID) AS MAX_ID
+        FROM CHAT_MESSAGE
+      GROUP BY CHATROOM_ID
+    ) m ON c.CHATROOM_ID = m.CHATROOM_ID AND c.MESSAGE_ID = m.MAX_ID
+    WHERE c.CHATROOM_ID = #{roomId}
+  </select>
+
+  <insert id="insert" parameterType="com.example.demo.dto.ChatMessage">
+    <selectKey keyProperty="messageId" resultType="int" order="BEFORE">
+      SELECT SEQ_CHAT_MESSAGE_MESSAGE_ID.NEXTVAL FROM dual
+    </selectKey>
+    INSERT INTO CHAT_MESSAGE
+      (MESSAGE_ID, CHATROOM_ID, SENDER_ID, MESSAGE, IS_READ)
+    VALUES
+      (#{messageId}, #{chatroomId}, #{senderId}, #{message}, 'N')
+  </insert>
+
+  <update id="markReadUpTo">
+    UPDATE CHAT_MESSAGE
+    SET IS_READ = 'Y',
+        READ_AT = CASE WHEN IS_READ = 'N' THEN SYSTIMESTAMP ELSE READ_AT END
+    WHERE CHATROOM_ID = #{roomId}
+      AND SENDER_ID &lt;&gt; #{readerId}
+      AND MESSAGE_ID &lt;= #{upToMessageId}
+      AND IS_READ = 'N'
+  </update>
+
+  
 
 </mapper>

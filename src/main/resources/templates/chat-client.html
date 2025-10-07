@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TTM 1:1 Chat Client</title>
+<style>
+  :root {
+    --bg:#f7f8fa; --card:#fff; --mine:#DCF8C6; --theirs:#fff;
+    --text:#222; --muted:#6b7280; --primary:#2563eb; --danger:#ef4444; --border:#e5e7eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  .room-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+  .room-bar input, .room-bar button{padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px}
+  .room-bar button{cursor:pointer;background:var(--primary);color:#fff;border:0}
+  .room-bar button.secondary{background:#fff;color:var(--text);border:1px solid var(--border)}
+  .room-bar .danger{background:var(--danger)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .status-dot{width:10px;height:10px;border-radius:50%}
+  .status-dot.disconnected{background:#aaa}
+  .status-dot.connected{background:#10b981}
+  .status{font-size:12px;color:var(--muted)}
+  .log{margin-left:auto;font-size:12px;color:var(--muted)}
+  .msgs{height:60vh;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#f9fafb}
+  .day-sep{display:flex;align-items:center;gap:8px;margin:8px 0;color:var(--muted);font-size:12px}
+  .day-sep::before,.day-sep::after{content:"";flex:1;height:1px;background:var(--border)}
+  .bubble{max-width:70%;padding:10px 12px;border-radius:14px;position:relative;word-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.04)}
+  .mine{align-self:flex-end}
+  .mine .bubble{background:var(--mine);border-bottom-right-radius:4px}
+  .theirs{align-self:flex-start}
+  .theirs .bubble{background:var(--theirs);border-bottom-left-radius:4px}
+  .meta{display:flex;gap:8px;align-items:center;margin-top:4px;font-size:11px;color:var(--muted)}
+  .input-bar{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}
+  .input-bar input{flex:1;padding:12px;border:1px solid var(--border);border-radius:12px}
+  .input-bar button{padding:12px 16px;border-radius:12px;border:0;background:var(--primary);color:#fff;cursor:pointer}
+  .top-actions{display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--border);background:#fff}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;border-radius:999px;padding:4px 10px;font-size:12px}
+  .small{font-size:12px;color:var(--muted)}
+  .load-more{display:block;width:100%;padding:8px 12px;border:0;background:#fff;border-bottom:1px solid var(--border);cursor:pointer}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="room-bar">
+    <input id="baseUrl" placeholder="Base URL" value="http://localhost:8080">
+    <input id="roomId" type="number" placeholder="roomId" value="5">
+    <input id="myUserId" type="number" placeholder="내 userId" value="2">
+    <input id="otherUserId" type="number" placeholder="상대 userId (옵션)" value="3">
+    <button id="btnEnter">입장</button>
+  </div>
+
+  <div class="card">
+    <div class="header">
+      <div id="connDot" class="status-dot disconnected"></div>
+      <div>
+        <div><strong>채팅방</strong> <span id="roomLabel" class="small"></span></div>
+        <div id="status" class="status">Disconnected</div>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+
+    <button id="btnLoadMore" class="load-more hidden">▲ 이전 대화 더 보기</button>
+
+    <div id="msgs" class="msgs"></div>
+
+    <div class="input-bar">
+      <input id="msg" placeholder="메시지를 입력하세요… (Enter 전송)">
+      <button id="btnSend">전송</button>
+    </div>
+  </div>
+
+  <div class="top-actions" style="margin-top:12px">
+    <span class="badge">구독: <code id="topicEcho">/topic/chat.&mdash;</code></span>
+    <span class="badge">전송: <code>/app/chat.send</code></span>
+    <span class="badge">읽음: <code>/app/chat.read</code> / <code>PUT /read</code></span>
+  </div>
+</div>
+
+<!-- CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+(() => {
+  let stomp = null;
+  let connected = false;
+  let currentRoomId = null;
+  let myId = null;
+  let base = null;
+  let loadingHistory = false;
+  let oldestMessageId = null; // 페이지네이션 커서
+
+  // Utils
+  const $ = sel => document.querySelector(sel);
+  const log = (t) => { const el = $('#log'); el.textContent = t; };
+  const setConn = (ok) => {
+    connected = ok;
+    $('#connDot').className = 'status-dot ' + (ok?'connected':'disconnected');
+    $('#status').textContent = ok ? 'Connected' : 'Disconnected';
+  };
+  const fmtTime = (iso) => {
+    if(!iso) return '';
+    try{ const d = new Date(iso); return d.toLocaleString(); }catch(e){ return iso; }
+  };
+
+  // 메시지 DOM
+  function renderMessage(m){
+    const wrap = document.createElement('div');
+    const mine = (m.senderId === myId);
+    wrap.className = mine ? 'mine' : 'theirs';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerText = m.message;
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const idSpan = document.createElement('span');
+    idSpan.textContent = '#' + m.messageId;
+    const who = document.createElement('span');
+    who.textContent = mine ? `나(${m.senderId})` : `상대(${m.senderId})`;
+    const when = document.createElement('span');
+    when.textContent = fmtTime(m.createdAt);
+    const read = document.createElement('span');
+    read.textContent = m.isRead === 'Y' ? '읽음' : '안읽음';
+    meta.append(idSpan, who, when, read);
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(meta);
+    return wrap;
+  }
+
+  function prependDaySeparator(text){
+    const sep = document.createElement('div');
+    sep.className = 'day-sep';
+    sep.textContent = text;
+    return sep;
+  }
+
+  function scrollToBottom(){
+    const box = $('#msgs');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // 히스토리 로드 (initial: append, load more: prepend with fragment)
+  async function loadHistory(initial=false){
+    if (loadingHistory) return;
+    loadingHistory = true;
+    $('#btnLoadMore').disabled = true;
+
+    const params = new URLSearchParams({ userId: String(myId), limit: '30' });
+    if (oldestMessageId) params.set('beforeMessageId', String(oldestMessageId));
+    const url = `${base}/chat/rooms/${currentRoomId}/messages?` + params.toString();
+
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.result !== 'success') throw new Error('history fail');
+
+      const arr = data.messages || [];
+      const box = $('#msgs');
+
+      if (arr.length === 0) {
+        if (initial) {
+          if (!box.firstChild) box.appendChild(prependDaySeparator('대화를 시작해 보세요'));
+          scrollToBottom();
+        } else {
+          $('#btnLoadMore').classList.add('hidden');
+        }
+      } else {
+        // 초기: append (ASC 그대로) + 바닥 스크롤
+        if (initial) {
+          // day-sep 없으면 추가
+          if (!box.firstChild || !box.firstChild.classList || !box.firstChild.classList.contains('day-sep')) {
+            box.appendChild(prependDaySeparator('오늘'));
+          }
+          const frag = document.createDocumentFragment();
+          arr.forEach(m => frag.appendChild(renderMessage(m))); // ASC 그대로
+          box.appendChild(frag);
+          oldestMessageId = arr[0].messageId; // 가장 오래된 것으로 커서 갱신
+          $('#btnLoadMore').classList.remove('hidden');
+          scrollToBottom();
+        } else {
+          // 더보기: fragment를 day-sep 뒤에 한 번에 insert → 순서 유지
+          const prevHeight = box.scrollHeight;
+          const after = box.firstChild && box.firstChild.classList.contains('day-sep')
+            ? box.firstChild.nextSibling
+            : box.firstChild;
+          const frag = document.createDocumentFragment();
+          arr.forEach(m => frag.appendChild(renderMessage(m))); // ASC 그대로
+          box.insertBefore(frag, after);
+          oldestMessageId = arr[0].messageId;
+          $('#btnLoadMore').classList.remove('hidden');
+          // 스크롤 보정
+          box.scrollTop = box.scrollHeight - prevHeight;
+        }
+      }
+    }catch(e){
+      console.error(e);
+      alert('히스토리 로드 실패');
+    }finally{
+      $('#btnLoadMore').disabled = false;
+      loadingHistory = false;
+    }
+  }
+
+  // 읽음 처리
+  function markReadUpTo(messageId){
+    if (!stomp || !connected) return;
+    const payload = { roomId: currentRoomId, userId: myId, upToMessageId: messageId };
+    // WS
+    stomp.send('/app/chat.read', {}, JSON.stringify(payload));
+    // REST(백업)
+    fetch(`${base}/chat/rooms/${currentRoomId}/read`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).catch(()=>{});
+  }
+
+  // 입장
+  $('#btnEnter').onclick = () => {
+    base = $('#baseUrl').value.trim().replace(/\/+$/,'');
+    currentRoomId = Number($('#roomId').value);
+    myId = Number($('#myUserId').value);
+    const otherId = Number($('#otherUserId').value || 0);
+    if (!base || !currentRoomId || !myId){
+      alert('Base URL, roomId, myUserId를 확인하세요'); return;
+    }
+    $('#roomLabel').textContent = `#${currentRoomId} (me:${myId}${otherId?`, other:${otherId}`:''})`;
+    $('#topicEcho').textContent = `/topic/chat.${currentRoomId}`;
+
+    // 초기 UI
+    const box = $('#msgs');
+    box.innerHTML = '';
+    box.appendChild(prependDaySeparator('오늘'));
+    oldestMessageId = null;
+
+    // 연결
+    const sock = new SockJS(base + '/ws');
+    stomp = Stomp.over(sock);
+    stomp.debug = null;
+
+    stomp.connect({}, () => {
+      setConn(true); log('CONNECTED');
+
+      // 구독
+      stomp.subscribe(`/topic/chat.${currentRoomId}`, (frame) => {
+        const data = JSON.parse(frame.body);
+        if (data.type === 'NEW_MESSAGE'){
+          // append (최신이 맨 아래)
+          const node = renderMessage(data.message);
+          $('#msgs').appendChild(node);
+          scrollToBottom();
+          // 상대가 보낸 메시지면 읽음 처리
+          if (data.message.senderId !== myId) {
+            markReadUpTo(data.message.messageId);
+          }
+        } else if (data.type === 'READ_UPDATE'){
+          // 필요 시 UI 반영
+          console.log('READ_UPDATE', data);
+        }
+      });
+
+      // 히스토리 (초기 append)
+      loadHistory(true);
+
+    }, (e) => {
+      console.error(e);
+      setConn(false); log('ERROR');
+      alert('연결 실패');
+    });
+  };
+
+  // 이전 대화 더 보기
+  $('#btnLoadMore').onclick = () => loadHistory(false);
+
+  // 전송
+  function doSend(){
+    if (!stomp || !connected) return alert('먼저 입장하세요');
+    const text = $('#msg').value.trim();
+    if (!text) return;
+    const payload = { roomId: currentRoomId, senderId: myId, message: text };
+    stomp.send('/app/chat.send', {}, JSON.stringify(payload));
+    $('#msg').value = '';
+  }
+  $('#btnSend').onclick = doSend;
+  $('#msg').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); doSend(); } });
+
+  // 맨 아래 도달하면 읽음 처리(옵션)
+  $('#msgs').addEventListener('scroll', () => {
+    const box = $('#msgs');
+    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 4) {
+      // 마지막 메시지 ID 찾기
+      const metas = box.querySelectorAll('.meta span:first-child'); // "#123"
+      if (metas.length > 0) {
+        const last = metas[metas.length-1].textContent;
+        const id = Number((last||'').replace('#',''));
+        if (id) markReadUpTo(id);
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>

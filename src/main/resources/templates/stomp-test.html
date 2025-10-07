@@ -1,0 +1,32 @@
+<!doctype html><meta charset="utf-8" />
+<h3>STOMP Test</h3>
+<label>roomId <input id="roomId" value="5"></label>
+<label>senderId <input id="senderId" value="2"></label>
+<button id="connect">Connect</button>
+<button id="sub">Subscribe</button>
+<input id="msg" placeholder="message..."><button id="send">Send</button>
+<pre id="log" style="height:200px;overflow:auto;border:1px solid #aaa"></pre>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+let stomp;
+const log=(...a)=>{logEl.textContent+=a.map(x=>typeof x==='string'?x:JSON.stringify(x)).join(' ')+'\n';logEl.scrollTop=1e9}
+const logEl=document.getElementById('log');
+document.getElementById('connect').onclick=()=>{
+  const sock=new SockJS('http://localhost:8080/ws');
+  stomp=Stomp.over(sock); stomp.debug=null;
+  stomp.connect({}, ()=>log('CONNECTED'), e=>log('ERROR',e));
+};
+document.getElementById('sub').onclick=()=>{
+  const roomId=document.getElementById('roomId').value;
+  stomp.subscribe(`/topic/chat.${roomId}`, m=>log('RECV', JSON.parse(m.body)));
+  log('SUB', `/topic/chat.${roomId}`);
+};
+document.getElementById('send').onclick=()=>{
+  const roomId=Number(document.getElementById('roomId').value);
+  const senderId=Number(document.getElementById('senderId').value);
+  const message=document.getElementById('msg').value;
+  stomp.send('/app/chat.send', {}, JSON.stringify({roomId, senderId, message}));
+  log('SENT', {roomId, senderId, message});
+};
+</script>

@@ -1,7 +1,5 @@
 package com.example.demo.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dao.ChatRoomDao;
 import com.example.demo.dto.ChatRoom;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +20,8 @@ public class ChatRoomService {
     return chatRoomDao.selectById(roomId);
   }
 
+  // 방이 존재하지 않으면 생성, 아니면 방의 정보를 반환
+  // 기존 방의 조건 : 두 유저의 아이디가 동일하고 상태가 P나 A인것
   @Transactional
   public ChatRoom ensurePairRoom(int userA, int userB, int requestedBy) {
     ChatRoom found = chatRoomDao.selectPairRoom(userA, userB);
