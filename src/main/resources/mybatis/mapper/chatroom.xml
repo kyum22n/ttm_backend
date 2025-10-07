@@ -1,95 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.dao.ChatRoomDao">
 
   <resultMap id="ChatRoomMap" type="com.example.demo.dto.ChatRoom">
-    <id property="chatroomId" column="CHATROOM_ID"/>
-    <result property="chatuser1Id" column="CHATUSER1_ID"/>
-    <result property="chatuser2Id" column="CHATUSER2_ID"/>
-    <result property="requestedBy" column="REQUESTED_BY"/>
+    <id     property="chatroomId"    column="CHATROOM_ID"/>
+    <result property="chatuser1Id"   column="CHATUSER1_ID"/>
+    <result property="chatuser2Id"   column="CHATUSER2_ID"/>
+    <result property="requestedBy"   column="REQUESTED_BY"/>
     <result property="chatroomStatus" column="CHATROOM_STATUS"/>
-    <result property="updatedAt" column="UPDATED_AT"/>
-    <result property="createdAt" column="CREATED_AT"/>
+    <result property="updatedAt"     column="UPDATED_AT"/>
+    <result property="createdAt"     column="CREATED_AT"/>
   </resultMap>
 
-  <select id="selectById" parameterType="int" resultMap="ChatRoomMap">
-    SELECT * FROM CHATROOMS WHERE CHATROOM_ID = #{roomId}
-  </select>
-
-  <!-- 사용자 두 명 조합으로 방 찾기: (min, max) 정규화 -->
- <select id="selectPairRoom" resultMap="ChatRoomMap">
+  <select id="selectById" resultMap="ChatRoomMap">
     SELECT *
     FROM CHATROOMS
-    WHERE (CHATUSER1_ID = LEAST(#{u1}, #{u2})
-      AND CHATUSER2_ID = GREATEST(#{u1}, #{u2}))
+    WHERE CHATROOM_ID = #{roomId}
+  </select>
+
+  <select id="selectPairRoom" resultMap="ChatRoomMap">
+    SELECT *
+    FROM CHATROOMS
+    WHERE CHATUSER1_ID = #{u1}
+      AND CHATUSER2_ID = #{u2}
       AND CHATROOM_STATUS IN ('P','A')
-    ORDER BY (CASE CHATROOM_STATUS WHEN 'A' THEN 0 ELSE 1 END), CREATED_AT DESC
-    FETCH FIRST 1 ROWS ONLY
   </select>
 
-  <!-- 멤버 검증 -->
-  <select id="isMember" resultType="boolean">
-    SELECT CASE WHEN COUNT(*) &gt; 0 THEN 1 ELSE 0 END
-      FROM CHATROOMS
-     WHERE CHATROOM_ID = #{roomId}
-       AND (CHATUSER1_ID = #{userId} OR CHATUSER2_ID = #{userId})
-  </select>
-
-<!-- userId가 멤버인 모든 방 + 미리보기(마지막 메시지) + 안읽음 수 -->
-  <select id="selectOverviewByUser" resultType="map">
-    SELECT
-      r.CHATROOM_ID       AS roomId,
-      CASE
-        WHEN r.CHATUSER1_ID = #{userId} THEN r.CHATUSER2_ID
-        ELSE r.CHATUSER1_ID
-      END                 AS otherUserId,
-      lastMsg.MESSAGE     AS lastMessage,
-      lastMsg.CREATED_AT  AS lastCreatedAt,
-      NVL(unread.CNT, 0)  AS unreadCount
-    FROM CHATROOMS r
-    LEFT JOIN (
-      SELECT c1.*
-      FROM CHAT_MESSAGE c1
-      JOIN (
-        SELECT CHATROOM_ID, MAX(MESSAGE_ID) AS MAX_ID
-          FROM CHAT_MESSAGE
-        GROUP BY CHATROOM_ID
-      ) m ON c1.CHATROOM_ID = m.CHATROOM_ID AND c1.MESSAGE_ID = m.MAX_ID
-    ) lastMsg ON lastMsg.CHATROOM_ID = r.CHATROOM_ID
-    LEFT JOIN (
-      SELECT CHATROOM_ID, COUNT(*) AS CNT
-        FROM CHAT_MESSAGE
-      WHERE IS_READ = 'N'
-        AND SENDER_ID &lt;&gt; #{userId}
-      GROUP BY CHATROOM_ID
-    ) unread ON unread.CHATROOM_ID = r.CHATROOM_ID
-    WHERE (r.CHATUSER1_ID = #{userId} OR r.CHATUSER2_ID = #{userId})
-      AND r.CHATROOM_STATUS IN ('A','P')
-    ORDER BY NVL(unread.CNT,0) DESC, lastMsg.CREATED_AT DESC NULLS LAST
-  </select>
-
-  <insert id="insert" parameterType="com.example.demo.dto.ChatRoom">
-    <selectKey keyProperty="chatroomId" resultType="java.lang.Integer" order="BEFORE">
-      SELECT SEQ_CHATROOMS_CHATROOM_ID.NEXTVAL FROM dual
-    </selectKey>
-
-    INSERT INTO CHATROOMS
-      (CHATROOM_ID, CHATUSER1_ID, CHATUSER2_ID, REQUESTED_BY, CHATROOM_STATUS)
-    VALUES
-      (#{chatroomId},
-        LEAST(#{chatuser1Id}, #{chatuser2Id}),
-        GREATEST(#{chatuser1Id}, #{chatuser2Id}),
-        #{requestedBy},
-        #{chatroomStatus})
+  <insert id="insert" parameterType="com.example.demo.dto.ChatRoom" useGeneratedKeys="false">
+    INSERT INTO CHATROOMS(
+      CHATROOM_ID, CHATUSER1_ID, CHATUSER2_ID, REQUESTED_BY, CHATROOM_STATUS, UPDATED_AT, CREATED_AT
+    ) VALUES (
+      SEQ_CHATROOMS_CHATROOM_ID.NEXTVAL,
+      #{chatuser1Id},
+      #{chatuser2Id},
+      #{requestedBy},
+      #{chatroomStatus},
+      SYSTIMESTAMP, SYSTIMESTAMP
+    )
   </insert>
 
   <update id="updateStatus">
     UPDATE CHATROOMS
-    SET CHATROOM_STATUS = #{status}, UPDATED_AT = SYSTIMESTAMP
-    WHERE CHATROOM_ID = #{roomId}
+       SET CHATROOM_STATUS = #{status},
+           UPDATED_AT = SYSTIMESTAMP
+     WHERE CHATROOM_ID = #{roomId}
   </update>
 
 </mapper>

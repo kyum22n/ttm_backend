@@ -1,90 +1,65 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.dao.ChatMessageDao">
 
   <resultMap id="ChatMessageMap" type="com.example.demo.dto.ChatMessage">
-    <id property="messageId" column="MESSAGE_ID"/>
+    <id     property="messageId"  column="MESSAGE_ID"/>
     <result property="chatroomId" column="CHATROOM_ID"/>
-    <result property="senderId" column="SENDER_ID"/>
-    <result property="message" column="MESSAGE"/>
-    <result property="isRead" column="IS_READ"/>
-    <result property="readAt" column="READ_AT"/>
-    <result property="createdAt" column="CREATED_AT"/>
+    <result property="senderId"   column="SENDER_ID"/>
+    <result property="message"    column="MESSAGE"/>
+    <result property="isRead"     column="IS_READ"/>
+    <result property="readAt"     column="READ_AT"/>
+    <result property="createdAt"  column="CREATED_AT"/>
   </resultMap>
 
-  
-
-  <!-- Oracle keyset pagination: beforeMessageId 미만 -->
-  <select id="selectRecent" resultMap="ChatMessageMap">
-  SELECT *
-  FROM (
+  <!-- 최신부터 N건 자른 다음 ASC로 반환 (무한스크롤 위로 더보기) -->
+  <select id="selectHistory" resultMap="ChatMessageMap">
     SELECT *
     FROM (
-      SELECT *
-        FROM CHAT_MESSAGE
-       WHERE CHATROOM_ID = #{roomId}
-       <if test="beforeMessageId != null">
-         AND MESSAGE_ID &lt; #{beforeMessageId}
-       </if>
-       ORDER BY MESSAGE_ID DESC
+      SELECT t.*
+      FROM CHAT_MESSAGE t
+      WHERE t.CHATROOM_ID = #{roomId}
+        <if test="beforeMessageId != null">
+          AND t.MESSAGE_ID &lt; #{beforeMessageId}
+        </if>
+      ORDER BY t.MESSAGE_ID DESC
     )
     WHERE ROWNUM &lt;= #{limit}
-  )
-  ORDER BY MESSAGE_ID ASC
-</select>
-
-  <!-- 이후 새 메시지: MESSAGE_ID > afterMessageId -->
-  <select id="selectAfter" resultMap="ChatMessageMap">
-    SELECT *
-    FROM CHAT_MESSAGE
-      WHERE CHATROOM_ID = #{roomId}
-        AND MESSAGE_ID &gt; #{afterMessageId}
-      ORDER BY MESSAGE_ID ASC
-  </select>
-
-  <select id="countUnread" resultType="int">
-    SELECT COUNT(*)
-    FROM CHAT_MESSAGE
-    WHERE CHATROOM_ID = #{roomId}
-      AND SENDER_ID &lt;&gt; #{readerId}
-      AND IS_READ = 'N'
-  </select>
-
-  <!-- 방별 마지막 메시지 1건 -->
-  <select id="selectLastByRoom" resultMap="ChatMessageMap">
-    SELECT c.*
-    FROM CHAT_MESSAGE c
-    JOIN (
-      SELECT CHATROOM_ID, MAX(MESSAGE_ID) AS MAX_ID
-        FROM CHAT_MESSAGE
-      GROUP BY CHATROOM_ID
-    ) m ON c.CHATROOM_ID = m.CHATROOM_ID AND c.MESSAGE_ID = m.MAX_ID
-    WHERE c.CHATROOM_ID = #{roomId}
+    ORDER BY MESSAGE_ID ASC
   </select>
 
   <insert id="insert" parameterType="com.example.demo.dto.ChatMessage">
-    <selectKey keyProperty="messageId" resultType="int" order="BEFORE">
-      SELECT SEQ_CHAT_MESSAGE_MESSAGE_ID.NEXTVAL FROM dual
-    </selectKey>
-    INSERT INTO CHAT_MESSAGE
-      (MESSAGE_ID, CHATROOM_ID, SENDER_ID, MESSAGE, IS_READ)
-    VALUES
-      (#{messageId}, #{chatroomId}, #{senderId}, #{message}, 'N')
+    INSERT INTO CHAT_MESSAGE (
+      MESSAGE_ID, CHATROOM_ID, SENDER_ID, MESSAGE, IS_READ, CREATED_AT
+    ) VALUES (
+      SEQ_CHAT_MESSAGE_MESSAGE_ID.NEXTVAL,
+      #{chatroomId},
+      #{senderId},
+      #{message},
+      'N',
+      SYSTIMESTAMP
+    )
   </insert>
 
-  <update id="markReadUpTo">
+  <update id="markRead">
     UPDATE CHAT_MESSAGE
-    SET IS_READ = 'Y',
-        READ_AT = CASE WHEN IS_READ = 'N' THEN SYSTIMESTAMP ELSE READ_AT END
-    WHERE CHATROOM_ID = #{roomId}
-      AND SENDER_ID &lt;&gt; #{readerId}
-      AND MESSAGE_ID &lt;= #{upToMessageId}
-      AND IS_READ = 'N'
+       SET IS_READ = 'Y',
+           READ_AT = SYSTIMESTAMP
+     WHERE CHATROOM_ID = #{roomId}
+       AND SENDER_ID &lt;&gt; #{userId}
+       AND MESSAGE_ID &lt;= #{upToMessageId}
+       AND IS_READ = 'N'
   </update>
 
-  
+  <select id="unreadCount" resultType="int">
+    SELECT COUNT(*)
+      FROM CHAT_MESSAGE
+     WHERE CHATROOM_ID = #{roomId}
+       AND SENDER_ID &lt;&gt; #{userId}
+       AND IS_READ = 'N'
+  </select>
 
 </mapper>

@@ -1,48 +1,63 @@
 package com.example.demo.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dao.ChatRoomDao;
 import com.example.demo.dto.ChatRoom;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ChatRoomService {
-    
-    @Autowired
-    private ChatRoomDao chatRoomDao;
 
-    public ChatRoom getById(int roomId) {
+  private final ChatRoomDao chatRoomDao;
+
+  public ChatRoom getById(int roomId) {
     return chatRoomDao.selectById(roomId);
   }
 
-  // 방이 존재하지 않으면 생성, 아니면 방의 정보를 반환
-  // 기존 방의 조건 : 두 유저의 아이디가 동일하고 상태가 P나 A인것
   @Transactional
   public ChatRoom ensurePairRoom(int userA, int userB, int requestedBy) {
-    ChatRoom found = chatRoomDao.selectPairRoom(userA, userB);
+    int u1 = Math.min(userA, userB);
+    int u2 = Math.max(userA, userB);
+
+    ChatRoom found = chatRoomDao.selectPairRoom(u1, u2); // P/A 조회
     if (found != null) return found;
 
     ChatRoom room = new ChatRoom();
-    room.setChatuser1Id(userA);
-    room.setChatuser2Id(userB);
+    room.setChatuser1Id(u1);
+    room.setChatuser2Id(u2);
     room.setRequestedBy(requestedBy);
-    room.setChatroomStatus("P"); // 최초 요청 상태
+    room.setChatroomStatus("P"); // 최초 P
     chatRoomDao.insert(room);
-    // 필요 시 승인 전환 로직(자동 승인 원하면 아래 사용)
-    chatRoomDao.updateStatus(room.getChatroomId(), "A");
-    room.setChatroomStatus("A");
-    return chatRoomDao.selectPairRoom(userA, userB); // 재조회
+    return chatRoomDao.selectPairRoom(u1, u2);
   }
 
   public boolean isMember(int roomId, int userId) {
     ChatRoom r = chatRoomDao.selectById(roomId);
-    if (r == null) return false;
-    return userId == r.getChatuser1Id() || userId == r.getChatuser2Id();
+    return r != null && (userId == r.getChatuser1Id() || userId == r.getChatuser2Id());
   }
 
+  public boolean isApproved(int roomId) {
+    ChatRoom r = chatRoomDao.selectById(roomId);
+    return r != null && "A".equals(r.getChatroomStatus());
+  }
+
+  @Transactional
+  public void approve(int roomId, int byUserId) {
+    ChatRoom r = chatRoomDao.selectById(roomId);
+    if (r == null) throw new RuntimeException("NOT_FOUND");
+    if (!(byUserId == r.getChatuser1Id() || byUserId == r.getChatuser2Id())) throw new IllegalArgumentException("NOT_MEMBER");
+    chatRoomDao.updateStatus(roomId, "A");
+  }
+
+  @Transactional
+  public void reject(int roomId, int byUserId) {
+    ChatRoom r = chatRoomDao.selectById(roomId);
+    if (r == null) throw new RuntimeException("NOT_FOUND");
+    if (!(byUserId == r.getChatuser1Id() || byUserId == r.getChatuser2Id())) throw new IllegalArgumentException("NOT_MEMBER");
+    chatRoomDao.updateStatus(roomId, "D");
+  }
 }
