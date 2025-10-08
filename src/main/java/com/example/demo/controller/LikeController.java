@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,66 +23,43 @@ public class LikeController {
     @Autowired
     private LikeService likeService;
 
-    // 좋아요 등록(Pet)
+    // 좋아요 등록/취소(Pet)
     @PostMapping("/pet-like")
-    public ResponseEntity<Map<String, Object>> petLike(@RequestParam("userId") Integer userId,
+    public ResponseEntity<Map<String, Object>> togglePetLike(
+            @RequestParam("userId") Integer userId,
             @RequestParam("petId") Integer petId) {
-        Map<String, Object> map = new HashMap<>();
 
-        int rows = likeService.createPetLike(userId, petId);
+        boolean liked = likeService.togglePetLike(userId, petId);
+        Map<String, Object> map = new HashMap<>();
         map.put("result", "success");
-        map.put("rows", rows);
+        map.put("liked", liked);
         return ResponseEntity.ok(map);
     }
 
-    // 좋아요 등록(Post)
+    // 좋아요 등록/취소(Post)
     @PostMapping("/post-like")
-    public ResponseEntity<Map<String, Object>> postLike(@RequestParam("userId") Integer userId,
-                                                        @RequestParam(value="postId", required = false) Integer postId) {
-        log.info("[DEBUG] POST LIKE 요청 userId={}, postId={}", userId, postId);
-        Map<String, Object> map = new HashMap<>();
-
-        if (postId == null) {
-            map.put("result", "fail");
-            map.put("message", "postId가 없습니다.");
-            return ResponseEntity.badRequest().body(map);
-        }
-
-        try {
-            int rows = likeService.createPostLike(userId, postId);
-            map.put("result", "success");
-            map.put("rows", rows);
-            return ResponseEntity.ok(map);
-        } catch (Exception e) {
-            map.put("result", "fail");
-            map.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(map);
-        }
-
-    }
-
-    // // 좋아요 취소(Pet)
-    @DeleteMapping("/pet-like/cancel")
-    public ResponseEntity<Map<String, Object>> petLikeCancel(@RequestParam("userId") Integer userId,
-            @RequestParam("petId") Integer petId) {
-        Map<String, Object> map = new HashMap<>();
-
-        int rows = likeService.removePetLike(userId, petId);
-        map.put("result", "success");
-        map.put("rows", rows);
-        return ResponseEntity.ok(map);
-
-    }
-
-    // // 좋아요 취소(Post)
-    @DeleteMapping("/post-like/cancel")
-    public ResponseEntity<Map<String, Object>> postLikeCancel(@RequestParam("userId") Integer userId,
+    public ResponseEntity<Map<String, Object>> togglePostLike(
+            @RequestParam("userId") Integer userId,
             @RequestParam("postId") Integer postId) {
-        Map<String, Object> map = new HashMap<>();
 
-        int rows = likeService.removePostLike(userId, postId);
+        boolean liked = likeService.togglePostLike(userId, postId);
+        Map<String, Object> map = new HashMap<>();
         map.put("result", "success");
-        map.put("rows", rows);
+        map.put("liked", liked);
+        return ResponseEntity.ok(map);
+    }
+
+    // 특정 게시물에 대해 좋아요 상태 확인
+    @GetMapping("/post-like/status")
+    public ResponseEntity<Map<String, Object>> getPostLikeStatus(
+            @RequestParam("userId") Integer userId,
+            @RequestParam("postId") Integer postId) {
+
+        boolean isLiked = likeService.isPostLiked(userId, postId);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("result", "success");
+        map.put("isLiked", isLiked);
         return ResponseEntity.ok(map);
     }
 

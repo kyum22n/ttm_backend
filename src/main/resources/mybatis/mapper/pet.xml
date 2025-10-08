@@ -92,4 +92,11 @@
     WHERE ROWNUM <= #{limit}
     ]]>
   </select>
+
+  <!-- 펫 주인 userId 조회 -->
+  <select id="selectUserIdByPetId" parameterType="int" resultType="int">
+  SELECT pet_user_id
+  FROM pets
+  WHERE pet_id = #{petId}
+</select>
 </mapper>

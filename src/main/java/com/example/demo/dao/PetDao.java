@@ -24,5 +24,8 @@ public interface PetDao {
 
   // 메인 페이지에서 펫 프로필 랜덤으로 불러오기
 	public List<Pet> selectRandomPets(int limit);
+
+  // 펫 주인 userId 조회
+  public Integer selectUserIdByPetId(Integer petId);
 }
 
