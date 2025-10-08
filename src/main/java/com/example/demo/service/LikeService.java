@@ -24,58 +24,58 @@ public class LikeService {
     @Autowired
     private PetDao petDao;
 
-    // 좋아요 등록(Pet)
+    // 좋아요 등록/취소(Pet)
     @Transactional
-    public int createPetLike(Integer userId, Integer petId) {
-        int checkRows = likeDao.selectLikeFromPet(userId, petId);
-        if (checkRows == 0) {
+    public boolean togglePetLike(Integer userId, Integer petId) {
+        // 1️. 펫 주인 확인
+        Integer petOwnerId = petDao.selectUserIdByPetId(petId);
+
+        // 2️. 자기 펫이면 좋아요 금지
+        if (petOwnerId != null && petOwnerId.equals(userId)) {
+            throw new IllegalArgumentException("자신의 반려동물에는 좋아요를 누를 수 없습니다.");
+        }
+
+        // 3️. 현재 좋아요 여부 조회
+        int exists = likeDao.selectLikeFromPet(userId, petId);
+
+        if (exists > 0) {
+            // 이미 좋아요 → 취소
+            likeDao.deleteLikeFromPet(userId, petId);
+            petDao.decreasePetLikecount(petId);
+            return false;
+        } else {
+            // 아직 안 눌렀음 → 등록
             likeDao.insertLikeToPet(userId, petId);
             petDao.increasePetLikecount(petId);
-            return checkRows;
-        } else {
-            throw new IllegalArgumentException("이미 누른 좋아요");
+            return true;
         }
     }
 
-    // 좋아요 등록(Post)
+    // 좋아요 등록/취소(Post)
     @Transactional
-    public int createPostLike(Integer userId, Integer postId) {
-        int checkRows = likeDao.selectLikeFromPost(userId, postId);
-        log.info("[DEBUG] 중복 체크 결과: {}", checkRows);
-        if (checkRows == 0) {
-            likeDao.insertLikeToPost(userId, postId);
-            log.info("[DEBUG] likes insert 완료");
-            postDao.increasePostLikecount(postId);
-            log.info("[DEBUG] post like count 증가 완료");
-            return checkRows;
-        } else {
-            throw new IllegalArgumentException("이미 누른 좋아요");
+    public boolean togglePostLike(Integer userId, Integer postId) {
+        // 1️. 게시글 작성자 확인
+        Integer postOwnerId = postDao.selectUserIdByPostId(postId);
+        if (postOwnerId != null && postOwnerId.equals(userId)) {
+            throw new IllegalArgumentException("자신의 게시글에는 좋아요를 누를 수 없습니다.");
         }
 
-    }
+        // 2️. 중복 체크
+        int exists = likeDao.selectLikeFromPost(userId, postId);
 
-    @Transactional
-    // 좋아요 취소(Pet)
-    public int removePetLike(Integer userId, Integer petId) {
-        int rows = likeDao.deleteLikeFromPet(userId, petId);
-        if (rows > 0) {
-            petDao.decreasePetLikecount(petId);
-        } else {
-            throw new NoSuchElementException();
-        }
-
-        return rows;
-    }
-
-    @Transactional
-    // 좋아요 취소(Post)
-    public int removePostLike(Integer userId, Integer postId) {
-        int rows = likeDao.deleteLikeFromPost(userId, postId);
-        if (rows > 0) {
+        if (exists > 0) {
+            likeDao.deleteLikeFromPost(userId, postId);
             postDao.decreasePostLikecount(postId);
+            return false;
         } else {
-            throw new NoSuchElementException();
+            likeDao.insertLikeToPost(userId, postId);
+            postDao.increasePostLikecount(postId);
+            return true;
         }
-        return rows;
+    }
+
+    /** 좋아요 상태 확인 */
+    public boolean isPostLiked(Integer userId, Integer postId) {
+        return likeDao.selectLikeFromPost(userId, postId) > 0;
     }
 }

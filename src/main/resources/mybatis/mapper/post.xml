@@ -299,5 +299,10 @@
       </when>
     </choose>
 </update>
+<!--게시글 작성자 조회-->
+<select id="selectUserIdByPostId" parameterType="int" resultType="int">
+  SELECT user_id FROM posts 
+  WHERE post_id = #{postId}
+</select>
 
 </mapper>
