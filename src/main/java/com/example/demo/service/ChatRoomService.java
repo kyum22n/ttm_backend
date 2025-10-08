@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,8 @@ public class ChatRoomService {
     int u2 = Math.max(userA, userB);
 
     ChatRoom found = chatRoomDao.selectPairRoom(u1, u2); // P/A 조회
-    if (found != null) return found;
+    if (found != null)
+      return found;
 
     ChatRoom room = new ChatRoom();
     room.setChatuser1Id(u1);
@@ -48,16 +51,25 @@ public class ChatRoomService {
   @Transactional
   public void approve(int roomId, int byUserId) {
     ChatRoom r = chatRoomDao.selectById(roomId);
-    if (r == null) throw new RuntimeException("NOT_FOUND");
-    if (!(byUserId == r.getChatuser1Id() || byUserId == r.getChatuser2Id())) throw new IllegalArgumentException("NOT_MEMBER");
+    if (r == null)
+      throw new RuntimeException("NOT_FOUND");
+    if (!(byUserId == r.getChatuser1Id() || byUserId == r.getChatuser2Id()))
+      throw new IllegalArgumentException("NOT_MEMBER");
     chatRoomDao.updateStatus(roomId, "A");
   }
 
   @Transactional
   public void reject(int roomId, int byUserId) {
     ChatRoom r = chatRoomDao.selectById(roomId);
-    if (r == null) throw new RuntimeException("NOT_FOUND");
-    if (!(byUserId == r.getChatuser1Id() || byUserId == r.getChatuser2Id())) throw new IllegalArgumentException("NOT_MEMBER");
+    if (r == null)
+      throw new RuntimeException("NOT_FOUND");
+    if (!(byUserId == r.getChatuser1Id() || byUserId == r.getChatuser2Id()))
+      throw new IllegalArgumentException("NOT_MEMBER");
     chatRoomDao.updateStatus(roomId, "D");
+  }
+
+  // 내가 참여중인 채팅방 목록 가져오기
+  public List<ChatRoom> findRoomsByUser(int userId) {
+    return chatRoomDao.selectRoomsByUser(userId);
   }
 }

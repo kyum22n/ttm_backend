@@ -1,5 +1,7 @@
 package com.example.demo.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,4 +17,6 @@ public interface ChatRoomDao {
   void insert(ChatRoom room);
 
   void updateStatus(@Param("roomId") int roomId, @Param("status") String status);
+
+  List<ChatRoom> selectRoomsByUser(@Param("userId") int userId);
 }

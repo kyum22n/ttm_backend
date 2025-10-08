@@ -29,6 +29,22 @@
       AND CHATROOM_STATUS IN ('P','A')
   </select>
 
+  <!-- ★ 목록: 내가 멤버인 P/A 방만, 최근 업데이트/생성 기준 내림차순 -->
+  <select id="selectRoomsByUser" parameterType="int" resultType="com.example.demo.dto.ChatRoom">
+    SELECT
+      CHATROOM_ID     AS chatroomId,
+      CHATUSER1_ID    AS chatuser1Id,
+      CHATUSER2_ID    AS chatuser2Id,
+      REQUESTED_BY    AS requestedBy,
+      CHATROOM_STATUS AS chatroomStatus,
+      UPDATED_AT      AS updatedAt,
+      CREATED_AT      AS createdAt
+    FROM TTM.CHATROOMS
+    WHERE (CHATUSER1_ID = #{userId} OR CHATUSER2_ID = #{userId})
+      AND CHATROOM_STATUS IN ('A','P')
+    ORDER BY NVL(UPDATED_AT, CREATED_AT) DESC
+  </select>
+
   <insert id="insert" parameterType="com.example.demo.dto.ChatRoom" useGeneratedKeys="false">
     INSERT INTO CHATROOMS(
       CHATROOM_ID, CHATUSER1_ID, CHATUSER2_ID, REQUESTED_BY, CHATROOM_STATUS, UPDATED_AT, CREATED_AT

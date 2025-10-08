@@ -92,4 +92,18 @@
     WHERE ROWNUM <= #{limit}
     ]]>
   </select>
+
+  <!-- 해당 유저의 첫 번째 펫 ID (프사용) -->
+<select id="selectFirstPetIdByUserId" parameterType="int" resultType="int">
+  SELECT pet_id
+  FROM (
+    SELECT pet_id
+    FROM pets
+    WHERE user_id = #{userId}
+    ORDER BY created_at ASC
+  )
+  WHERE ROWNUM = 1
+</select>
+
+
 </mapper>

@@ -159,4 +159,15 @@ public class PetService {
 		return petDao.selectRandomPets(limit);
 	}
 
+	/** 유저의 첫 번째 펫 ID (없으면 null) */
+	public Integer getFirstPetIdByUserId(int userId) {
+        return petDao.selectFirstPetIdByUserId(userId);
+    }
+
+	/** 유저의 첫 번째 펫 이미지 URL (프론트에서 씀) */
+    public String getFirstPetImageUrlByUserId(int userId) {
+        Integer petId = getFirstPetIdByUserId(userId);
+        return (petId != null) ? ("/pet/image/" + petId) : null;
+    }
+
 }
