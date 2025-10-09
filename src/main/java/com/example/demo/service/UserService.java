@@ -184,4 +184,9 @@ public class UserService {
 			return user;
 		}
 	}
+
+	// 로그인 아이디로 유저 찾기
+	public User findByUserLoginId(String userLoginId) {
+		return userDao.selectUserProfileByLoginId(userLoginId);
+	}
 }

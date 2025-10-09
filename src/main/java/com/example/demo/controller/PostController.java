@@ -266,6 +266,25 @@ public class PostController {
     return ResponseEntity.ok(map);
   }
 
+  // 태그 이름으로 게시물 목록 조회
+  @GetMapping("/list/by-tag")
+  public ResponseEntity<Map<String, Object>> PostListByTagName(@RequestParam("tagName") String tagName) {
+    Map<String, Object> map = new HashMap<>();
+    List<Post> posts = postTagService.getPostListByTagName(tagName);
+
+    if (posts == null || posts.isEmpty()) {
+        map.put("result", "fail");
+        map.put("message", "해당 태그의 게시물이 없습니다.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    }
+
+    map.put("result", "success");
+    map.put("message", "태그별 게시물 목록 조회 성공");
+    map.put("posts", posts);
+
+    return ResponseEntity.ok(map);
+  }
+
   // 그룹 산책 모집글만 조회
   @GetMapping("/groupwalk/recruitment-list")
   public ResponseEntity<Map<String, Object>> groupWalkRecruitment() {

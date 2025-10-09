@@ -26,4 +26,16 @@
     where post_id = #{postId} and tag_id = #{tagId}
   </delete>
 
+  <!-- 태그 이름으로 해당 태그가 달린 게시물 ID 목록 조회 -->
+  <select id="selectPostByTagName" parameterType="String" resultType="int">
+    select pt.post_id
+    from post_tags pt
+    where pt.tag_id = (
+      select t.tag_id
+      from tags t
+      where t.tag_name = #{tagName}
+    )
+  </select>
+
+
 </mapper>

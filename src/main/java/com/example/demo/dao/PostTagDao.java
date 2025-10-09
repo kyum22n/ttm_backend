@@ -17,4 +17,7 @@ public interface PostTagDao {
     
     // 태그 삭제
     public int deleteTagByPostId(PostTag postTag);
+
+    // 태그 이름으로 게시물 목록 조회
+    public List<Integer> selectPostByTagName(String tagName);
 }

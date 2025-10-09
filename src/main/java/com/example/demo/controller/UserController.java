@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -120,4 +121,19 @@ public class UserController {
 		return ResponseEntity.ok(map);
 	}
 
+	// 로그인 아이디로 유저 찾기
+	@GetMapping("/search/by-login-id")
+	public ResponseEntity<Map<String, Object>> searchUserByLoginId(@RequestParam("userLoginId") String userLoginId) {
+		Map<String, Object> map = new HashMap<>();
+		User user = userService.findByUserLoginId(userLoginId);
+		if (user == null) {
+			map.put("result", "fail");
+			map.put("message", "해당 아이디의 유저를 찾을 수 없습니다.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+		} else {
+			map.put("result", "success");
+			map.put("user", user);
+			return ResponseEntity.ok(map);
+		}
+	}
 }
