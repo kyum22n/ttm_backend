@@ -27,7 +27,7 @@ public interface PetDao {
 	public List<Pet> selectRandomPets(int limit);
 
   // 유저 ID에 등록된 첫 펫 ID 가져오기
-  public Integer selectFirstPetIdByUserId(@Param("userId") int userId);
+  public Pet selectFirstPetInfoByUserId(@Param("userId") int userId);
   // 펫 주인 userId 조회
   public Integer selectUserIdByPetId(Integer petId);
 }

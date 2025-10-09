@@ -125,16 +125,17 @@ public class PetController {
     return ResponseEntity.ok(map);
   }
 
-  @GetMapping("/{userId}/first-pet")
-    public ResponseEntity<?> getFirstPet(@PathVariable("userId") int userId) {
-        Integer petId = petService.getFirstPetIdByUserId(userId);
-        if (petId == null) {
-            return ResponseEntity.noContent().build();
-        }
-        String imageUrl = petService.getFirstPetImageUrlByUserId(userId);
-        return ResponseEntity.ok(Map.of(
-            "petId", petId,
-            "imageUrl", imageUrl
-        ));
-    }
+  @GetMapping("/pet/{userId}/first-pet")
+public ResponseEntity<?> firstPet(@PathVariable int userId) {
+    Pet p = petService.getFirstPetInfoByUserId(userId);
+    if (p == null) return ResponseEntity.noContent().build();
+    String imageUrl = "/pet/image/" + p.getPetId();
+    return ResponseEntity.ok(Map.of(
+        "petId", p.getPetId(),
+        "petName", p.getPetName(),
+        "petBreed", p.getPetBreed(),
+        "createdAt", p.getCreatedAt(),
+        "imageUrl", imageUrl
+    ));
+}
 }

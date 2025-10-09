@@ -42,8 +42,8 @@ public class ChatController {
     @GetMapping("/rooms/{roomId}/info")
     public ResponseEntity<?> roomInfo(
             @PathVariable int roomId,
-            @RequestParam int userId) {
-
+            @RequestParam("userId") int userId) {
+                System.out.println(">>> [roomInfo] HIT roomId=" + roomId + ", userId=" + userId);
         ChatRoom r = chatRoomService.getById(roomId);
         if (r == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -87,9 +87,10 @@ public class ChatController {
     @GetMapping("/rooms/{roomId}/messages")
     public ResponseEntity<Map<String, Object>> history(
             @PathVariable int roomId,
-            @RequestParam int userId,
+            @RequestParam("userId") int userId,
             @RequestParam(value = "beforeMessageId", required = false) Integer beforeMessageId,
             @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit) {
+                System.out.println(">>> [roomInfo] HIT roomId=" + roomId + ", userId=" + userId);
 
         if (!chatRoomService.isMember(roomId, userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)

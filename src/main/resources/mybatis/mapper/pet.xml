@@ -93,17 +93,29 @@
     ]]>
   </select>
 
-  <!-- 해당 유저의 첫 번째 펫 ID (프사용) -->
-<select id="selectFirstPetIdByUserId" parameterType="int" resultType="int">
-  SELECT pet_id
-  FROM (
-    SELECT pet_id
-    FROM pets
-    WHERE user_id = #{userId}
-    ORDER BY created_at ASC
-  )
-  WHERE ROWNUM = 1
-</select>
+  <!-- 해당 유저의 첫 번째 펫 정보 (프사용) -->
+<select id="selectFirstPetInfoByUserId"
+          parameterType="int"
+          resultType="com.example.demo.dto.Pet">
+    SELECT
+      p.pet_id          AS petId,
+      p.user_id         AS petUserId,
+      p.pet_name        AS petName,
+      p.pet_breed       AS petBreed,
+      p.pet_gender      AS petGender,
+      p.pet_weight      AS petWeight,
+      p.pet_birthday    AS petBirthDay,
+      p.pet_desc        AS petDesc,
+      p.pet_like_count  AS petLikeCount,
+      p.created_at      AS createdAt
+    FROM (
+      SELECT *
+      FROM pets p
+      WHERE p.user_id = #{userId}
+      ORDER BY p.created_at ASC
+    )
+    WHERE ROWNUM = 1
+  </select>
 
 
 
