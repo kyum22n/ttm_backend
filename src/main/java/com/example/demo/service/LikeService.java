@@ -74,8 +74,12 @@ public class LikeService {
         }
     }
 
-    /** 좋아요 상태 확인 */
+    /** 좋아요 상태 확인(post) */
     public boolean isPostLiked(Integer userId, Integer postId) {
         return likeDao.selectLikeFromPost(userId, postId) > 0;
+    }
+
+    public boolean isPetLiked(Integer userId, Integer petId){
+        return likeDao.selectLikeFromPet(userId, petId) > 0;
     }
 }

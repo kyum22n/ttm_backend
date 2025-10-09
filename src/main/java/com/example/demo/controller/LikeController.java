@@ -63,4 +63,18 @@ public class LikeController {
         return ResponseEntity.ok(map);
     }
 
+    // 특정 반려동물에 대해 좋아요 상태 확인
+    @GetMapping("/pet-like/status")
+    public ResponseEntity<Map<String, Object>> getPetLikeStatus(
+            @RequestParam("userId") Integer userId,
+            @RequestParam("petId") Integer petId) {
+
+        boolean isLiked = likeService.isPetLiked(userId, petId);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("result", "success");
+        map.put("isLiked", isLiked);
+        return ResponseEntity.ok(map);
+    }
+
 }
