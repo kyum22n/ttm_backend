@@ -125,7 +125,7 @@ public class PetController {
     return ResponseEntity.ok(map);
   }
 
-  @GetMapping("/pet/{userId}/first-pet")
+  @GetMapping("/{userId}/first-pet")
 public ResponseEntity<?> firstPet(@PathVariable int userId) {
     Pet p = petService.getFirstPetInfoByUserId(userId);
     if (p == null) return ResponseEntity.noContent().build();
