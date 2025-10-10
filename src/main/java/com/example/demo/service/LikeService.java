@@ -27,15 +27,8 @@ public class LikeService {
     // 좋아요 등록/취소(Pet)
     @Transactional
     public boolean togglePetLike(Integer userId, Integer petId) {
-        // 1️. 펫 주인 확인
-        Integer petOwnerId = petDao.selectUserIdByPetId(petId);
 
-        // 2️. 자기 펫이면 좋아요 금지
-        if (petOwnerId != null && petOwnerId.equals(userId)) {
-            throw new IllegalArgumentException("자신의 반려동물에는 좋아요를 누를 수 없습니다.");
-        }
-
-        // 3️. 현재 좋아요 여부 조회
+        // 현재 좋아요 여부 조회
         int exists = likeDao.selectLikeFromPet(userId, petId);
 
         if (exists > 0) {
