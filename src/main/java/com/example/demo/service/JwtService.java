@@ -46,7 +46,7 @@ public class JwtService {
 
     // JWT에 포함하는 Payload 추가
     jwtBuilder.subject(userLoginId); // 토큰 주제(대표 식별자): 로그인 아이디
-    jwtBuilder.claim("userId", userId); 
+    jwtBuilder.claim("userId", userId);
     jwtBuilder.claim("userEmail", userEmail);
 
     // JWT 유효기간 설정

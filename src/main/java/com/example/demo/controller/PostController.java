@@ -60,13 +60,14 @@ public class PostController {
   private ParticipateService participateService;
 
   // 게시물 작성
-  // @Login
+  @Login
   @PostMapping(value = "/write", consumes = "multipart/form-data")
   public Post postWrite(@ModelAttribute Post post) throws IOException {
     return postService.write(post);
   }
 
   // 전체 게시물 목록 불러오기(페이징)
+  @Login
   @GetMapping("/list")
   public ResponseEntity<Map<String, Object>> postList(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo) {
     int totalRows = postService.getTotalRows();
@@ -87,6 +88,7 @@ public class PostController {
   }
 
   // 특정 사용자 게시물 목록 불러오기
+  @Login
   @GetMapping("/{userId}/posts")
   public ResponseEntity<Map<String, Object>> userPostList(@PathVariable("userId") Integer userId) {
 
@@ -105,6 +107,7 @@ public class PostController {
   }
 
   // 게시물 상세보기
+  @Login
   @GetMapping("/detail")
   public ResponseEntity<Map<String, Object>> postDetail(@RequestParam("postId") Integer postId) {
 
@@ -129,6 +132,7 @@ public class PostController {
   }
 
   // 게시물 이미지 조회
+  // @Login
   @GetMapping("/image/{postId}")
   public void getPostImage(@PathVariable("postId") Integer postId,
                            @RequestParam(value="postImageId", required = false) Integer postImageId,
@@ -176,6 +180,7 @@ public class PostController {
   }
 
   // 게시물 수정
+  @Login
   @PutMapping(value = "/update", consumes = "multipart/form-data")
   public ResponseEntity<Map<String, Object>> postUpdate(@ModelAttribute Post post,
       @RequestParam(name = "imageMode", defaultValue = "append") String imageMode) throws IOException {
@@ -190,6 +195,7 @@ public class PostController {
   }
 
   // 게시물 삭제
+  @Login
   @DeleteMapping("/delete")
   public ResponseEntity<Map<String, Object>> postDelete(@RequestParam("postId") Integer postId) {
     Map<String, Object> map = new HashMap<>();
@@ -201,6 +207,7 @@ public class PostController {
   }
 
   // 댓글 작성
+  @Login
   @PostMapping("/comment-write")
   public ResponseEntity<Map<String, Object>> commentWrite(@RequestBody Comment comment) {
     Map<String, Object> map = new HashMap<>();
@@ -212,6 +219,7 @@ public class PostController {
   }
 
   // 댓글 수정
+  @Login
   @PutMapping("/comment-update")
   public ResponseEntity<Map<String, Object>> commentUpdate(@RequestBody Comment comment) {
     Map<String, Object> map = new HashMap<>();
@@ -223,6 +231,7 @@ public class PostController {
   }
 
   // 댓글 삭제
+  @Login
   @DeleteMapping("/comment-delete")
   public ResponseEntity<Map<String, Object>> commentDelete(@RequestParam("commentId") Integer commentId) {
     Map<String, Object> map = new HashMap<>();
@@ -234,6 +243,7 @@ public class PostController {
   }
 
   // 전체 태그 목록 조회
+  @Login
   @GetMapping("/tags")
   public ResponseEntity<Map<String, Object>> tagList() {
     Map<String, Object> map = new HashMap<>();
@@ -245,6 +255,7 @@ public class PostController {
   }
 
   // 게시물에 태그 달기
+  @Login
   @PostMapping("/add-tag")
   public ResponseEntity<Map<String, Object>> addTag(@RequestBody PostTag postTag) {
     Map<String, Object> map = new HashMap<>();
@@ -256,6 +267,7 @@ public class PostController {
   }
 
   // 게시물 수정 시 태그 삭제
+  @Login
   @DeleteMapping("/delete-tag")
   public ResponseEntity<Map<String, Object>> deleteTag(@RequestBody PostTag postTag) {
     Map<String, Object> map = new HashMap<>();
@@ -267,6 +279,7 @@ public class PostController {
   }
 
   // 태그 이름으로 게시물 목록 조회
+  @Login
   @GetMapping("/list/by-tag")
   public ResponseEntity<Map<String, Object>> PostListByTagName(@RequestParam("tagName") String tagName) {
     Map<String, Object> map = new HashMap<>();
@@ -286,6 +299,7 @@ public class PostController {
   }
 
   // 그룹 산책 모집글만 조회
+  @Login
   @GetMapping("/groupwalk/recruitment-list")
   public ResponseEntity<Map<String, Object>> groupWalkRecruitment() {
     List<Post> groupWalkPost = postService.getAllGroupWalkPost(); // 실패는 전역 예외처리
@@ -309,6 +323,7 @@ public class PostController {
   }
 
   // 그룹 산책 완료된 글만 조회
+  @Login
   @GetMapping("/groupwalk/ended-list")
   public ResponseEntity<Map<String, String>> endedGroupWalk() {
     List<Post> endedGroupWalk = postService.getAllEndedGroupWalk(); // 실패는 전역 예외처리
@@ -334,6 +349,7 @@ public class PostController {
   // 산책 신청(자기 자신을 participates에 등록)
 
   // 예: PUT /post/groupwalk/APPLY (APPROVE/REJECT/COMPLETE/CANCEL 도 동일)
+  @Login
   @PostMapping("/groupwalk/{status}")
   public ResponseEntity<Map<String, Object>> handle(@PathVariable("status") String status,
       @RequestBody Participate participate) {
@@ -350,6 +366,7 @@ public class PostController {
   }
 
   // 특정 글의 대기(P) 참가자 목록
+  @Login
   @GetMapping("/groupwalk/{postId}/participants/pending")
   public ResponseEntity<Map<String, Object>> listPendingParticipants(@PathVariable("postId") int postId) {
     List<Participate> list = participateService.listPendingByPost(postId);
@@ -368,6 +385,7 @@ public class PostController {
   }
 
   // 특정 글의 승인(A) 참가자 목록
+  @Login
   @GetMapping("/groupwalk/{postId}/participants/approved")
   public ResponseEntity<Map<String, Object>> listApprovedParticipants(@PathVariable("postId") int postId) {
     List<Participate> list = participateService.listApprovedByPost(postId);
@@ -407,6 +425,7 @@ public class PostController {
   // return postService.markWalkByCode(postId, code);
   // }
 
+  @Login
   @PutMapping("/groupwalk/now")
   public ResponseEntity<Map<String, String>> markNow(@RequestParam("postId") int postId,
       @RequestParam("code") int code) {

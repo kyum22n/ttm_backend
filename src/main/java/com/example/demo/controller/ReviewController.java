@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.Review;
+import com.example.demo.interceptor.Login;
 import com.example.demo.service.ReviewService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class ReviewController {
   private ReviewService reviewService;
 
   // 리뷰 쓰기
+  @Login
   @PostMapping("/write")
   public Map<String, Object> reviewWrite(@RequestBody Review review) {
     log.info(review.toString());
@@ -41,6 +43,7 @@ public class ReviewController {
   }
 
   // 해당 유저가 받은 리뷰 모두 가져오기 (성공 시 200)
+  @Login
   @GetMapping("/users/{userId}/reviews")
   public ResponseEntity<Map<String, Object>> getReceivedReviews(@PathVariable("userId") int userId) {
     List<Review> reviews = reviewService.findAllByTargetId(userId);
@@ -56,6 +59,7 @@ public class ReviewController {
 
   // 특정 리뷰 하나만 가져오기 (성공 시 200)
   // 전역 예외처리: 못 찾으면 NoSuchElementException → 404로 응답됨
+  @Login
   @GetMapping("/detail")
   public ResponseEntity<Map<String, String>> getReview(@RequestParam("reviewId") int reviewId) {
     var review = reviewService.findOneByReviewId(reviewId);

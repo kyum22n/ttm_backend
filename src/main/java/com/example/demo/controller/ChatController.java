@@ -13,6 +13,7 @@ import com.example.demo.dto.ChatMessage;
 import com.example.demo.dto.ChatReadReq;
 import com.example.demo.dto.ChatRoom;
 import com.example.demo.dto.ChatSendReq;
+import com.example.demo.interceptor.Login;
 import com.example.demo.service.ChatMessageService;
 import com.example.demo.service.ChatRoomService;
 
@@ -28,6 +29,7 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
 
     /** 방 보장: 기존(P/A)이 있으면 그 방, 없으면 P로 생성 */
+    @Login
     @PostMapping("/rooms/ensure")
     public ResponseEntity<?> ensureRoom(
             @RequestParam("userA") int userA,
@@ -39,6 +41,7 @@ public class ChatController {
     }
 
     /** 방 정보: 멤버면 항상 200 + room 반환 (canChat = A 여부) */
+    @Login
     @GetMapping("/rooms/{roomId}/info")
     public ResponseEntity<?> roomInfo(
             @PathVariable int roomId,
@@ -58,6 +61,7 @@ public class ChatController {
     }
 
     /** 승인 */
+    @Login
     @PutMapping("/rooms/{roomId}/approve")
     public ResponseEntity<?> approve(@PathVariable int roomId, @RequestParam("by") int by) {
         try {
@@ -71,6 +75,7 @@ public class ChatController {
     }
 
     /** 거절(닫기) */
+    @Login
     @PutMapping("/rooms/{roomId}/reject")
     public ResponseEntity<?> reject(@PathVariable int roomId, @RequestParam("by") int by) {
         try {
@@ -84,6 +89,7 @@ public class ChatController {
     }
 
     /** 히스토리 (A 상태만) */
+    @Login
     @GetMapping("/rooms/{roomId}/messages")
     public ResponseEntity<Map<String, Object>> history(
             @PathVariable int roomId,
@@ -109,6 +115,7 @@ public class ChatController {
     }
 
     /** 읽음 처리 (A 상태만) */
+    @Login
     @PutMapping("/rooms/{roomId}/read")
     public ResponseEntity<Map<String, Object>> markRead(
             @PathVariable int roomId,
@@ -128,6 +135,7 @@ public class ChatController {
     }
 
     /** STOMP 전송 (A 상태만) */
+    @Login
     @MessageMapping("/chat.send")
     public void onSend(ChatSendReq req) {
         Integer roomId = req.getRoomId();
@@ -151,6 +159,7 @@ public class ChatController {
     }
 
     /** STOMP 읽음 (A 상태만) */
+    @Login
     @MessageMapping("/chat.read")
     public void onRead(ChatReadReq req) {
         if (!chatRoomService.isMember(req.getRoomId(), req.getUserId()))
@@ -170,6 +179,7 @@ public class ChatController {
     }
 
     // 내가 참여하고 있는 채팅방 목록
+    @Login
     @GetMapping("/rooms/my")
     public ResponseEntity<?> myRooms(@RequestParam("userId") int userId) {
         // 서비스에서 목록 + 부가정보(미읽음/마지막 메시지 시간 등)까지 묶어 내려줄 수도 있고,

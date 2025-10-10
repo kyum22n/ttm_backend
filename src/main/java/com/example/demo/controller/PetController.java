@@ -36,6 +36,7 @@ public class PetController {
   private PetService petService;
 
   // 반려견 추가 등록
+  @Login
   @PostMapping("/register")
   public ResponseEntity<Map<String, Object>> petRegister(@ModelAttribute Pet pet) throws IOException {
     Map<String, Object> map = new HashMap<>();
@@ -53,6 +54,7 @@ public class PetController {
   }
 
   // 특정 반려견 정보 조회
+  @Login
   @GetMapping("/find")
   public ResponseEntity<Map<String, Object>> petFind(@RequestParam("petId") Integer petId) {
     Map<String, Object> map = new HashMap<>();
@@ -63,18 +65,21 @@ public class PetController {
   }
 
   // 사용자의 반려견 정보 모두 조회
+  @Login
   @GetMapping("/find-allpetbyuser")
   public List<Pet> findAllpetbyuser(@RequestParam("petUserId") Integer petUserId) {
     return petService.getAllPetByUserId(petUserId);
   }
 
   // 반려견 정보 수정하기
+  @Login
   @PutMapping("/update")
   public Pet petUpdate(@ModelAttribute Pet pet) throws IOException {
     return petService.update(pet);
   }
 
   // 반려견 정보 삭제하기
+  @Login
   @DeleteMapping("/remove")
   public ResponseEntity<Map<String, Object>> petRemove(@RequestParam("petId") Integer petId) {
     Map<String, Object> map = new HashMap<>();
@@ -85,6 +90,7 @@ public class PetController {
   }
 
   // 펫 이미지 조회 API
+  // @Login
   @GetMapping("/image/{petId}")
   public void getMethodName(@PathVariable("petId") Integer petId, HttpServletResponse response) throws Exception {
 
@@ -115,6 +121,7 @@ public class PetController {
   }
 
   // 메인피드에서 펫 프로필 랜덤하게 불러오기
+  @Login
   @GetMapping("/random-list")
   public ResponseEntity<Map<String, Object>> getRandomPets(@RequestParam(defaultValue = "7") int limit) {
     Map<String, Object> map = new HashMap<>();
@@ -125,6 +132,7 @@ public class PetController {
     return ResponseEntity.ok(map);
   }
 
+  // @Login
   @GetMapping("/{userId}/first-pet")
 public ResponseEntity<?> firstPet(@PathVariable int userId) {
     Pet p = petService.getFirstPetInfoByUserId(userId);

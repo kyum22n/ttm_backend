@@ -76,6 +76,7 @@ public class UserController {
 
 	// Get 요청
 	// url에 데이터 담김
+	@Login
 	@GetMapping("/info")
 	// url에 쿼리 파라미터 작성
 	// 파라미터로 보냄
@@ -89,6 +90,7 @@ public class UserController {
 		return ResponseEntity.ok(map);
 	}
 
+	@Login
 	@PutMapping("/update")
 	// 요청 바디로 보냄
 	public ResponseEntity<Object> userUpdate(@RequestBody User user) {
@@ -108,6 +110,7 @@ public class UserController {
 	// pathvariable로 보냄
 	// url 경로의 값을 메서드 변수에 바인딩
 	// 일단은 pet, post 정보 삭제하지 말고 user정보만 삭제하기
+	@Login
 	@DeleteMapping("/remove/{userId}")
 	public ResponseEntity<Object> userRemove(@PathVariable("userId") Integer userId) {
 		Map<String, Object> map = new HashMap<>();
@@ -122,6 +125,7 @@ public class UserController {
 	}
 
 	// 로그인 아이디로 유저 찾기
+	@Login
 	@GetMapping("/search/by-login-id")
 	public ResponseEntity<Map<String, Object>> searchUserByLoginId(@RequestParam("userLoginId") String userLoginId) {
 		Map<String, Object> map = new HashMap<>();
