@@ -20,17 +20,22 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
   // 전처리
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-     log.info("전처리 실행");
+    log.info("전처리 실행");
 
     // Preflight request로 요청한 것은 통과
     if ("OPTIONS".equalsIgnoreCase(request.getMethod())){
       return true;
     }
 
+    // 정적 파일 통과
+    if ( !(handler instanceof HandlerMethod) ) {
+      return true;
+    }
+
     // 1) 요청 매핑 메소드에 @Login이 붙어 있는지 확인
     HandlerMethod handlerMethod = (HandlerMethod) handler;
     Login login = handlerMethod.getMethodAnnotation(Login.class);
-    
+
     if (login != null) {
       // @Login 붙어 있을 경우
       // 2) JWT가 있는지 확인
@@ -70,3 +75,4 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
   }
 }
+

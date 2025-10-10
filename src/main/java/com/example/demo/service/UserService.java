@@ -129,6 +129,7 @@ public class UserService {
 		User user = userDao.selectByUserId(userId);
 		if (user == null)
 			throw new NoSuchElementException("해당 유저는 존재하지 않습니다");
+
 		return user;
 	}
 

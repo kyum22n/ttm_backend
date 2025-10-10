@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 import com.example.demo.interceptor.Login;
+import com.example.demo.service.PetService;
 import com.example.demo.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,9 @@ public class UserController {
 	// userService 주입
 	@Autowired
 	private UserService userService;
-	
+
+	@Autowired
+	private PetService petService;
 
 	// 회원가입
 	// Post 요청
@@ -82,10 +85,16 @@ public class UserController {
 	// 파라미터로 보냄
 	public ResponseEntity<Object> userInfo(@RequestParam("userId") Integer userId) {
 		Map<String, Object> map = new HashMap<>();
+		
+		// 유저 정보 불러오기 
 		User user = userService.info(userId);
+
+		// 첫번째 pet 정보 가져와서 프로필 이미지로 사용
+		String firstPetImageUrl = petService.getFirstPetImageUrlByUserId(userId);
 
 		map.put("result", "success");
 		map.put("data", user);
+		map.put("profileImage", firstPetImageUrl);
 
 		return ResponseEntity.ok(map);
 	}
