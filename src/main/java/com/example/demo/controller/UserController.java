@@ -138,14 +138,15 @@ public class UserController {
 	@GetMapping("/search/by-login-id")
 	public ResponseEntity<Map<String, Object>> searchUserByLoginId(@RequestParam("userLoginId") String userLoginId) {
 		Map<String, Object> map = new HashMap<>();
-		User user = userService.findByUserLoginId(userLoginId);
-		if (user == null) {
+		List<User> users = userService.findByPartialLoginId(userLoginId);
+
+		if (users == null || users.isEmpty()) {
 			map.put("result", "fail");
 			map.put("message", "해당 아이디의 유저를 찾을 수 없습니다.");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+			return ResponseEntity.ok(map);
 		} else {
 			map.put("result", "success");
-			map.put("user", user);
+			map.put("user", users);
 			return ResponseEntity.ok(map);
 		}
 	}

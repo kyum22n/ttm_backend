@@ -186,8 +186,13 @@ public class UserService {
 		}
 	}
 
-	// 로그인 아이디로 유저 찾기
+	// (마이페이지) 로그인 아이디로 유저 프로필 불러오기
 	public User findByUserLoginId(String userLoginId) {
 		return userDao.selectUserProfileByLoginId(userLoginId);
 	}
+
+	// (검색) 로그인 아이디로 유저 프로필 불러오기
+	public List<User> findByPartialLoginId(String keyword) {
+		return userDao.selectUserProfileByPartialLoginId(keyword);
+	};
 }

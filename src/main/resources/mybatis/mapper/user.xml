@@ -5,33 +5,49 @@
 	<insert id="insert"
 		parameterType="User">
 		<!-- !!!user 앞에 안 붙어있었음 -->
-		<selectKey keyProperty="userId" resultType="Integer" order="BEFORE"> select
-		seq_users_user_id.nextval from dual </selectKey> insert into users ( user_id, user_login_id,
-		user_password, user_name, user_email, user_address, user_birthDate, created_at) values
-		(#{userId}, #{userLoginId}, #{userPassword}, #{userName}, #{userEmail}, #{userAddress},
-		#{userBirthDate}, SYSTIMESTAMP) </insert>
+		<selectKey keyProperty="userId" resultType="Integer" order="BEFORE"> 
+			select seq_users_user_id.nextval from dual 
+		</selectKey> 
+		
+		insert into users 
+		( user_id, user_login_id, user_password, user_name, user_email, user_address, user_birthdate, created_at) 
+		values
+		(#{userId}, #{userLoginId}, #{userPassword}, #{userName}, #{userEmail}, #{userAddress}, #{userBirthDate}, SYSTIMESTAMP) 
+	</insert>
 
 	<!-- !!!대문자 작성 제대로 안함 -->
-	<update id="update" parameterType="User"> update users set user_password = #{userPassword},
-		user_name = #{userName}, user_address = #{userAddress} where user_id = #{userId} </update>
+	<update id="update" parameterType="User"> 
+		update users 
+		set user_password = #{userPassword},
+			user_name = #{userName}, 
+			user_address = #{userAddress} 
+		where user_id = #{userId} 
+	</update>
 
 	<!--로그인
 	아이디 기준으로 비밀번호 변경(임시 비밀번호 발급)-->
 	<update id="updatePassword"
 		parameterType="User"> 
-		update users set user_password = #{userPassword} 
+		update users 
+		set user_password = #{userPassword} 
 		where user_login_id = #{userLoginId} 
 	</update>
 
 
 	<delete id="delete"
-		parameterType="Integer"> delete from ttm.users where user_id=#{value} </delete>
+		parameterType="Integer"> 
+		delete from ttm.users 
+		where user_id=#{value} 
+	</delete>
 
 	<!-- user_id가 없었음 -->
 	<select id="selectByUserId"
 		parameterType="Integer"
-		resultType="User"> select user_id, user_login_id, user_password, user_name, user_email,
-		user_address, user_birthDate, created_at from users where user_id = #{value} </select>
+		resultType="User"> 
+		select user_id, user_login_id, user_password, user_name, user_email, user_address, user_birthdate, created_at 
+		from users
+		 where user_id = #{value} 
+	</select>
 
 	<!--로그인에
 	필요한 정보 조회 or 비밀번호 찾기-->
@@ -47,18 +63,33 @@
 	사용자 조회(아이디 찾기용)-->
 	<select id="selectUserByEmail"
 		parameterType="String"
-		resultType="User"> select user_login_id, user_email from users where user_email = #{value} 
+		resultType="User"> 
+		select user_login_id, user_email 
+		from users 
+		where user_email = #{value} 
 	</select>
 
 	<!-- 모집자가 신청자 목록 볼 때-->
 	<select id="selectAllUser"
-		resultType="User"> select user_login_id, user_password, user_name, user_email, user_address,
-		user_birthDate, created_at from users where user_Id = #{value} </select>
+		resultType="User"> 
+		select user_login_id, user_password, user_name, user_email, user_address, user_birthdate, created_at 
+		from users 
+		where user_id = #{value} 
+	</select>
 
+	<!-- (마이페이지) 로그인 아이디로 사용자 조회 -->
 	<select id="selectUserProfileByLoginId" parameterType="String" resultType="User">
-    SELECT user_id, user_login_id, user_name, user_email,
-           user_address, user_birthDate, created_at
-    FROM users
-    WHERE user_login_id = #{value}
-</select>
+		select user_id, user_login_id, user_name, user_email,
+			user_address, user_birthdate, created_at
+		from users
+		where user_login_id = #{value}
+	</select>
+	
+	<!-- (검색용) 로그인 아이디로 사용자 조회 -->
+	<select id="selectUserProfileByPartialLoginId" parameterType="String" resultType="User">
+		select user_id, user_login_id, user_name, user_email,
+			user_address, user_birthdate, created_at
+		from users
+		where user_login_id like '%' || #{value} || '%'
+	</select>
 </mapper>

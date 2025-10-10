@@ -156,7 +156,19 @@ public class PetService {
 
 	// 메인 페이지에서 펫 프로필 랜덤으로 불러오기
 	public List<Pet> getRandomPets(int limit) {
-		return petDao.selectRandomPets(limit);
+		List<Pet> pets = petDao.selectRandomPets(limit);
+
+		for (Pet pet : pets) {
+			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
+			if (image != null) {
+				pet.setPetImageId(image.getPetImageId());
+				pet.setPetAttachOname(image.getPetAttachOname());
+				pet.setPetAttachType(image.getPetAttachType());
+				pet.setPetAttachData(image.getPetAttachData());
+			}
+		}
+
+		return pets;
 	}
 
 	/** 유저의 첫 번째 펫 정보 (없으면 null) */
