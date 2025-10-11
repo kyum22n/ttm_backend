@@ -117,6 +117,8 @@ public class PostController {
 
     List<Post> images = postService.getImagesByPostId(postId);
 
+    List<Participate> participants = participateService.listByPost(postId);
+
     List<String> imageUrls = new ArrayList<>();
     for (Post img : images) {
       imageUrls.add("/post/image/" + postId + "?postImageId=" + img.getPostImageId());
@@ -127,6 +129,7 @@ public class PostController {
     map.put("comments", comments);
     map.put("tags", tags);
     map.put("images", imageUrls != null ? imageUrls : new ArrayList<>());
+    map.put("participants", participants);
 
     return ResponseEntity.ok(map);
   }
