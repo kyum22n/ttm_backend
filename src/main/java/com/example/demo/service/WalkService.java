@@ -40,23 +40,8 @@ public class WalkService {
 
     // 1:1 산책 신청 상태 변경
     public int modifyWalkApplyStatus(Integer requestOneId, String rstatus, Integer receiveUserId) {
-        Walk walk = new Walk();
-        walk.setRequestOneId(requestOneId);
-        walk.setReceiveUserId(receiveUserId);
-
-        switch(rstatus) {
-            case("A"): 
-                walk.setRstatus("A");   // 승인(Accept)
-                break;
-            case("R"):
-                walk.setRstatus("R");   // 거절(Reject)
-                break;
-            default:
-                walk.setRstatus("P");    // 대기(Pending)
-        }
-
-        int rows = walkDao.updateWalkApplyStatus(requestOneId, rstatus, receiveUserId);
-
+        String normalized = "A".equalsIgnoreCase(rstatus) ? "A" : "R".equalsIgnoreCase(rstatus) ? "R" : "P";
+        int rows = walkDao.updateWalkApplyStatus(requestOneId, normalized, receiveUserId);
         return rows;
     }
 
@@ -82,11 +67,11 @@ public class WalkService {
     // 1:1 산책 기록 삭제
     public int removeWalk(Integer requestOneId, Integer userId) {
         int rows = walkDao.deleteWalk(requestOneId, userId);
-        
-        if(rows == 0) {
+
+        if (rows == 0) {
             throw new NoSuchElementException();
         }
-        
+
         return rows;
     }
 
