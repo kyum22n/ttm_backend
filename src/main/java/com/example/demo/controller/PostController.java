@@ -92,7 +92,7 @@ public class PostController {
   @GetMapping("/{userId}/posts")
   public ResponseEntity<Map<String, Object>> userPostList(@PathVariable("userId") Integer userId) {
 
-    // int totalRows = postService.getTotalRowsByUserId(userId);  // 특정 사용자 게시물 수
+    // int totalRows = postService.getTotalRowsByUserId(userId); // 특정 사용자 게시물 수
 
     Map<String, Object> map = new HashMap<>();
     List<Post> list = postService.getPostListByUserId(userId);
@@ -138,27 +138,26 @@ public class PostController {
   // @Login
   @GetMapping("/image/{postId}")
   public void getPostImage(@PathVariable("postId") Integer postId,
-                           @RequestParam(value="postImageId", required = false) Integer postImageId,
-                           HttpServletResponse response
-                          ) throws Exception {
-    
+      @RequestParam(value = "postImageId", required = false) Integer postImageId,
+      HttpServletResponse response) throws Exception {
+
     List<Post> images = postService.getImagesByPostId(postId);
 
     // 이미지가 없으면 404 리턴
-    if(images == null || images.isEmpty() || images.get(0).getPostAttachData() == null) {
+    if (images == null || images.isEmpty() || images.get(0).getPostAttachData() == null) {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
 
-    // 여러 장 중 첫번째 이미지를 대표 이미지로 설정 
+    // 여러 장 중 첫번째 이미지를 대표 이미지로 설정
     // (요청된 이미지가 있을 경우에는 해당 이미지를 대표 이미지로 설정)
     Post image = null;
     if (postImageId != null) {
       for (Post p : images) {
-        if(p.getPostImageId() != null && p.getPostImageId().equals(postImageId)) {
+        if (p.getPostImageId() != null && p.getPostImageId().equals(postImageId)) {
           image = p;
           break;
-        } 
+        }
       }
     }
     if (image == null) {
@@ -289,9 +288,9 @@ public class PostController {
     List<Post> posts = postTagService.getPostListByTagName(tagName);
 
     if (posts == null || posts.isEmpty()) {
-        map.put("result", "fail");
-        map.put("message", "해당 태그의 게시물이 없습니다.");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+      map.put("result", "fail");
+      map.put("message", "해당 태그의 게시물이 없습니다.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
     }
 
     map.put("result", "success");
@@ -406,27 +405,19 @@ public class PostController {
     return ResponseEntity.ok(map);
   }
 
-  //
-  // @PutMapping("/groupwalk/apply-end/now")
-  // public Post setApplyEndNow(@RequestParam("postId") int postId) {
-  // return postService.markWApplyEndedNow(postId);
-  // }
+  // 유저가 참여중인 혹은 참여신청을 넣은 그룹산책 목록
+  @Login
+  @GetMapping("/groupwalk/request-list")
+  public ResponseEntity<Map<String, Object>> groupRequestsByUser(
+      @RequestParam("userId") int userId) {
+    var list = participateService.listByUser(userId); // 단순 행 목록
 
-  // @PutMapping("/groupwalk/start/now")
-  // public Post setWalkStartNow(@RequestParam("postId") int postId) {
-  // return postService.markWalkStartedNow(postId);
-  // }
-
-  // @PutMapping("/groupwalk/end/now")
-  // public Post setWalkEndNow(@RequestParam("postId") int postId) {
-  // return postService.markWalkEndedNow(postId);
-  // }
-
-  // @PutMapping("/groupwalk/now")
-  // public Post markNow(@RequestParam("postId") int postId, @RequestParam("code")
-  // int code) {
-  // return postService.markWalkByCode(postId, code);
-  // }
+    Map<String, Object> body = new HashMap<>();
+    body.put("result", "success");
+    body.put("count", list.size());
+    body.put("list", list); // ← 프론트에서 그대로 사용
+    return ResponseEntity.ok(body);
+  }
 
   @Login
   @PutMapping("/groupwalk/now")
@@ -441,17 +432,17 @@ public class PostController {
 
     String message;
     switch (code) {
-    case 1:
-      message = "신청 마감 시간이 기록되었습니다.";
-      break;
-    case 2:
-      message = "산책 시작 시간이 기록되었습니다.";
-      break;
-    case 3:
-      message = "산책 종료 시간이 기록되었습니다.";
-      break;
-    default:
-      message = "산책 상태가 업데이트되었습니다.";
+      case 1:
+        message = "신청 마감 시간이 기록되었습니다.";
+        break;
+      case 2:
+        message = "산책 시작 시간이 기록되었습니다.";
+        break;
+      case 3:
+        message = "산책 종료 시간이 기록되었습니다.";
+        break;
+      default:
+        message = "산책 상태가 업데이트되었습니다.";
     }
     map.put("message", message);
     map.put("postId", String.valueOf(postUpdated.getPostId()));
