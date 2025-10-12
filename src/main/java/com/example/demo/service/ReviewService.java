@@ -28,38 +28,32 @@ public class ReviewService {
   // 산책 리뷰 작성
   @Transactional
   public Review create(Review review) {
-    // 입력 유효성 검증
-    if (review == null) {
+    if (review == null)
       throw new IllegalArgumentException("리뷰 데이터가 없습니다");
-    }
-    if (review.getWriterId() == null || review.getTargetId() == null) {
+    if (review.getWriterId() == null || review.getTargetId() == null)
       throw new IllegalArgumentException("writerId와 targetId는 필수입니다");
-    }
-    if (review.getWriterId().equals(review.getTargetId())) {
+    if (review.getWriterId().equals(review.getTargetId()))
       throw new IllegalArgumentException("본인에게 리뷰를 작성할 수 없습니다");
-    }
-    if (review.getPostId() == null && review.getRequestOneId() == null) {
-      throw new IllegalArgumentException("postId와 requestOneId 중 하나는 필수입니다.");
-    }
+
+    // ✅ XOR 검사: postId 와 requestOneId 중 '정확히 하나'만 허용
+    boolean hasPost = review.getPostId() != null;
+    boolean hasWone = review.getRequestOneId() != null;
+    if (hasPost == hasWone) // 둘 다 true 또는 둘 다 false
+      throw new IllegalArgumentException("postId와 requestOneId 중 정확히 하나만 설정해야 합니다.");
 
     Post endedGroupWalk = null;
     Walk endedWalk = null;
 
-    if (review.getPostId() != null) {
+    if (hasPost) {
       endedGroupWalk = postDao.selectEndedGroupWalk(review.getPostId());
-    }
-
-    if (review.getRequestOneId() != null) {
+    } else {
       endedWalk = walkDao.selectEndedWalkByRequestOneId(review.getRequestOneId());
     }
 
-    // 그룹 산책 완료된 건 또는 1:1 산책 완료된 건만 리뷰 등록 성공
-    if (endedGroupWalk == null && endedWalk == null) {
+    if (endedGroupWalk == null && endedWalk == null)
       throw new IllegalStateException("산책이 완료된 건에만 리뷰를 작성 할 수 있습니다.");
-    }
 
     reviewDao.insert(review);
-
     return reviewDao.selectByReviewId(review.getReviewId());
   }
 

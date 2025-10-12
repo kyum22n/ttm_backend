@@ -43,14 +43,17 @@
     <!-- 사용자 아이디로 1:1 산책 신청받은 내역 불러오기 -->
     <select id="selectAllWalkApplyByReceiveUserId" parameterType="Integer" resultType="Walk">
         <![CDATA[
-        select rnum, request_one_id, request_user_id, receive_user_id, created_at, rStatus
+        select rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus,
+                walkstarted_at, walkended_at
         from (
-            select rownum as rnum, request_one_id, request_user_id, receive_user_id, created_at, rStatus
+            select rownum as rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus,
+                walkstarted_at, walkended_at
             from (
-                select request_one_id, request_user_id, receive_user_id, created_at, rStatus
-                from wone_requests
-                where receive_user_id = #{receiveUserId}
-                order by created_at desc
+            select request_one_id, request_user_id, receive_user_id, created_at, rstatus,
+                    walkstarted_at, walkended_at
+            from wone_requests
+            where receive_user_id = #{receiveUserId}
+            order by created_at desc
             )
             where rownum <= 10
         )
@@ -61,18 +64,21 @@
     <!-- 사용자 아이디로 1:1 산책 신청한 내역 불러오기 -->
     <select id="selectAllWalkApplyByRequestUserId" parameterType="Integer" resultType="Walk">
         <![CDATA[
-            select rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus
+        select rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus,
+                walkstarted_at, walkended_at
+        from (
+            select rownum as rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus,
+                walkstarted_at, walkended_at
             from (
-                select rownum as rnum, request_one_id, request_user_id, receive_user_id, created_at, rstatus
-                from (
-                    select request_one_id, request_user_id, receive_user_id, created_at, rstatus
-                    from wone_requests
-                    where request_user_id = #{requestUserId}
-                    order by created_at desc
-                )
-                where rownum <= 10
+            select request_one_id, request_user_id, receive_user_id, created_at, rstatus,
+                    walkstarted_at, walkended_at
+            from wone_requests
+            where request_user_id = #{requestUserId}
+            order by created_at desc
             )
-            where rnum >= 1
+            where rownum <= 10
+        )
+        where rnum >= 1
         ]]>
     </select>
 
