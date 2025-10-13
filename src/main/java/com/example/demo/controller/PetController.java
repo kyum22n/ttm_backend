@@ -120,7 +120,7 @@ public class PetController {
     // 응답 본문의 파일 데이터 출력
     bos.write(image.getPetAttachData());
     bos.flush();
-    bos.close();
+    bos.close(); 
   }
 
   // 메인피드에서 펫 프로필 랜덤하게 불러오기
