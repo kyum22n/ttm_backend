@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,6 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@CrossOrigin(origins = "http://localhost", allowCredentials = "true")
 @RestController
 @RequestMapping("/pet")
 public class PetController {
@@ -72,6 +74,7 @@ public class PetController {
   }
 
   // 반려견 정보 수정하기
+
   @Login
   @PutMapping("/update")
   public Pet petUpdate(@ModelAttribute Pet pet) throws IOException {
