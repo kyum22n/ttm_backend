@@ -19,7 +19,6 @@ import com.example.demo.dto.Pet;
 import com.example.demo.dto.User;
 import com.example.demo.service.PetService;
 import com.example.demo.service.UserLoginService;
-import com.example.demo.service.UserService;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -36,29 +35,43 @@ public class UserLoginController {
   @PostMapping("/login")
   public ResponseEntity<Map<String, Object>> login(@RequestBody Loginform loginForm) {
     Map<String, Object> map = new HashMap<>();
-    User user = userLoginService.getUserProfile(loginForm.getLoginId());
-    // 1.로그인 성공 시 jwt 토큰 발급
-    String jwt = userLoginService.userLogin(loginForm.getLoginId(), loginForm.getPassword());
+    try {
+      User user = userLoginService.getUserProfile(loginForm.getLoginId());
+      // 1.로그인 성공 시 jwt 토큰 발급
+      String jwt = userLoginService.userLogin(loginForm.getLoginId(), loginForm.getPassword());
 
-    // 유저의 모든 펫 중 첫 번째 펫
-    List<Pet> pets = petService.getAllPetByUserId(user.getUserId());
-    String profileImageUrl = null;
-    if (pets != null && !pets.isEmpty()) {
+      // 유저의 모든 펫 중 첫 번째 펫
+      List<Pet> pets = petService.getAllPetByUserId(user.getUserId());
+      String profileImageUrl = null;
+      if (pets != null && !pets.isEmpty()) {
         profileImageUrl = "/pet/image/" + pets.get(0).getPetId();
+      }
+      // 2. 로그인 성공
+      map.put("result", "success");
+      map.put("jwt", jwt);
+
+      map.put("userId", user.getUserId());
+      map.put("loginId", user.getUserLoginId());
+      map.put("userName", user.getUserName());
+      map.put("userEmail", user.getUserEmail());
+      map.put("userAddress", user.getUserAddress());
+      map.put("userBirthDate", user.getUserBirthDate());
+      map.put("profileImage", profileImageUrl);
+
+      return ResponseEntity.ok(map);
+    } catch (IllegalArgumentException ex) {
+      // 사용자 입력에 따른 인증 실패 메시지는 안전하게 클라이언트에 전달합니다.
+      log.warn("Login failed (client error): {}", ex.getMessage());
+      map.put("result", "fail");
+      map.put("message", ex.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map);
+    } catch (Exception ex) {
+      // 내부 예외는 상세 내용을 클라이언트에 노출하지 않고 서버 로그에만 남깁니다.
+      log.error("Unexpected error during login", ex);
+      map.put("result", "error");
+      map.put("message", "서버 오류가 발생했습니다.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map);
     }
-    // 2. 로그인 성공
-    map.put("result", "success");
-    map.put("jwt", jwt);
-
-    map.put("userId", user.getUserId()); 
-    map.put("loginId", user.getUserLoginId());
-    map.put("userName", user.getUserName());
-    map.put("userEmail", user.getUserEmail());
-    map.put("userAddress", user.getUserAddress());
-    map.put("userBirthDate", user.getUserBirthDate());
-    map.put("profileImage", profileImageUrl);
-
-    return ResponseEntity.ok(map);
 
   }
 
