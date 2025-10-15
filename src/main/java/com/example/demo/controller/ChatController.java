@@ -4,10 +4,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ChatMessage;
 import com.example.demo.dto.ChatReadReq;
@@ -17,16 +26,16 @@ import com.example.demo.interceptor.Login;
 import com.example.demo.service.ChatMessageService;
 import com.example.demo.service.ChatRoomService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/chat")
-@RequiredArgsConstructor
 public class ChatController {
 
-    private final ChatRoomService chatRoomService;
-    private final ChatMessageService chatMessageService;
-    private final SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private ChatRoomService chatRoomService;
+    @Autowired
+    private ChatMessageService chatMessageService;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     /** 방 보장: 기존(P/A)이 있으면 그 방, 없으면 P로 생성 */
     @Login
@@ -46,7 +55,7 @@ public class ChatController {
     public ResponseEntity<?> roomInfo(
             @PathVariable int roomId,
             @RequestParam("userId") int userId) {
-                System.out.println(">>> [roomInfo] HIT roomId=" + roomId + ", userId=" + userId);
+        System.out.println(">>> [roomInfo] HIT roomId=" + roomId + ", userId=" + userId);
         ChatRoom r = chatRoomService.getById(roomId);
         if (r == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -96,7 +105,7 @@ public class ChatController {
             @RequestParam("userId") int userId,
             @RequestParam(value = "beforeMessageId", required = false) Integer beforeMessageId,
             @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit) {
-                System.out.println(">>> [roomInfo] HIT roomId=" + roomId + ", userId=" + userId);
+        System.out.println(">>> [roomInfo] HIT roomId=" + roomId + ", userId=" + userId);
 
         if (!chatRoomService.isMember(roomId, userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
