@@ -1,78 +1,103 @@
 package com.example.demo.service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dao.WalkDao;
 import com.example.demo.dto.Walk;
 
 @Service
 public class WalkService {
+
     @Autowired
     private WalkDao walkDao;
 
-    // 사용자 아이디로 1:1 산책 내역 불러오기
     public List<Walk> getWalkListByUserId(Integer userId) {
-        List<Walk> walkList = walkDao.selectAllWalkByUserId(userId);
-        return walkList;
+        return walkDao.selectAllWalkByUserId(userId);
     }
 
-    // 사용자 아이디로 1:1 산책 신청받은 내역 불러오기
     public List<Walk> getWalkApplyListByReceiveUserId(Integer receiveUserId) {
-        List<Walk> walkReceiveList = walkDao.selectAllWalkApplyByReceiveUserId(receiveUserId);
-        return walkReceiveList;
+        return walkDao.selectAllWalkApplyByReceiveUserId(receiveUserId);
     }
 
-    // 사용자 아이디로 1:1 산책 신청한 내역 불러오기
     public List<Walk> getWalkApplyListByRequestUserId(Integer requestUserId) {
-        List<Walk> walkRequestList = walkDao.selectAllWalkApplyByRequestUserId(requestUserId);
-        return walkRequestList;
+        return walkDao.selectAllWalkApplyByRequestUserId(requestUserId);
     }
 
-    // 1:1 산책 신청
+    @Transactional
     public void createWalkApply(Walk walk) {
         walk.setRstatus("P");
         walkDao.insertWalkApply(walk);
     }
 
-    // 1:1 산책 신청 상태 변경
+    @Transactional
     public int modifyWalkApplyStatus(Integer requestOneId, String rstatus, Integer receiveUserId) {
-        String normalized = "A".equalsIgnoreCase(rstatus) ? "A" : "R".equalsIgnoreCase(rstatus) ? "R" : "P";
-        int rows = walkDao.updateWalkApplyStatus(requestOneId, normalized, receiveUserId);
-        return rows;
+        String normalized = "A".equalsIgnoreCase(rstatus) ? "A"
+                         : "R".equalsIgnoreCase(rstatus) ? "R"
+                         : "P";
+        return walkDao.updateWalkApplyStatus(requestOneId, normalized, receiveUserId);
     }
 
-    // 1:1 산책 시작
+    /* ============================
+       ✅ 동시성 안전: 산책 시작
+       - 조건부 UPDATE로 1건만 성공
+       - 이미 시작 상태면 기존 시각을 반환(멱등)
+       ============================ */
+    @Transactional
+    public Timestamp startOneOnOne(Integer requestOneId, Integer userId) {
+        int updated = walkDao.updateWalkStartedAt(requestOneId, userId);
+        if (updated == 1) {
+            return walkDao.selectWalkStartedAt(requestOneId);
+        }
+        Timestamp started = walkDao.selectWalkStartedAt(requestOneId);
+        if (started != null) {
+            return started; // 이미 시작됨
+        }
+        throw new IllegalStateException("시작할 수 없는 상태입니다.");
+    }
+
+    /* ============================
+       ✅ 동시성 안전: 산책 종료
+       - 조건부 UPDATE로 1건만 성공
+       - 이미 종료 상태면 기존 시각을 반환(멱등)
+       ============================ */
+    @Transactional
+    public Timestamp endOneOnOne(Integer requestOneId, Integer userId) {
+        int updated = walkDao.updateWalkEndedAt(requestOneId, userId);
+        if (updated == 1) {
+            return walkDao.selectWalkEndedAt(requestOneId);
+        }
+        Timestamp ended = walkDao.selectWalkEndedAt(requestOneId);
+        if (ended != null) {
+            return ended; // 이미 종료됨
+        }
+        throw new IllegalStateException("종료할 수 없는 상태입니다.");
+    }
+
+    // (호환용) 기존 int 반환 시그니처 유지해야 하면 아래처럼 래핑해도 됨
+    @Transactional
     public int modifyWalkStartedAt(Integer requestOneId, Integer userId) {
-        int rows = walkDao.updateWalkStartedAt(requestOneId, userId);
-        return rows;
+        return (startOneOnOne(requestOneId, userId) != null) ? 1 : 0;
     }
 
-    // 1:1 산책 종료
+    @Transactional
     public int modifyWalkEndedAt(Integer requestOneId, Integer userId) {
-        int rows = walkDao.updateWalkEndedAt(requestOneId, userId);
-        return rows;
+        return (endOneOnOne(requestOneId, userId) != null) ? 1 : 0;
     }
 
-    // 완료된 1:1 산책 건 불러오기
-    // Controller에는 아직 구현 안 함
     public Walk getEndedWalk(Integer requestOneId) {
-        Walk endedWalk = walkDao.selectEndedWalkByRequestOneId(requestOneId);
-        return endedWalk;
+        return walkDao.selectEndedWalkByRequestOneId(requestOneId);
     }
 
-    // 1:1 산책 기록 삭제
+    @Transactional
     public int removeWalk(Integer requestOneId, Integer userId) {
         int rows = walkDao.deleteWalk(requestOneId, userId);
-
-        if (rows == 0) {
-            throw new NoSuchElementException();
-        }
-
+        if (rows == 0) throw new NoSuchElementException();
         return rows;
     }
-
 }
