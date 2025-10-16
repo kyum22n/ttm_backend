@@ -25,7 +25,6 @@ public class UserLoginService {
     private JwtService jwtService;
 
     // 로그인 서비스
-    @Transactional
     public String userLogin(String userLoginId ,String userPassword) {
         //사용자가 입력한 로그인 아이디를 DB에서 검색
         User user = userDao.selectUserByLoginId(userLoginId);

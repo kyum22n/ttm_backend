@@ -147,9 +147,6 @@ public class PetService {
 	// 메인 페이지에서 펫 프로필 랜덤으로 불러오기
 	public List<Pet> getRandomPets(int limit) {
 		List<Pet> pets = petDao.selectRandomPets(limit);
-
-		
-
 		return pets;
 	}
 
