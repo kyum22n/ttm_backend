@@ -21,3 +21,4 @@ public interface UserDao {
   public User selectUserProfileByLoginId(String userLoginId); // 로그인한 사용자 조회(비밀번호 x)
   public List<User> selectUserProfileByPartialLoginId(String userLoginId); // 로그인 아이디로 프로필 불러오기(검색용)
 }
+
