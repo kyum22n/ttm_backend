@@ -63,7 +63,7 @@ public class PetService {
 	// 반려견 1마리 정보 보기
 	public Pet getPet(Integer petId) {
 		Pet pet = petDao.selectByPetId(petId); // 없으면 null 반환
-		if(pet == null){
+		if (pet == null) {
 			throw new NoSuchElementException();
 		}
 		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
@@ -81,22 +81,12 @@ public class PetService {
 	// 특정 반려인의 모든 반려견 정보 보기
 	public List<Pet> getAllPetByUserId(Integer petUserId) {
 		User user = userDao.selectByUserId(petUserId);
-		if (user == null) {
+		if (user == null)
 			throw new IllegalArgumentException("사용자 없음.");
-		}
 		List<Pet> pets = petDao.selectAllPetByUserId(petUserId);
-		if (pets == null || pets.isEmpty()) {
+		if (pets == null || pets.isEmpty())
 			throw new NoSuchElementException("등록된 반려견이 없습니다.");
-		}
-		for (Pet pet : pets) {
-			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
-			if (image != null) {
-				pet.setPetImageId(image.getPetImageId());
-				pet.setPetAttachOname(image.getPetAttachOname());
-				pet.setPetAttachType(image.getPetAttachType());
-				pet.setPetAttachData(image.getPetAttachData());
-			}
-		}
+
 		return pets;
 	}
 
@@ -139,16 +129,16 @@ public class PetService {
 	public int remove(Integer petId) {
 		petImageDao.deletePetImage(petId);
 		int rows = petDao.deletePet(petId);
-		if(rows == 0 ){
+		if (rows == 0) {
 			throw new NoSuchElementException();
 		}
 		return rows;
 	}
 
 	// 펫 이미지 단건 조회
-	public Pet getPetImage(Integer petId){
+	public Pet getPetImage(Integer petId) {
 		Pet image = petImageDao.selectPetImageByPetId(petId);
-		if(image == null || image.getPetAttachData() == null){
+		if (image == null || image.getPetAttachData() == null) {
 			throw new NoSuchElementException("이미지가 존재하지 않습니다");
 		}
 		return image;
@@ -157,29 +147,18 @@ public class PetService {
 	// 메인 페이지에서 펫 프로필 랜덤으로 불러오기
 	public List<Pet> getRandomPets(int limit) {
 		List<Pet> pets = petDao.selectRandomPets(limit);
-
-		for (Pet pet : pets) {
-			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
-			if (image != null) {
-				pet.setPetImageId(image.getPetImageId());
-				pet.setPetAttachOname(image.getPetAttachOname());
-				pet.setPetAttachType(image.getPetAttachType());
-				pet.setPetAttachData(image.getPetAttachData());
-			}
-		}
-
 		return pets;
 	}
 
 	/** 유저의 첫 번째 펫 정보 (없으면 null) */
 	public Pet getFirstPetInfoByUserId(int userId) {
-        return petDao.selectFirstPetInfoByUserId(userId);
-    }
+		return petDao.selectFirstPetInfoByUserId(userId);
+	}
 
 	/** 유저의 첫 번째 펫 이미지 URL (프론트에서 씀) */
-    public String getFirstPetImageUrlByUserId(int userId) {
-        Pet first = getFirstPetInfoByUserId(userId);
-        return (first != null) ? ("/pet/image/" + first.getPetId()) : null;
-    }
+	public String getFirstPetImageUrlByUserId(int userId) {
+		Pet first = getFirstPetInfoByUserId(userId);
+		return (first != null) ? ("/pet/image/" + first.getPetId()) : null;
+	}
 
 }

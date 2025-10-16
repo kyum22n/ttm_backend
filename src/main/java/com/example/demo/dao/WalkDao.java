@@ -1,5 +1,6 @@
 package com.example.demo.dao;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -30,10 +31,17 @@ public interface WalkDao {
   public int updateWalkStartedAt(
     @Param("requestOneId") Integer requestOneId, 
     @Param("userId") Integer userId);
+
+    // ✅ 추가: 시작/종료 시각 조회
+  public Timestamp selectWalkStartedAt(@Param("requestOneId") Integer requestOneId);
   // 1:1 산책 종료
   public int updateWalkEndedAt(
     @Param("requestOneId")Integer requestOneId, 
     @Param("userId")Integer userId);
+
+  // ✅ 추가: 종료 시각 조회
+  public Timestamp selectWalkEndedAt(@Param("requestOneId") Integer requestOneId);
+
   // 1:1 산책 식별 번호로 완료된 내역 불러오기
   public Walk selectEndedWalkByRequestOneId(@Param("requestOneId") Integer requestOneId);
   // 1:1 산책 기록 삭제
