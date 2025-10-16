@@ -58,68 +58,60 @@ public class UserService {
 		// 사용자 비밀번호 값 세팅
 		user.setUserPassword(encodedPassword);
 
-		// 로그인 아이디와 이메일 중복 체크
-		// 유저가 입력한 아이디가 DB에 존재하는지 확인하기 위해 select
-		// selectUserByLoginId는 DB값 있는지 검색 없으면 null
-		User dbUser = userDao.selectUserByLoginId(user.getUserLoginId()); // user.getUserLoginId()는 사용자가 입력한 아이디
-		// 이메일도 동일하게 체크
-		User dbUser2 = userDao.selectUserByEmail(user.getUserEmail());
-		// 경우에 따라서 null이라면 중복이기에 함수 종료
-		if (dbUser != null && dbUser2 != null) { // 아이디 + 이메일 둘 다 중복;
-			throw new DuplicateKeyException("이미 존재하는 아이디와 이메일입니다.");
-		} else if (dbUser != null) {// 이미 존재하는 아이디
-			throw new DuplicateKeyException("이미 존재하는 아이디입니다.");
+		// 중복 체크 — 중복 시 DuplicateKeyException 발생
+    		checkDuplicate(user.getUserLoginId(), user.getUserEmail());
 
-		} else if (dbUser2 != null) { // 이미 존재하는 이메일
-			throw new DuplicateKeyException("이미 존재하는 이메일입니다.");
-		} else {
-			// 회원 정보와 반려견 정보를 DB에 저장
-			userDao.insert(user);
-			// 실패하면 spring + myBatis가 내부에서 SQL Exception 을 잡아서
-			// 적절한 런타임 에러 (ex)DataIntegrityViolationException) 을 넣어줌
-			// 그리고 GlobalExceptionHandler에서 처리함
-			// 따라서 따로 throw 안해도 됨
+		// 회원 정보와 반려견 정보를 DB에 저장
+		userDao.insert(user);
+		// 실패하면 spring + myBatis가 내부에서 SQL Exception 을 잡아서
+		// 적절한 런타임 에러 (ex)DataIntegrityViolationException) 을 넣어줌
+		// 그리고 GlobalExceptionHandler에서 처리함
+		// 따라서 따로 throw 안해도 됨
 
-			// Pet에 userId 세팅 후 insert
-			// Pet에 userId는 외래키이기 때문
-			pet.setPetUserId(user.getUserId());
-			petDao.insertPet(pet);
+		// Pet에 userId 세팅 후 insert
+		// Pet에 userId는 외래키이기 때문
+		pet.setPetUserId(user.getUserId());
+		petDao.insertPet(pet);
 
-			// pet 이미지 파일을 첨부 받기 위해 사용
-			MultipartFile mf = pet.getPetAttach();
-			if (mf == null || mf.isEmpty()) {
-				throw new IOException("반려견 이미지는 필수 업로드입니다.");
-			}
-
-			pet.setPetAttachOname(mf.getOriginalFilename());
-			// 파일 타입 저장(png, jpeg)
-			pet.setPetAttachType(mf.getContentType());
-			// 파일 데이터 저장
-			pet.setPetAttachData(mf.getBytes());
-			petImageDao.insertPetImage(pet);
-
-			// db에 저장된 pet 정보 조회
-			Pet dbPet = petDao.selectByPetId(pet.getPetId());
-			// petImage 테이블에서 petId로 이미지 정보 조회
-			Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
-
-			// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
-			dbPet.setPetImageId(image.getPetImageId());
-			dbPet.setPetAttachOname(image.getPetAttachOname());
-			dbPet.setPetAttachType(image.getPetAttachType());
-			dbPet.setPetAttachData(image.getPetAttachData());
+		// pet 이미지 파일을 첨부 받기 위해 사용
+		MultipartFile mf = pet.getPetAttach();
+		if (mf == null || mf.isEmpty()) {
+			throw new IOException("반려견 이미지는 필수 업로드입니다.");
 		}
+
+		pet.setPetAttachOname(mf.getOriginalFilename());
+		// 파일 타입 저장(png, jpeg)
+		pet.setPetAttachType(mf.getContentType());
+		// 파일 데이터 저장
+		pet.setPetAttachData(mf.getBytes());
+		petImageDao.insertPetImage(pet);
+
+		// db에 저장된 pet 정보 조회
+		Pet dbPet = petDao.selectByPetId(pet.getPetId());
+		// petImage 테이블에서 petId로 이미지 정보 조회
+		Pet image = petImageDao.selectPetImageByPetId(pet.getPetId());
+
+		// image의 객체를 조회 하여 값이 있을 경우 받아온 정보를 dpPet에 추가함
+		dbPet.setPetImageId(image.getPetImageId());
+		dbPet.setPetAttachOname(image.getPetAttachOname());
+		dbPet.setPetAttachType(image.getPetAttachType());
+		dbPet.setPetAttachData(image.getPetAttachData());
+
 	}
 
 	public void checkDuplicate(String loginId, String email) {
-		User dbUser = userDao.selectUserByLoginId(loginId);
+		// 로그인 아이디와 이메일 중복 체크
+		// 유저가 입력한 아이디가 DB에 존재하는지 확인하기 위해 select
+		// selectUserByLoginId는 DB값 있는지 검색 없으면 null
+		User dbUser = userDao.selectUserByLoginId(loginId); // user.getUserLoginId()는 사용자가 입력한 아이디
+		// 이메일도 동일하게 체크
 		User dbUser2 = userDao.selectUserByEmail(email);
-
-		if (dbUser != null && dbUser2 != null) {
+		// 경우에 따라서 null이라면 중복이기에 함수 종료
+		if (dbUser != null && dbUser2 != null) { // 아이디 + 이메일 둘 다 중복
 			throw new DuplicateKeyException("이미 존재하는 아이디와 이메일입니다.");
-		} else if (dbUser != null) {
+		} else if (dbUser != null) { // 이미 존재하는 아이디
 			throw new DuplicateKeyException("이미 존재하는 아이디입니다.");
-		} else if (dbUser2 != null) {
+		} else if (dbUser2 != null) { // 이미 존재하는 이메일
 			throw new DuplicateKeyException("이미 존재하는 이메일입니다.");
 		}
 	}
@@ -194,5 +186,5 @@ public class UserService {
 	// (검색) 로그인 아이디로 유저 프로필 불러오기
 	public List<User> findByPartialLoginId(String keyword) {
 		return userDao.selectUserProfileByPartialLoginId(keyword);
-	};
+	}
 }

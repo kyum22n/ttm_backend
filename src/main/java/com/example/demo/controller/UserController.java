@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +48,7 @@ public class UserController {
 	@PostMapping("/join")
 	// 폼 데이터와 멀티파트 파일을 자동으로 바인딩함
 	// 멀티파트, 그리고 여러객체 떄문에 사용하게 됨
-	// multipartfioele 처리 할때 예외 처리 될 수 있음
+	// multipartfile 처리 할때 예외 처리 될 수 있음
 	// HTTP 응답 상태 코드, 헤더, 바디를 직접 제어하기 위해
 	// ResponseEntity
 	public ResponseEntity<Object> userJoin(@ModelAttribute User user, Pet pet) throws IOException {
@@ -85,8 +83,8 @@ public class UserController {
 	// 파라미터로 보냄
 	public ResponseEntity<Object> userInfo(@RequestParam("userId") Integer userId) {
 		Map<String, Object> map = new HashMap<>();
-		
-		// 유저 정보 불러오기 
+
+		// 유저 정보 불러오기
 		User user = userService.info(userId);
 
 		// 첫번째 pet 정보 가져와서 프로필 이미지로 사용
