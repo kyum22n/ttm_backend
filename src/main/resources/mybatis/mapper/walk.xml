@@ -36,7 +36,7 @@
     <select id="selectEndedWalkByRequestOneId" parameterType="Integer" resultType="Walk">
         select request_one_id, request_user_id, receive_user_id, created_at, rstatus, walkstarted_at, walkended_at
         from wone_requests
-        where request_one_id = #{requestOneId} 
+        where request_one_id = #{requestOneId}
             and walkended_at is not null
     </select>
 

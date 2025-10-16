@@ -2,19 +2,18 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dao.ChatMessageDao;
 import com.example.demo.dto.ChatMessage;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class ChatMessageService {
 
-  private final ChatMessageDao chatMessageDao;
+  @Autowired
+  private ChatMessageDao chatMessageDao;
 
   @Transactional(readOnly = true)
   public List<ChatMessage> history(int roomId, Integer beforeMessageId, int limit) {

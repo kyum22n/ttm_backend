@@ -2,19 +2,18 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dao.ChatRoomDao;
 import com.example.demo.dto.ChatRoom;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class ChatRoomService {
 
-  private final ChatRoomDao chatRoomDao;
+  @Autowired
+  private ChatRoomDao chatRoomDao;
 
   public ChatRoom getById(int roomId) {
     return chatRoomDao.selectById(roomId);
